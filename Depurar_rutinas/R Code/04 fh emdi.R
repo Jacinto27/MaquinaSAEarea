@@ -4,8 +4,6 @@
 ## Returns:      Estimación de Horvitz Thompson para los dominios             ##
 ## Author:       Stalyn Guerrero - Joel Mendez - Carlos Pena - Andrés Gutiérrez##
 ## Date:         01-2023                                                      ##
-## Este código intenta estimar la varianza para los valores cuya estimación   ##
-## directa tiene varianza 0 (incorrectamente)                                 ##
 ################################################################################
 
 
@@ -248,7 +246,7 @@ for (i in 1:D) {
   CD[i] = (1 / (q - 1)) * t(betaDiff) %*% (t(XS) %*% V %*% XS) %*% betaDiff
 }
 
-#TODO: Extraer los municipios que son excluidos del modelo
+# TODO: Extraer los municipios que son excluidos del modelo
 # dist_cook <- data.frame(cookDis = CD, 
 #            comuna = base_completa$id_municipio)
 # 

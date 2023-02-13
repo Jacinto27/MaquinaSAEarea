@@ -56,8 +56,11 @@ estimacionesPre <- readRDS("Data/estimaciones.Rds")
 fh_arcsin <- readRDS("Data/fh_arcsin.Rds")
 
 #------------------------ Tamaño poblacional por municipio -----------------------#
-encuestaDOM <- readRDS('Data/Script1/Data/encuestaDOM.Rds')
+personas_dominio <- readRDS('Data/personas_dominio.Rds') 
 
+personas_dominio_agregado <- readRDS('Data/encuestaDOMRegion.Rds') %>% 
+  rename(orden_region = grupo_region)%>% 
+  mutate(orden_region = as.character(orden_region))
 
 ################################################################################
 #----- Benchmark regional para las estimaciones SAE del modelo Fay-Herriot ----#
@@ -92,48 +95,22 @@ directoDepto <- disenoDOM %>%
             orden_region2 = as.character(orden_region),
             theta_depto = Rd)
 
-#--- Tamaño poblacional por depto ---#
-# con <-  dbConnect( odbc(),
-#                    Driver = "SQL Server",
-#                    Server = "IP_SERVER\\SQLSERVER_DEV",
-#                    Database = "SME",
-#                    Trusted_Connection = "True" )
-# 
-# encuestaDOMRegion <- dbGetQuery( con,"
-# select count(*) as 'hh_depto'
-# ,(case when REGION between 1 and 4  then 2
-#  when REGION between 5 and 7 then 3
-#  when REGION between 8 and 9 then 4
-#  when REGION=10 then 1 else null end ) as 'grupo_region'
-# from CENSO_RD_2010_PERSONAS group by (case when REGION between 1 and 4  then 2
-#  when REGION between 5 and 7 then 3
-#  when REGION between 8 and 9 then 4
-#  when REGION=10 then 1 else null end )
-# " )
-# 
-# dbDisconnect(con)
-# rm(con)
-# 
-# saveRDS(encuestaDOMRegion,'Data\\Script5\\encuestaDOMRegion.Rds')
-encuestaDOMRegion <- readRDS('Data/encuestaDOMRegion.Rds')
 
-encuestaDOMRegion$orden_region <-as.character(encuestaDOMRegion$grupo_region)
+
 directoDepto$orden_region <- as.character(directoDepto$orden_region2)
-encuestaDOM$orden_region <-as.character(encuestaDOM$grupo_region)
 estimacionesPre$Domain <-as.character(estimacionesPre$Domain)
-encuestaDOM$id_municipio <-as.character(encuestaDOM$id_municipio)
 
 #-- Consolidación BD: Región, Comuna, estimación región, estimación FH comuna -#
 
 R_mpio <- directoDepto %>% 
-  left_join(encuestaDOM, by = 'orden_region') %>%
-  left_join(encuestaDOMRegion, by = "orden_region") %>%
+  left_join(personas_dominio, by = 'orden_region') %>%
+  left_join(personas_dominio_agregado, by = "orden_region") %>%
   left_join(estimacionesPre %>% 
               transmute(Domain, FayHerriot = FH),
             by = c("id_municipio"='Domain')) %>% 
-  mutate(hh_mpio = total_mun)
+  mutate(hh_mpio = total_pp)
 
-#encuestaDOMRegion$hh_depto <- encuestaDOMRegion$`Total por region`
+#personas_dominio_agregado$hh_depto <- personas_dominio_agregado$`Total por region`
 #------------------------------- Pesos Benchmark ------------------------------#
 
 R_mpio2 <- R_mpio %>% 
@@ -144,16 +121,16 @@ R_mpio2 <- R_mpio %>%
   ) %>%
   left_join(directoDepto, by = "orden_region")
 
-pesos <- R_mpio %>% 
+pesos <- R_mpio %>%ungroup() %>% 
   mutate(W_i = hh_mpio / hh_depto) %>% 
   dplyr::select(id_municipio, W_i)
 
 #--------------------------- Estimación FH Benchmark --------------------------#
 
-estimacionesBench <- estimacionesPre %>%
+estimacionesBench <- estimacionesPre %>% 
   left_join(R_mpio %>% 
               dplyr::select(orden_region, id_municipio), by = c('Domain'="id_municipio")) %>%
-  left_join(R_mpio2, by = c("orden_region")) %>%
+  left_join(R_mpio2, by = c("orden_region")) %>% ungroup() %>% 
   mutate(FH_RBench = R_depto_RB * FH) %>%
   left_join(pesos, by = c("Domain" = "id_municipio"))
 
@@ -180,7 +157,7 @@ View(
 )
 
 
-abcdef <- estimacionesBench %>%
+temp_Bench <- estimacionesBench %>%
   transmute(
     Domain,
     Directo = Direct * 100,
@@ -221,7 +198,6 @@ ICL <- function(p, mse, alpha = 0.05, student = FALSE, nu = NULL) {
 }
 
 TablaFinal <- estimacionesBench %>%
-  dplyr::select(-c(grupo_region)) %>%
   mutate(
     sintetico = as.matrix(base_FH %>% data.frame() %>% 
                             dplyr::select(rownames(
@@ -270,20 +246,22 @@ a1 | a2
 
 #----------- Exportando salidas: estimaciones del modelo FH ajustado ----------#
 
-saveRDS(TablaFinal, 
-        'Data\\Script4\\TablaFinal.Rds')
-saveRDS(estimacionesBench, 
-        'Data\\Script4\\estimacionesBench.Rds')
+saveRDS(TablaFinal, 'Data/TablaFinal.Rds')
+saveRDS(estimacionesBench, 'Data/estimacionesBench.Rds')
 
 
 
 poligonos_municipio <- poligonos_comuna
 poligonos_municipio$ENLACE <- as.numeric(poligonos_municipio$ENLACE) 
-abcdef$Domain <- as.numeric(abcdef$Domain)
-poligonos_municipio@data <- poligonos_municipio@data %>%
-  left_join( abcdef, by = c( "ENLACE"="Domain" ) ) %>%
+temp_Bench$Domain <- as.numeric(temp_Bench$Domain)
+poligonos_municipio <- poligonos_municipio %>%
+  left_join( temp_Bench, by = c( "ENLACE"="Domain" ) ) %>%
   mutate( fh_porc = FH_RBench )
 
+plot(poligonos_municipio["fh_porc"])
+
+
+tmap_options(check.and.fix = TRUE)
 mapa <- tm_shape( poligonos_municipio ) +
   tm_fill( "fh_porc", style = "quantile", title="Tasa de informalidad" ) +
   tm_borders( col = "black", lwd=1, lty = "solid") +

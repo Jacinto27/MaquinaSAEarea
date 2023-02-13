@@ -2,10 +2,9 @@
 ## Title:        Modelo Fay Herriot para estimaciones directas utilizando     ##
 ##               transformación arcoseno y FGV                                ##
 ## Returns:      Estimación de Horvitz Thompson para los dominios             ##
-## Author:       Stalyn Guerrero - Joel Mendez - Carlos Pena - Andrés Gutiérrez##
+## Author:       Joel Mendez - Carlos Pena - Stalyn Guerrero- Andrés Gutiérrez##
 ## Date:         01-2023                                                      ##
-## Este código intenta estimar la varianza para los valores cuya estimación   ##
-## directa tiene varianza 0 (incorrectamente)                                 ##
+## El código es empleado para estimar el modelo de área de FH                 ##
 ################################################################################
 
 ###--- Limpieza de memoria ---###
@@ -48,20 +47,26 @@ lapply(
 rm(lista_paquetes)
 
 #-------------------- Variables + estimación directa + FGV --------------------#
-
+## Renombrado variables y haciendo el cambio de escala
 base_FH <- readRDS('Data/base_FH.Rds') #Estimación Directa + FGV
-auxiliar_org <- readRDS("Data/auxiliar_org.Rds" ) %>% 
-  mutate_at(.vars = c("F182013_stable_lights",
-                      "X2016_crops.coverfraction",
-                      "X2016_urban.coverfraction",
-                      "accessibility",
-                      "accessibility_walking_only"),
-            scale) %>%
-  rename(luces_nocturnas = F182013_stable_lights,
-         cubrimiento_rural = X2016_crops.coverfraction,
-         cubrimiento_urbano = X2016_urban.coverfraction,
-         accesibilidad_hospitales = accessibility,
-         accesibilidad_hosp_caminado = accessibility_walking_only)
+auxiliar_org <- readRDS("Data/auxiliar_org.Rds") %>%
+  mutate_at(
+    .vars = c(
+      "F182013_stable_lights",
+      "X2016_crops.coverfraction",
+      "X2016_urban.coverfraction",
+      "accessibility",
+      "accessibility_walking_only"
+    ),
+    function(x) as.numeric(scale(x))
+  ) %>%
+  rename(
+    luces_nocturnas = F182013_stable_lights,
+    cubrimiento_rural = X2016_crops.coverfraction,
+    cubrimiento_urbano = X2016_urban.coverfraction,
+    accesibilidad_hospitales = accessibility,
+    accesibilidad_hosp_caminado = accessibility_walking_only
+  )
 
 
    #Variables 

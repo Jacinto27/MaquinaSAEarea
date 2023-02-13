@@ -2,7 +2,7 @@
 ## Title:        Modelo Fay Herriot para estimaciones directas utilizando     ##
 ##               transformación arcoseno y FGV                                ##
 ## Returns:      Estimación de Horvitz Thompson para los dominios             ##
-## Author:       Stalyn Guerrero - Joel Mendez - Carlos Pena - Andrés Gutiérrez##
+## Author:       Joel Mendez - Carlos Pena - Stalyn Guerrero- Andrés Gutiérrez##
 ## Date:         01-2023                                                      ##
 ## Este código intenta estimar la varianza para los valores cuya estimación   ##
 ## directa tiene varianza 0 (incorrectamente)                                 ##
@@ -16,34 +16,34 @@ library(patchwork)
 
 id_dominio <- "id_municipio"
 
+## Lectura de indicadores estimados en el paso anterior. 
 
 indicador_dom <- readRDS('Data/indicador_dom.Rds')
+
+## Leer información auxiliar
 auxiliar_org <- readRDS('Data/auxiliar_org.Rds') %>% 
   mutate_at(.vars = id_dominio, as.character)
 
-
+## Uniendo las bases de datos 
 indicador_dom <-
   left_join(indicador_dom, (
-    auxiliar_org %>% select('id_municipio', 'Area_km', 'ZONA_Rur', 'Densidad_Pob')
-  ), by = 'id_municipio')
+    auxiliar_org %>% select(all_of(id_dominio), 'Area_km',
+                            'ZONA_Rur', 'Densidad_Pob')
+  ), by = id_dominio)
 
 #Leer data
 
 # Filtrar valores para obtener solo aquellos que puedan 
 # estimar bién la varianza --------
 
+# Se filtran los valores, esto es subjetivo, pero se excluyen todos los tengan 
+# varianza 0, y todos los que tengan un deff mayor que 1
 
-# d1 <- d %>% filter(Rd_var>0 & Rd_deff>1 & Rd_var<20)
-# d1 <- d 
-# d1 <- d %>% filter( Rd_deff>1 )
 indicador_dom1 <- indicador_dom %>% 
-  filter(Rd_var>0 & Rd_deff>=1) #Se filtran los valores, esto es subjetivo, pero se excluyen todos los tengan varianza 0, y todos los que tengan un deff mayor que 1
-# d1 <- d %>% filter(Rd_var>0)
-#d1 <- d %>% filter((Rd_var>0 & Rd_deff>1) | Rd_cv<20 )
-#d1 <- d %>% filter(Rd_var>0 & Rd_cv<1 &Rd_deff>1)
-# Agregar 
+  filter(Rd_var>0 & Rd_deff>=1) 
 
 ############Plots de la data#########
+
 baseFGV <-  indicador_dom1 %>%  
   dplyr::select(id_dominio , Rd, n, Rd_var, Area_km) %>%
   mutate(ln_sigma2 = log(Rd_var))
@@ -88,21 +88,22 @@ summary(FGV1)
 #Esto es una función lineal con parametros recomendados por CEPAL
 ##Resultados del summary
 
-# Residual standard error: 0.6269 on 81 degrees of freedom
-# Multiple R-squared:  0.6477,	Adjusted R-squared:  0.6173 
-# F-statistic: 21.28 on 7 and 81 DF,  p-value: 5.432e-16
+# Residual standard error: 0.5994 on 80 degrees of freedom
+# Multiple R-squared:  0.6985,	Adjusted R-squared:  0.6684 
+# F-statistic: 23.17 on 8 and 80 DF,  p-value: < 2.2e-16
 
 #-----------Estimación de valores excluidos--------------
-delta.hat = sum(baseFGV$Rd_var) / 
-  sum(exp(fitted.values(FGV1)))
+## Determinar el valor de la constante delta. 
+
+delta.hat = sum(baseFGV$Rd_var) / sum(exp(fitted.values(FGV1)))
 delta.hat
-#1.236742
+#1.22868
 hat.sigma <- data.frame(id_municipio = baseFGV$id_municipio,
                         hat_var = delta.hat * exp(fitted.values(FGV1)))
-baseFGV$ln_sigma2_pred <- hat.sigma$hat_var
+baseFGV$hat_var <- hat.sigma$hat_var
 
 # =============Plot de las estimaciones=================
-
+X11()
 par(mfrow = c(2, 2))
 
 #Plot1
@@ -111,17 +112,13 @@ plot(FGV1)
 
 #Plot2
 ggplot(baseFGV, 
-       aes(x = ln_sigma2, y = ln_sigma2_pred)) + 
+       aes(x = Rd_var, y = hat_var)) + 
   geom_point() +
   geom_smooth(method = "loess")
 
 
 #------------Unir las estimaciones con la data original-------------
-indicador_dom$prediccion_ln_0 = 
-  predict(FGV1, newdata = indicador_dom %>%
-                              filter(
-                                # (Rd_var == 0 & Rd_deff<=1 ) &
-                                !is.na(Rd))) 
+indicador_dom$prediccion_ln_0 = predict(FGV1, newdata = indicador_dom)
 
 base_sae <- indicador_dom %>% 
   left_join(hat.sigma, by = id_dominio)
@@ -135,10 +132,8 @@ base_sae$hat_var <-
 ##
 base_FH <- base_sae %>%
   mutate(
-    Rd_deff = ifelse(is.nan(Rd_deff), 1,
-                     Rd_deff),
-    deff_FGV = ifelse(
-      Rd_var == 0 ,
+    Rd_deff = ifelse(is.nan(Rd_deff), 1, Rd_deff),
+    deff_FGV = ifelse(Rd_var == 0 ,
       1,
       hat_var / (Rd_var / Rd_deff) #Fórmula del nuevo DEFF
     ),

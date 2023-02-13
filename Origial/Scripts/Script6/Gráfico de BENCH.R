@@ -1,8 +1,8 @@
 library(plotly)
 library(dplyr)
-encuestaDOM <-  readRDS("\\\\10.0.2.93\\Monitoreo y Evaluación\\Proyecto Estimación de Áreas Pequeñas\\Informalidad\\Script1\\Data\\encuestaDOM.Rds")
-tablafinal <- readRDS('\\\\10.0.2.93\\Monitoreo y Evaluación\\Proyecto Estimación de Áreas Pequeñas\\Informalidad\\Script4\\TablaFinal.Rds')
-estimacionesBench <- readRDS('\\\\10.0.2.93\\Monitoreo y Evaluación\\Proyecto Estimación de Áreas Pequeñas\\Informalidad\\Script4\\estimacionesBench.Rds')
+encuestaDOM <-  readRDS("Data\\Script1\\Data\\encuestaDOM.Rds")
+tablafinal <- readRDS('Data\\Script4\\TablaFinal.Rds')
+estimacionesBench <- readRDS('Data\\Script4\\estimacionesBench.Rds')
 
 
 a <- estimacionesBench %>% 

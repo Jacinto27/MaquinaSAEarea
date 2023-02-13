@@ -49,7 +49,7 @@ library(dplyr)
 #--------------- Variables auxiliares + estimación directa + FGV --------------
 
 poligonos_comuna <- read_sf( "Data/Script4/shapefiles2010/MUNCenso2010.shp")
-# poligonos_provincia <- readOGR( " \\\\10.0.2.93 \\Monitoreo y Evaluación\\Proyecto Estimación de Áreas Pequeñas\\SAERD-CPL-MEPyD\\Script4\\Data\\shapefiles2010\\PROVCenso2010.shp" )
+# poligonos_provincia <- readOGR("Data/Script4/shapefiles2010/PROVCenso2010.shp")
 
 ###    Se excluyen algunas comunas que no tienen proximidad para el modelo   ###
 ###                    (Islas: Pascua y Juan Fernandez)                      ###
@@ -103,9 +103,8 @@ fh_arcsin <-
 # rm(con)
 # 
 # saveRDS(encuestaDOM, 'Data\\Script5\\encuestaDOM.Rds')
-encuestaDOM <- readRDS('Data/Script1/Data/encuestaDOM.Rds')
-
-
+encuestaDOM <- readRDS('Data/Script5/personas_dominio.Rds') %>% 
+  mutate(id_dominio = as.numeric(id_dominio))
 ################################################################################
 #----- Benchmark regional para las estimaciones SAE del modelo Fay-Herriot ----#
 ################################################################################
@@ -116,7 +115,9 @@ encuestaDOM <- readRDS('Data/Script1/Data/encuestaDOM.Rds')
 #--- Estimación directa por depto ---#
 encuesta <-
   encuesta %>% 
-  mutate(upm = as.character(upm), estrato = as.character(estrato),factor_anual=factor_expansion/4)
+  mutate(upm = as.character(upm),
+         estrato = as.character(estrato),
+         factor_anual=factor_expansion/4)
 
 disenoDOM <- encuesta %>%
   as_survey_design(
@@ -159,12 +160,11 @@ directoDepto <- disenoDOM %>%
 # 
 # saveRDS(encuestaDOMRegion,'Data\\Script5\\encuestaDOMRegion.Rds')
 encuestaDOMRegion <- readRDS('Data\\Script5\\encuestaDOMRegion.Rds')
-
 encuestaDOMRegion$orden_region <-as.character(encuestaDOMRegion$grupo_region)
 directoDepto$orden_region <- as.character(directoDepto$orden_region2)
-encuestaDOM$orden_region <-as.character(encuestaDOM$grupo_region)
+encuestaDOM$orden_region <-as.character(encuestaDOM$orden_region)
 estimacionesPre$Domain <-as.character(estimacionesPre$Domain)
-encuestaDOM$id_municipio <-as.character(encuestaDOM$id_municipio)
+encuestaDOM$id_municipio <-as.character(encuestaDOM$id_dominio)
 
 #-- Consolidación BD: Región, Comuna, estimación región, estimación FH comuna -#
 
@@ -174,7 +174,7 @@ R_mpio <- directoDepto %>%
   left_join(estimacionesPre %>% 
               transmute(Domain, FayHerriot = FH),
             by = c("id_municipio"='Domain')) %>% 
-  mutate(hh_mpio = total_mun)
+  mutate(hh_mpio = total_pp)
 
 #encuestaDOMRegion$hh_depto <- encuestaDOMRegion$`Total por region`
 #------------------------------- Pesos Benchmark ------------------------------#
@@ -323,12 +323,12 @@ saveRDS(estimacionesBench,
 poligonos_municipio <- poligonos_comuna
 poligonos_municipio$ENLACE <- as.numeric(poligonos_municipio$ENLACE) 
 abcdef$Domain <- as.numeric(abcdef$Domain)
-poligonos_municipio@data <- poligonos_municipio@data %>%
+poligonos_municipio <- poligonos_municipio %>%
   left_join( abcdef, by = c( "ENLACE"="Domain" ) ) %>%
   mutate( fh_porc = FH_RBench )
 
 mapa <- tm_shape( poligonos_municipio ) +
-  tm_fill( "fh_porc", style = "quantile", title="Tasa de informalidad" ) +
+  tm_fill( "fh_porc", style = "quantile", title = "Tasa de informalidad" ) +
   tm_borders( col = "black", lwd=1, lty = "solid") +
   tm_layout( #"Wealth (or so)",
     legend.title.size = 1,
