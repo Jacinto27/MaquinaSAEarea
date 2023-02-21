@@ -14,7 +14,7 @@ library(readxl)
 library(tmap)
 library(sp)
 library(sf)
-
+setwd("Depurar_rutinas/")
 ## Lectura de encuesta. 
 encuestaDOM <-  readRDS("Data/encuestaDOM.Rds") 
 

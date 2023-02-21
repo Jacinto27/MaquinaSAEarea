@@ -26,7 +26,6 @@ library(odbc)
 # ES TRIMESTRAL, Y SU AGRUPACIÓN ANUAL IMPLICA QUE EL FACTOR EXPANSIÓN SEA 
 # DIVIDIDO ENTRE 4 
 #-------------------------------------------------------------------------------
-setwd("Depurar_rutinas/")
 encuestaDOM <-  readRDS("Data/encuestaDOM.Rds")
 id_dominio <- "id_dominio"
 ## 

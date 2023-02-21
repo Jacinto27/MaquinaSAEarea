@@ -103,16 +103,15 @@ ggplot(baseFGV,
 
 #------------Unir las estimaciones con la data original-------------
 base_sae <- left_join(indicador_dom,
-           baseFGV %>% select(id_dominio, hat_var), by = id_dominio) %>% 
-  mutate(Rd_var = ifelse(is.na(hat_var),NA_real_,Rd_var),
-         Rd_deff = ifelse(is.na(hat_var),NA_real_,Rd_deff))
-
+                      baseFGV %>% select(id_dominio, hat_var), by = id_dominio) %>%
+  mutate(
+    Rd_var = ifelse(is.na(hat_var), NA_real_, Rd_var),
+    Rd_deff = ifelse(is.na(hat_var), NA_real_, Rd_deff)
+  )
 
 ######################################################
 
 #----------Transformación de la data para consumo final-------------------
-
-
 ##
 base_FH <- base_sae %>%
   mutate(
@@ -144,26 +143,26 @@ ggplot(base_FH %>% filter(!is.na(hat_var)) %>%
 
 #########################3#########################
 nDom <- sum(!is.na(base_FH$hat_var))
-ggplot(base_FH %>% 
-         filter(!is.na(hat_var)) %>% 
+temp_FH <- base_FH %>% filter(!is.na(hat_var))
+ggplot(temp_FH %>% 
          arrange(n), aes(x = 1:nDom)) +
   geom_line(aes(y = Rd_var, color = "VarDirEst")) +
   geom_line(aes(y = hat_var, color = "FGV")) +
   labs(y = "Varianzas", x = "Tamaño muestral", color = " ") +
-  scale_x_continuous(breaks = seq(1, nDom, by = 5),
-                     labels = base_FH$n[order(base_FH$n)][seq(1, nDom, by = 5)]) +
+  scale_x_continuous(breaks = seq(1, nDom, by = 10),
+                     labels = temp_FH$n[order(temp_FH$n)][seq(1, nDom, by = 10)]) +
   scale_color_manual(values = c("FGV" = "Blue", "VarDirEst" = "Red"))
 
 ###     Comparación del tamaño de muestra efectivo respecto al tamaño de     ###
-###                             muestra en la comuna                         ###
+###                             muestra                                      ###
 
-ggplot(base_FH %>% filter(!is.na(hat_var)) %>% 
+ggplot(temp_FH %>% 
          arrange(n), aes(x = 1:nDom)) +
   geom_line(aes(y =  n / Rd_deff, color = "n_eff_DIR")) +
   geom_line(aes(y = n_eff_FGV, color = "n_eff_FGV")) +
   labs(y = "Tamaño de muestra efectivo", 
        x = "Tamaño muestral", color = " ") +
-  scale_x_continuous(breaks = seq(1, nDom, by = 5),
-                     labels = base_FH$n[order(base_FH$n)][seq(1, nDom, by = 5)]) +
+  scale_x_continuous(breaks = seq(1, nDom, by = 10),
+                     labels = temp_FH$n[order(temp_FH$n)][seq(1, nDom, by = 10)]) +
   scale_color_manual(values = c("n_eff_FGV" = "Blue", "n_eff_DIR" = "red"))
 

@@ -105,7 +105,7 @@ R_mpio2 <- R_mpio %>%
   ) %>%
   left_join(directoDepto, by = "id_region")
 
-pesos <- R_mpio %>%ungroup() %>% 
+pesos <- R_mpio %>% ungroup() %>% 
   mutate(W_i = pp_dominio / pp_region) %>% 
   dplyr::select(id_dominio, W_i)
 
@@ -252,5 +252,5 @@ mapa <- tm_shape( poligonos_dominios ) +
     legend.bg.color = "white",
     legend.stack = "horizontal",
     #legend.digits = 5,
-    legend.bg.alpha = 0.1) +
-  tm_shape( poligonos_provincia )
+    legend.bg.alpha = 0.1) 
+mapa

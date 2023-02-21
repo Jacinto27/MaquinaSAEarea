@@ -336,5 +336,5 @@ W2 <- W[fil, fil]
 
 spatialcor.tests(estimaciones$FH[fil], W2)
 #TODO: Crear los valores del FH_BENCH para comparar los datos ajustados ESTÉTICAMENTE
-#spatialcor.tests(estimaciones$FH_MSE[fil], W2) #preguntar sobre esto
+
 

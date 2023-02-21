@@ -17,38 +17,24 @@ gc()
 #######################
 
 ########### CARGANDO PAQUETES (INSTALA AUTOMATICAMENTE SI NO ESTAN EN EL COMPUTADOR)
-lista_paquetes <-
-  c(
-    "survey",
-    "srvyr",
-    "TeachingSampling",
-    "stringr",
-    "magrittr",
-    "sae",
-    "ggplot2",
-    "emdi",
-    "patchwork",
-    "readxl",
-    "dplyr"
-  )
-
-lapply(
-  lista_paquetes,
-  FUN = function(x) {
-    if (!require(x, character.only = TRUE)) {
-      install.packages(x, dependencies = TRUE)
-      library(x, character.only = TRUE)
-    }
-  }
-)
-
+library(survey)
+library(srvyr)
+library(TeachingSampling)
+library(stringr)
+library(magrittr)
+library(sae)
+library(ggplot2)
+library(emdi)
+library(patchwork)
+library(readxl)
+library(tidyverse)
 
 
 rm(lista_paquetes)
 
-#-------------------- Variables + estimación directa + FGV --------------------#
-## Renombrado variables y haciendo el cambio de escala
+#--------------------  estimación directa + FGV --------------------#
 base_FH <- readRDS('Data/base_FH.Rds') #Estimación Directa + FGV
+# Variables predicadoras 
 statelevel_predictors <- readRDS("Data/statelevel_predictors_df.rds")
 id_dominio <- "id_dominio"
 
