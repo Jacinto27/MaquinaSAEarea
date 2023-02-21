@@ -1,13 +1,12 @@
 ################################################################################
 ## Title:        Modelo Fay Herriot para estimaciones directas utilizando     ##
 ##               transformación arcoseno y FGV                                ##
-## Returns:      Estimación de Horvitz Thompson para los dominios             ##
 ## Author:       Stalyn Guerrero - Joel Mendez - Carlos Pena - Andrés Gutiérrez##
 ## Date:         01-2023                                                      ##
 ################################################################################
 
 ###--- Limpieza de memoria ---###
-.libPaths('C://R pack')
+# .libPaths('C://R pack')
 rm(list = ls())
 gc()
 
@@ -37,16 +36,12 @@ library(dplyr)
 
 #--------------- Variables auxiliares + estimación directa + FGV --------------
 
-poligonos_comuna <- read_sf( "shapefiles2010/MUNCenso2010.shp") %>%
-  mutate(
-  ENLACE = substring(ENLACE,3),
-  ENLACE = as.numeric(ENLACE)
-) 
+poligonos_dominios <- read_sf( "shapefiles2010/DOM.shp") 
+id_dominio <- "id_dominio"
 #--------------------------------------------#
 base_completa <- readRDS('Data/base_completa.Rds')
 estimacion <- readRDS('Data/estimaciones.Rds')
-base_FH <- left_join(base_completa, estimacion,
-                     by = c('id_municipio' = 'Domain'))
+base_FH <- left_join(base_completa, estimacion,   by = id_dominio)
 encuesta <- readRDS("Data/encuestaDOM.Rds")
 
 
@@ -56,11 +51,8 @@ estimacionesPre <- readRDS("Data/estimaciones.Rds")
 fh_arcsin <- readRDS("Data/fh_arcsin.Rds")
 
 #------------------------ Tamaño poblacional por municipio -----------------------#
-personas_dominio <- readRDS('Data/personas_dominio.Rds') 
-
-personas_dominio_agregado <- readRDS('Data/encuestaDOMRegion.Rds') %>% 
-  rename(orden_region = grupo_region)%>% 
-  mutate(orden_region = as.character(orden_region))
+personas_dominio <- readRDS('Data/agregado_persona_dominio.rds') 
+personas_dominio_agregado <- readRDS('Data/agregado_persona_region.rds') 
 
 ################################################################################
 #----- Benchmark regional para las estimaciones SAE del modelo Fay-Herriot ----#
@@ -72,7 +64,7 @@ encuesta <-
     upm = str_pad(string = upm,width = 9,pad = "0"),
     estrato = str_pad(string = estrato,width = 5,pad = "0"),
     factor_anual = factor_expansion / 4
-  )
+  ) %>% data.frame()
 
 disenoDOM <- encuesta %>%
   as_survey_design(
@@ -83,7 +75,7 @@ disenoDOM <- encuesta %>%
   )
 
 directoDepto <- disenoDOM %>%
-  group_by(grupo_region, orden_region) %>% 
+  group_by(id_region) %>% 
   filter(ocupado == 1 & pet == 1) %>%
   summarise(Rd = survey_ratio(
     numerator = orden_sector == 2 ,
@@ -91,56 +83,49 @@ directoDepto <- disenoDOM %>%
     vartype = c("se", "ci", "var", "cv"),
     deff = T
   )) %>% ##ARREGLAR VALOR AQUI
-  transmute(grupo_region,
-            orden_region2 = as.character(orden_region),
-            theta_depto = Rd)
-
-
-
-directoDepto$orden_region <- as.character(directoDepto$orden_region2)
-estimacionesPre$Domain <-as.character(estimacionesPre$Domain)
+  transmute(id_region, theta_region = Rd)
 
 #-- Consolidación BD: Región, Comuna, estimación región, estimación FH comuna -#
 
 R_mpio <- directoDepto %>% 
-  left_join(personas_dominio, by = 'orden_region') %>%
-  left_join(personas_dominio_agregado, by = "orden_region") %>%
+  left_join(personas_dominio, by = 'id_region') %>%
+  left_join(personas_dominio_agregado, by = "id_region") %>%
   left_join(estimacionesPre %>% 
-              transmute(Domain, FayHerriot = FH),
-            by = c("id_municipio"='Domain')) %>% 
-  mutate(hh_mpio = total_pp)
+              transmute(id_dominio, FayHerriot = FH),
+            by = id_dominio) %>% 
+  data.frame()
 
-#personas_dominio_agregado$hh_depto <- personas_dominio_agregado$`Total por region`
 #------------------------------- Pesos Benchmark ------------------------------#
 
 R_mpio2 <- R_mpio %>% 
-  group_by(orden_region) %>% 
+  group_by(id_region) %>% 
   summarise(
-    R_depto_RB = unique(theta_depto) / sum((hh_mpio  / hh_depto) * FayHerriot),
-    R_depto_DB = unique(theta_depto) - sum((hh_mpio  / hh_depto) * FayHerriot)
+    R_region_RB = unique(theta_region) / sum((pp_dominio  / pp_region ) * FayHerriot),
+    R_region_DB = unique(theta_region) - sum((pp_dominio  / pp_region ) * FayHerriot)
   ) %>%
-  left_join(directoDepto, by = "orden_region")
+  left_join(directoDepto, by = "id_region")
 
 pesos <- R_mpio %>%ungroup() %>% 
-  mutate(W_i = hh_mpio / hh_depto) %>% 
-  dplyr::select(id_municipio, W_i)
+  mutate(W_i = pp_dominio / pp_region) %>% 
+  dplyr::select(id_dominio, W_i)
 
 #--------------------------- Estimación FH Benchmark --------------------------#
 
 estimacionesBench <- estimacionesPre %>% 
   left_join(R_mpio %>% 
-              dplyr::select(orden_region, id_municipio), by = c('Domain'="id_municipio")) %>%
-  left_join(R_mpio2, by = c("orden_region")) %>% ungroup() %>% 
-  mutate(FH_RBench = R_depto_RB * FH) %>%
-  left_join(pesos, by = c("Domain" = "id_municipio"))
+              dplyr::select(id_region, id_dominio), 
+            by = id_dominio) %>%
+  left_join(R_mpio2, by = c("id_region")) %>% ungroup() %>% 
+  mutate(FH_RBench = R_region_RB * FH) %>%
+  left_join(pesos, by = id_dominio)
 
 #------------------- Validación: Estimación FH con Benchmark ------------------#
 
 #--- Comparación entre el valor reportado y el valor estimado FH Benchmark ---#
 
-estimacionesBench %>% group_by(orden_region) %>%
+estimacionesBench %>% group_by(id_region) %>%
   summarise(theta_reg_RB = sum(W_i * FH_RBench)) %>%
-  left_join(directoDepto, by = "orden_region") %>% 
+  left_join(directoDepto, by = "id_region") %>% 
   View()
 
 #--- Comparación entre estimación FH y FH con Benchmark por comuna ---#
@@ -148,7 +133,7 @@ estimacionesBench %>% group_by(orden_region) %>%
 View(
   estimacionesBench %>%
     transmute(
-      Domain,
+      id_dominio,
       Directo = Direct * 100,
       FayHerriot = FH * 100,
       FH_RBench = FH_RBench * 100,
@@ -159,7 +144,7 @@ View(
 
 temp_Bench <- estimacionesBench %>%
   transmute(
-    Domain,
+    id_dominio,
     Directo = Direct * 100,
     FayHerriot = FH * 100,
     FH_RBench = FH_RBench * 100,
@@ -207,7 +192,7 @@ TablaFinal <- estimacionesBench %>%
     sintetico_back = sin(sintetico) ^ 2
   ) %>%
   transmute(
-    Codigo = Domain,
+    id_dominio,
     n_muestral = n,
     Directo = Direct,
     ee_directo = sqrt(Direct_MSE),
@@ -249,20 +234,15 @@ a1 | a2
 saveRDS(TablaFinal, 'Data/TablaFinal.Rds')
 saveRDS(estimacionesBench, 'Data/estimacionesBench.Rds')
 
-
-
-poligonos_municipio <- poligonos_comuna
-poligonos_municipio$ENLACE <- as.numeric(poligonos_municipio$ENLACE) 
-temp_Bench$Domain <- as.numeric(temp_Bench$Domain)
-poligonos_municipio <- poligonos_municipio %>%
-  left_join( temp_Bench, by = c( "ENLACE"="Domain" ) ) %>%
+poligonos_dominios <- poligonos_dominios %>%
+  left_join( temp_Bench, by = id_dominio ) %>%
   mutate( fh_porc = FH_RBench )
 
-plot(poligonos_municipio["fh_porc"])
+plot(poligonos_dominios["fh_porc"])
 
 
 tmap_options(check.and.fix = TRUE)
-mapa <- tm_shape( poligonos_municipio ) +
+mapa <- tm_shape( poligonos_dominios ) +
   tm_fill( "fh_porc", style = "quantile", title="Tasa de informalidad" ) +
   tm_borders( col = "black", lwd=1, lty = "solid") +
   tm_layout( #"Wealth (or so)",
@@ -273,7 +253,4 @@ mapa <- tm_shape( poligonos_municipio ) +
     legend.stack = "horizontal",
     #legend.digits = 5,
     legend.bg.alpha = 0.1) +
-  tm_shape( poligonos_provincia ) +
-  tm_borders( col = "black", lwd = 3, lty = "solid") 
-tm_legend(position=c("left", "bottom"), bg.color="grey95", frame=TRUE)
-
+  tm_shape( poligonos_provincia )

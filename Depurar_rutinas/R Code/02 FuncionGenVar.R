@@ -9,29 +9,17 @@
 ################################################################################
 
 rm(list = ls())
-.libPaths('C:/R packs')
+# .libPaths('C:/R packs')
 library(ggplot2)
 library(dplyr)
 library(patchwork)
+select <- dplyr::select
 
-id_dominio <- "id_municipio"
+id_dominio <- "id_dominio"
 
 ## Lectura de indicadores estimados en el paso anterior. 
 
 indicador_dom <- readRDS('Data/indicador_dom.Rds')
-
-## Leer información auxiliar
-auxiliar_org <- readRDS('Data/auxiliar_org.Rds') %>% 
-  mutate_at(.vars = id_dominio, as.character)
-
-## Uniendo las bases de datos 
-indicador_dom <-
-  left_join(indicador_dom, (
-    auxiliar_org %>% select(all_of(id_dominio), 'Area_km',
-                            'ZONA_Rur', 'Densidad_Pob')
-  ), by = id_dominio)
-
-#Leer data
 
 # Filtrar valores para obtener solo aquellos que puedan 
 # estimar bién la varianza --------
@@ -45,7 +33,7 @@ indicador_dom1 <- indicador_dom %>%
 ############Plots de la data#########
 
 baseFGV <-  indicador_dom1 %>%  
-  dplyr::select(id_dominio , Rd, n, Rd_var, Area_km) %>%
+  dplyr::select(id_dominio , Rd, n, Rd_var) %>%
   mutate(ln_sigma2 = log(Rd_var))
 
 p1 <- ggplot(baseFGV, aes(x = Rd, y = ln_sigma2)) +
@@ -80,10 +68,9 @@ rm('p1','p2','p3','p4')
 FGV1 <- lm(ln_sigma2 ~ 1 + Rd + 
              n + I(n ^ 2) + I(Rd * n) +
              I(sqrt(Rd)) + I(sqrt(n)) + 
-             I(sqrt(Rd * n))+
-           I(Area_km)
-           ,
+             I(sqrt(Rd * n)) ,
            data = baseFGV)
+
 summary(FGV1)
 #Esto es una función lineal con parametros recomendados por CEPAL
 ##Resultados del summary
@@ -97,10 +84,9 @@ summary(FGV1)
 
 delta.hat = sum(baseFGV$Rd_var) / sum(exp(fitted.values(FGV1)))
 delta.hat
-#1.22868
-hat.sigma <- data.frame(id_municipio = baseFGV$id_municipio,
-                        hat_var = delta.hat * exp(fitted.values(FGV1)))
-baseFGV$hat_var <- hat.sigma$hat_var
+#1.236474
+baseFGV <-
+  baseFGV %>% mutate(hat_var = delta.hat * exp(fitted.values(FGV1)))
 
 # =============Plot de las estimaciones=================
 X11()
@@ -108,8 +94,6 @@ par(mfrow = c(2, 2))
 
 #Plot1
 plot(FGV1)
-
-
 #Plot2
 ggplot(baseFGV, 
        aes(x = Rd_var, y = hat_var)) + 
@@ -118,13 +102,13 @@ ggplot(baseFGV,
 
 
 #------------Unir las estimaciones con la data original-------------
-indicador_dom$prediccion_ln_0 = predict(FGV1, newdata = indicador_dom)
+base_sae <- left_join(indicador_dom,
+           baseFGV %>% select(id_dominio, hat_var), by = id_dominio) %>% 
+  mutate(Rd_var = ifelse(is.na(hat_var),NA_real_,Rd_var),
+         Rd_deff = ifelse(is.na(hat_var),NA_real_,Rd_deff))
 
-base_sae <- indicador_dom %>% 
-  left_join(hat.sigma, by = id_dominio)
 
-base_sae$hat_var <-
-  delta.hat * exp(indicador_dom$prediccion_ln_0)
+######################################################
 
 #----------Transformación de la data para consumo final-------------------
 
@@ -157,4 +141,29 @@ ggplot(base_FH %>% filter(!is.na(hat_var)) %>%
   geom_smooth(method = "lm", col = 2) + 
   labs(x = "FGV", y = "VaRdirEst") +
   ylab("Varianza del Estimador Directo")
+
+#########################3#########################
+nDom <- sum(!is.na(base_FH$hat_var))
+ggplot(base_FH %>% 
+         filter(!is.na(hat_var)) %>% 
+         arrange(n), aes(x = 1:nDom)) +
+  geom_line(aes(y = Rd_var, color = "VarDirEst")) +
+  geom_line(aes(y = hat_var, color = "FGV")) +
+  labs(y = "Varianzas", x = "Tamaño muestral", color = " ") +
+  scale_x_continuous(breaks = seq(1, nDom, by = 5),
+                     labels = base_FH$n[order(base_FH$n)][seq(1, nDom, by = 5)]) +
+  scale_color_manual(values = c("FGV" = "Blue", "VarDirEst" = "Red"))
+
+###     Comparación del tamaño de muestra efectivo respecto al tamaño de     ###
+###                             muestra en la comuna                         ###
+
+ggplot(base_FH %>% filter(!is.na(hat_var)) %>% 
+         arrange(n), aes(x = 1:nDom)) +
+  geom_line(aes(y =  n / Rd_deff, color = "n_eff_DIR")) +
+  geom_line(aes(y = n_eff_FGV, color = "n_eff_FGV")) +
+  labs(y = "Tamaño de muestra efectivo", 
+       x = "Tamaño muestral", color = " ") +
+  scale_x_continuous(breaks = seq(1, nDom, by = 5),
+                     labels = base_FH$n[order(base_FH$n)][seq(1, nDom, by = 5)]) +
+  scale_color_manual(values = c("n_eff_FGV" = "Blue", "n_eff_DIR" = "red"))
 

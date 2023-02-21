@@ -8,15 +8,13 @@
 rm(list = ls())
 library(plotly)
 library(dplyr)
-encuestaDOM <-  readRDS("Data/encuestaDOM.Rds") %>% 
-  mutate( orden_region = str_pad(string = orden_region, width = 2, pad = "0"))
-tablafinal <- readRDS('Data/TablaFinal.Rds')
-estimacionesBench <- readRDS('Data/estimacionesBench.Rds') %>% 
-  mutate( orden_region = str_pad(string = orden_region, width = 2, pad = "0"))
 
+encuestaDOM <-  readRDS("Data/encuestaDOM.Rds")
+tablafinal <- readRDS('Data/TablaFinal.Rds')
+estimacionesBench <- readRDS('Data/estimacionesBench.Rds') 
 
 estimaciones_agregada <- estimacionesBench %>% 
-  group_by(orden_region) %>% 
+  group_by(id_region) %>% 
   summarize(
     FH_mean=mean(FH, na.rm=T),
     Sintetico=mean(
@@ -24,6 +22,7 @@ estimaciones_agregada <- estimacionesBench %>%
       , na.rm=T),
     FH_bench=sum(W_i*FH_RBench)
   )
+
 
 options(survey.lonely.psu= 'adjust' )
 #Población dividida entre cuatro, ESTA FORMA PORQUE LA ENCUESTA ES TRIMESTRAL, 
@@ -48,7 +47,7 @@ disenoDOM <- encuestaDOM %>%
 
 #Cálculo del indicador ----------------
 indicador_dir <-
-  disenoDOM %>% group_by(orden_region) %>%
+  disenoDOM %>% group_by(id_region) %>%
   filter(ocupado == 1 & pet == 1) %>%
   summarise(
     n = unweighted(n()),
@@ -59,8 +58,9 @@ indicador_dir <-
       deff = T
     )
   )
+
 indicador_dominio <-
-  disenoDOM %>% group_by(id_municipio) %>% 
+  disenoDOM %>% group_by(id_dominio) %>% 
   filter(ocupado == 1 &  pet == 1) %>%
   summarise(
     n = unweighted(n()),
@@ -72,18 +72,18 @@ indicador_dominio <-
     )
   )
 indicador_dominio <- encuestaDOM %>%
-  distinct(id_municipio, orden_region) %>%
-  right_join(., indicador_dominio, by = 'id_municipio')
+  distinct(id_dominio, id_region) %>%
+  right_join(., indicador_dominio, by = 'id_dominio')
 
 estimaciones_agregada <-
-  indicador_dominio %>% group_by(orden_region) %>%
+  indicador_dominio %>% group_by(id_region) %>%
   summarise(Direct_mean_mun = mean(Rd)) %>%
-  mutate(orden_region = str_pad(orden_region,width = 2,pad = "0"))%>% 
-  left_join(., estimaciones_agregada, by = 'orden_region')
+  mutate(id_region = str_pad(id_region,width = 2,pad = "0"))%>% 
+  left_join(., estimaciones_agregada, by = 'id_region')
 
 data_plot <- left_join(estimaciones_agregada, 
-                       indicador_dir, by = 'orden_region') %>%
-  dplyr::select(orden_region,
+                       indicador_dir, by = 'id_region') %>%
+  dplyr::select(id_region,
                 FH_mean,
                 FH_bench,
                 Sintetico,
@@ -94,19 +94,19 @@ data_plot <- left_join(estimaciones_agregada,
                 n) %>% data.frame()
 
 temp <- data_plot %>% select(-Rd_low, -Rd_upp) %>%
-  gather(key = "Estimacion",value = "value", -n,-orden_region) %>% 
+  gather(key = "Estimacion",value = "value", -n,-id_region) %>% 
   mutate(Estimacion = case_when(Estimacion == "FH_mean" ~ "Fay Harriot",
                                 Estimacion == "FH_bench" ~ "FH bench",
                                 Estimacion == "Rd"~ "Directo",
                                 Estimacion == "Direct_mean_mun" ~ "Media directo",
                                 TRUE ~ Estimacion))
 lims_IC <-  data_plot %>%
-  select(n,orden_region,value = Rd, Rd_low, Rd_upp) %>% 
+  select(n,id_region,value = Rd, Rd_low, Rd_upp) %>% 
   mutate(Estimacion = "Directo")
 
 p <- ggplot(temp,
             aes(
-              x = fct_reorder2(orden_region, orden_region, n),
+              x = fct_reorder2(id_region, id_region, n),
               y = value,
               shape = Estimacion,
               color = Estimacion
@@ -114,7 +114,7 @@ p <- ggplot(temp,
   geom_errorbar(
     data = lims_IC,
     aes(ymin = Rd_low ,
-        ymax = Rd_upp, x = orden_region),
+        ymax = Rd_upp, x = id_region),
     width = 0.2,
     size = 1
   )  +

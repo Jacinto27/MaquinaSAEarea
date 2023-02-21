@@ -2,8 +2,8 @@
 ## Title:        Modelo Fay Herriot para estimaciones directas utilizando     ##
 ##               transformación arcoseno y FGV                                ##
 ## Returns:      Estimación de Horvitz Thompson para los dominios             ##
-## Author:       Stalyn Guerrero - Joel Mendez - Carlos Pena - Andrés Gutiérrez##
-## Date:         01-2023                                                         ##
+## Author:       Joel Mendez - Carlos Pena- Stalyn Guerrero - Andrés Gutiérrez##
+## Date:         01-2023                                                      ##
 ################################################################################
 
 #Librerias--------------------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ library(odbc)
 #-------------------------------------------------------------------------------
 setwd("Depurar_rutinas/")
 encuestaDOM <-  readRDS("Data/encuestaDOM.Rds")
-id_dominio <- "id_municipio"
+id_dominio <- "id_dominio"
 ## 
 sum((encuestaDOM$factor_expansion)/4)
 
@@ -70,7 +70,7 @@ indicador_dom <-
 
 indicador_dom <-
   full_join(indicador_dom, distinct((
-    encuestaDOM %>% dplyr::select(id_municipio, des_municipio)
+    encuestaDOM %>% dplyr::select(id_dominio, des_municipio)
   )), by = id_dominio) #Unión de data con los valores calculados por SurveyRatio
 
 #Guardar data----------------------------
