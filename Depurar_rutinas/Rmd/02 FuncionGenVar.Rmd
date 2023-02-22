@@ -1,0 +1,250 @@
+---
+title: Estimación de la tasa de informalidad en República Dominicana empleando
+       modelos de área con transformación arcoseno
+subtitle: Función generalizada de varianza
+author:
+- name: Andrés Gutiérrez
+  affiliation: CEPAL - Unidad de Estadísticas Sociales
+- name: Stalyn Guerrero
+  affiliation: CEPAL - Unidad de Estadísticas Sociales
+date: '`r format(Sys.Date())`'
+format: html
+project:
+  type: website
+  output-dir: docs
+---
+
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  cache.path = "0Recursos/02/",
+  fig.path = "0Recursos/02/"
+)
+library(printr)
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+library(rstan)
+library(rstantools)
+library(rstanarm)
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+```
+
+## Lectura de librerías
+```{r}
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+select <- dplyr::select
+id_dominio <- "id_dominio"
+```
+
+## Lectura del la base de datos 
+Para realizar el conteo de UPMs por dominios, es necesario leer la base de datos. 
+```{r}
+encuestaDOM <-  readRDS("../Data/encuestaDOM.Rds") %>% 
+  mutate(
+    upm = str_pad(string = upm,width = 9,pad = "0"))
+```
+
+Conteos de UPMs por id_dominio
+
+```{r}
+n_upm <- encuestaDOM %>% distinct(id_dominio, upm) %>% 
+  group_by(id_dominio) %>% tally(name = "n_upm",sort = TRUE)
+tba(head(n_upm,10))
+```
+
+## Lectura de las estimaciones directas del indicador 
+
+```{r}
+indicador_dom <- readRDS('../Data/indicador_dom.Rds')
+```
+
+agregando conteos de las UPMs a las bases de datos. 
+```{r}
+indicador_dom <- full_join(indicador_dom, n_upm, by = id_dominio)
+```
+
+Se filtran los dominios que tengan varianza 0, un deff mayor que 1 y 2 o más UPMs
+
+```{r}
+indicador_dom1 <- indicador_dom %>% 
+  filter(Rd_var>0 & Rd_deff>=1 & n_upm >= 2) 
+```
+
+para los dominios seleccionados se realiza la transformación $\log(\sigma^2_d)$
+
+```{r}
+baseFGV <-  indicador_dom1 %>%  
+  dplyr::select(id_dominio , Rd, n, Rd_var) %>%
+  mutate(ln_sigma2 = log(Rd_var))
+```
+
+# Gráficas exploratorias
+
+```{r}
+p1 <- ggplot(baseFGV, aes(x = Rd, y = ln_sigma2)) +
+  geom_point() +
+  geom_smooth(method = "loess") +
+  xlab("Formal")
+
+p2 <- ggplot(baseFGV, aes(x = n, y = ln_sigma2)) + 
+  geom_point() +
+  geom_smooth(method = "loess") + 
+  xlab("Tamaño de muestra")
+
+p3 <- ggplot(baseFGV, 
+             aes(x = Rd * n, y = ln_sigma2)) + 
+  geom_point() +
+  geom_smooth(method = "loess") + 
+  xlab("Número de Formales")
+
+p4 <- ggplot(baseFGV, 
+             aes(x = sqrt(Rd), y = ln_sigma2)) + 
+  geom_point() +
+  geom_smooth(method = "loess") + 
+  xlab("Raiz cuadrada de tasa de formalidad")
+
+
+(p1 | p2) / (p3 | p4)
+rm('p1','p2','p3','p4')
+
+```
+
+## Ajustando el modelo log-lineal de la varianza 
+
+```{r}
+FGV1 <- lm(ln_sigma2 ~ 1 + Rd + 
+             n + I(n ^ 2) + I(Rd * n) +
+             I(sqrt(Rd)) + I(sqrt(n)) + 
+             I(sqrt(Rd * n)) ,
+           data = baseFGV)
+
+a <- summary(FGV1)
+a$coefficients %>% tba()
+```
+
+## Determinar el valor de la constante delta. 
+
+```{r}
+delta.hat = sum(baseFGV$Rd_var) / sum(exp(fitted.values(FGV1)))
+delta.hat
+```
+
+Varianza suavizada 
+
+```{r}
+baseFGV <-
+  baseFGV %>% mutate(hat_var = delta.hat * exp(fitted.values(FGV1)))
+```
+
+## Validaciones sobre el modelo 
+
+```{r}
+par(mfrow = c(2, 2))
+plot(FGV1)
+```
+varianza suavizada Vs varianza estimada 
+
+```{r}
+ggplot(baseFGV, 
+       aes(x = Rd_var, y = hat_var)) + 
+  geom_point() +
+  geom_smooth(method = "loess")
+```
+
+Consolidando la base de datos con los dominios observados y no observados
+
+```{r}
+
+base_sae <- left_join(indicador_dom,
+                      baseFGV %>% select(id_dominio, hat_var), 
+                      by = id_dominio) %>%
+  mutate(
+    Rd_var = ifelse(is.na(hat_var), NA_real_, Rd_var),
+    Rd_deff = ifelse(is.na(hat_var), NA_real_, Rd_deff)
+  )
+
+```
+
+Estimando el **deff_FGV** y **n_eff_FGV**
+
+```{r}
+base_FH <- base_sae %>%
+  mutate(
+    Rd_deff = ifelse(is.nan(Rd_deff), 1, Rd_deff),
+    deff_FGV = ifelse(Rd_var == 0 ,
+      1,
+      hat_var / (Rd_var / Rd_deff) #Fórmula del nuevo DEFF
+    ),
+   # Criterio MDS para regularizar el DeffFGV
+    deff_FGV = ifelse(deff_FGV <= 1, NA_real_, deff_FGV), #Deff estimado
+    n_eff_FGV = n / deff_FGV, #Número efectivo de personas encuestadas
+   # Si no se estimó varianza para ese municipio, también excluir
+   # la estimación directa de este municipio, esto es relevante para el modelo FH  
+    hat_var = ifelse(deff_FGV <= 1, NA_real_, hat_var), 
+    Rd = ifelse(is.na(hat_var), NA_real_, Rd) 
+  )
+tba(head(base_FH, 10))
+```
+
+## Otras validaciones sobre el resultado del modelo. 
+
+```{r}
+nDom <- sum(!is.na(base_FH$hat_var))
+temp_FH <- base_FH %>% filter(!is.na(hat_var))
+
+ggplot(temp_FH %>% arrange(n), aes(x = hat_var, y = Rd_var)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", col = 2) + 
+  labs(x = "FGV", y = "VaRdirEst") +
+  ylab("Varianza del Estimador Directo")
+```
+
+Comparación de las varianzas con relación al  tamaño de muestra efectivo 
+
+```{r}
+ggplot(temp_FH %>% 
+         arrange(n), aes(x = 1:nDom)) +
+  geom_line(aes(y = Rd_var, color = "VarDirEst")) +
+  geom_line(aes(y = hat_var, color = "FGV")) +
+  labs(y = "Varianzas", x = "Tamaño muestral", color = " ") +
+  scale_x_continuous(breaks = seq(1, nDom, by = 10),
+                     labels = temp_FH$n[order(temp_FH$n)][seq(1, nDom, by = 10)]) +
+  scale_color_manual(values = c("FGV" = "Blue", "VarDirEst" = "Red"))
+```
+
+Comparación del tamaño de muestra efectivo respecto al tamaño de muestra
+
+```{r}
+ggplot(temp_FH %>%
+         arrange(n), aes(x = 1:nDom)) +
+  geom_line(aes(y =  n / Rd_deff, color = "n_eff_DIR")) +
+  geom_line(aes(y = n_eff_FGV, color = "n_eff_FGV")) +
+  labs(y = "Tamaño de muestra efectivo",
+       x = "Tamaño muestral", color = " ") +
+  scale_x_continuous(breaks = seq(1, nDom, by = 10),
+                     labels = temp_FH$n[order(temp_FH$n)][seq(1, nDom, by = 10)]) +
+  scale_color_manual(values = c("n_eff_FGV" = "Blue", "n_eff_DIR" = "red"))
+
+
+```
+
+
+Guardando el archivo 
+
+```{r,eval=FALSE}
+saveRDS(object = base_FH, "../Data/base_FH.Rds")
+
+```
+

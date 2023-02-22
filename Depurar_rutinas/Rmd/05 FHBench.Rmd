@@ -1,0 +1,290 @@
+---
+title: Estimación de la tasa de informalidad en República Dominicana empleando
+       modelos de área con transformación arcoseno
+subtitle: Benchmark regional para las estimaciones del modelo de área
+author:
+- name: Andrés Gutiérrez
+  affiliation: CEPAL - Unidad de Estadísticas Sociales
+- name: Stalyn Guerrero
+  affiliation: CEPAL - Unidad de Estadísticas Sociales
+date: '`r format(Sys.Date())`'
+format: html
+project:
+  type: website
+  output-dir: docs
+---
+
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  cache.path = "0Recursos/05/",
+  fig.path = "0Recursos/05/"
+)
+library(printr)
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+theme_set(theme_bw())
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+```
+
+## Lectura de librerías
+
+```{r}
+library(survey)
+library(srvyr)
+library(TeachingSampling)
+library(stringr)
+library(magrittr)
+library(sae)
+library(ggplot2)
+library(emdi)
+library(patchwork)
+library(DBI)
+library(odbc)
+library(flexmix)
+library(modeltools)
+library(sp)
+library(sf)
+library(rgdal)
+library(tmap)
+library(dplyr)
+id_dominio <- "id_dominio"
+```
+
+## Lectura de bases de datos 
+```{r}
+## Shapefile
+poligonos_dominios <- read_sf( "../shapefiles2010/DOM.shp") 
+
+## Base de estimaciones 
+base_completa <- readRDS('../Data/base_completa.Rds')
+estimacionesPre <- readRDS('../Data/estimaciones.Rds')
+base_FH <- left_join(base_completa, estimacionesPre,   by = id_dominio)
+
+## Encuesta
+encuesta <- readRDS("../Data/encuestaDOM.Rds")
+
+## Estimaciones del modelo ajustado
+fh_arcsin <- readRDS("../Data/fh_arcsin.Rds")
+
+## Agregados por dominios y región 
+personas_dominio <- readRDS('../Data/agregado_persona_dominio.rds') 
+personas_dominio_agregado <- readRDS('../Data/agregado_persona_region.rds') 
+```
+
+## Estimación directa por región 
+
+```{r}
+encuesta <-
+  encuesta %>% 
+  mutate(
+    upm = str_pad(string = upm,width = 9,pad = "0"),
+    estrato = str_pad(string = estrato,width = 5,pad = "0"),
+    factor_anual = factor_expansion / 4
+  ) %>% data.frame()
+
+disenoDOM <- encuesta %>%
+  as_survey_design(
+    strata = estrato,
+    ids = upm,
+    weights = factor_anual,
+    nest=T
+  )
+
+directoDepto <- disenoDOM %>%
+  group_by(id_region) %>% 
+  filter(ocupado == 1 & pet == 1) %>%
+  summarise(Rd = survey_ratio(
+    numerator = orden_sector == 2 ,
+    denominator = 1,
+    vartype = c("se", "ci", "var", "cv"),
+    deff = T
+  )) %>% 
+  transmute(id_region, theta_region = Rd)
+
+```
+## Consolidación de la base de datos 
+```{r}
+R_mpio <- directoDepto %>% 
+  left_join(personas_dominio, by = 'id_region') %>%
+  left_join(personas_dominio_agregado, by = "id_region") %>%
+  left_join(estimacionesPre %>% 
+              transmute(id_dominio, FayHerriot = FH),
+            by = id_dominio) %>% 
+  data.frame()
+
+```
+
+
+## Pesos Benchmark
+
+```{r}
+R_mpio2 <- R_mpio %>% 
+  group_by(id_region) %>% 
+  summarise(
+    R_region_RB = unique(theta_region) / sum((pp_dominio  / pp_region ) * FayHerriot),
+    R_region_DB = unique(theta_region) - sum((pp_dominio  / pp_region ) * FayHerriot)
+  ) %>%
+  left_join(directoDepto, by = "id_region")
+
+pesos <- R_mpio %>% ungroup() %>% 
+  mutate(W_i = pp_dominio / pp_region) %>% 
+  dplyr::select(id_dominio, W_i)
+
+head(pesos, 15) %>% tba()
+
+```
+
+## Estimación FH Benchmark 
+
+```{r}
+estimacionesBench <- estimacionesPre %>% 
+  left_join(R_mpio %>% 
+              dplyr::select(id_region, id_dominio), 
+            by = id_dominio) %>%
+  left_join(R_mpio2, by = c("id_region")) %>% ungroup() %>% 
+  mutate(FH_RBench = R_region_RB * FH) %>%
+  left_join(pesos, by = id_dominio)
+```
+
+### Validación: Estimación FH con Benchmark 
+
+```{r}
+estimacionesBench %>% group_by(id_region) %>%
+  summarise(theta_reg_RB = sum(W_i * FH_RBench)) %>%
+  left_join(directoDepto, by = "id_region") %>% 
+  tba()
+```
+
+### Comparación gráfica entre estimación FH y FH con Benchmark por dominio 
+
+```{r}
+temp_Bench <- estimacionesBench %>%
+  transmute(
+    id_dominio,
+    Directo = Direct * 100,
+    FayHerriot = FH * 100,
+    FH_RBench = FH_RBench * 100,
+    Gamma)
+
+theme_set(theme_bw())
+ggplot(temp_Bench, aes(FH_RBench, FayHerriot)) + 
+  geom_point() + geom_abline(intercept = 0, slope = 1) + 
+  labs(y = "Estimación Fay-Herriot",
+       x = "Estimación Fay-Herriot con Benchmark")
+
+```
+
+## Tabla final de estimaciones 
+
+### Función para el calculo de intervalos de confianza 
+
+```{r}
+ICL <- function(p, mse, alpha = 0.05, student = FALSE, nu = NULL) {
+  if (student == TRUE) {
+    q <- qt(1 - alpha/2, nu)
+  } else {
+    q <- qnorm(1 - alpha/2)
+  }
+  CL <- log(p/(1 - p)) - (q * sqrt(mse))/(p * (1 - p))
+  CU <- log(p/(1 - p)) + (q * sqrt(mse))/(p * (1 - p))
+  IC_1 <- exp(CL)/(1 + exp(CL))
+  IC_2 <- exp(CU)/(1 + exp(CU))
+  
+  return(data.frame(L.I = IC_1, L.S = IC_2))
+}
+```
+
+Consolidando la tabla final de resultados. 
+```{r}
+TablaFinal <- estimacionesBench %>%
+  mutate(
+    sintetico = as.matrix(base_FH %>% data.frame() %>% 
+                            dplyr::select(rownames(
+                              fh_arcsin$model$coefficients
+                            ))) %*%
+      fh_arcsin$model$coefficients[, 1],
+    sintetico_back = sin(sintetico) ^ 2
+  ) %>%
+  transmute(
+    id_dominio,
+    n_muestral = n,
+    Directo = Direct,
+    ee_directo = sqrt(Direct_MSE),
+    CV_directo = Direct_CV,
+    FayHerriot = FH,
+    rmse_FH = sqrt(FH_MSE),
+    rrmse_FH = rmse_FH / FayHerriot,
+    Gamma,
+    sintetico,
+    sintetico_back,
+    FH_RBench,
+    LI_normal = FH_RBench - 1.96 * sqrt(FH_MSE),
+    LS_normal = FH_RBench + 1.96 * sqrt(FH_MSE),
+    LI_logit = ICL(FH_RBench, FH_MSE)[, 1],
+    LS_logit = ICL(FH_RBench, FH_MSE)[, 2],
+    LI_final = ifelse(LI_normal < 0, LI_logit, LI_normal),
+    LS_final = ifelse(LS_normal > 1, LS_logit, LS_normal)
+  )
+tba(head(TablaFinal,20))
+
+```
+
+Comparando los limites superior e inferior de los IC
+```{r}
+
+a1 <- ggplot(TablaFinal, aes(x = LI_normal, y = LI_logit)) +
+  geom_point() +
+  geom_abline(aes(intercept = 0, slope = 1), col = 2)  +
+  labs(y = "LI_logit", x = "LI")
+
+a2 <- ggplot(TablaFinal, aes(x = LS_normal, y = LS_logit)) +
+  geom_point() +
+  geom_abline(aes(intercept = 0, slope = 1), col = 2)  +
+  labs(y = "LS_logit", x = "LS")
+
+a1 | a2
+
+```
+
+Guardar resultados 
+
+```{r, eval=FALSE}
+saveRDS(TablaFinal, '../Data/TablaFinal.Rds')
+saveRDS(estimacionesBench, '../Data/estimacionesBench.Rds')
+```
+
+## Creando mapa de resultados 
+
+```{r}
+poligonos_dominios <- poligonos_dominios %>%
+  left_join( temp_Bench, by = id_dominio ) %>%
+  mutate( fh_porc = FH_RBench )
+
+tmap_options(check.and.fix = TRUE)
+mapa <- tm_shape( poligonos_dominios ) +
+  tm_fill( "fh_porc", style = "quantile", title="Tasa de informalidad" ) +
+  tm_borders( col = "black", lwd=1, lty = "solid") +
+  tm_layout( #"Wealth (or so)",
+    legend.title.size = 1,
+    legend.text.size = 0.6,
+    legend.position = c( "center","bottom" ),
+    legend.bg.color = "white",
+    legend.stack = "horizontal",
+    #legend.digits = 5,
+    legend.bg.alpha = 0.1) 
+mapa
+
+```
+
+

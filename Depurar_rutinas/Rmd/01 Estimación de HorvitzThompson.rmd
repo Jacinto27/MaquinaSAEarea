@@ -1,0 +1,124 @@
+---
+title: Estimación de la tasa de informalidad en República Dominicana empleando
+       modelos de área con transformación arcoseno
+subtitle: Estimación de directa por dominios
+author:
+- name: Andrés Gutiérrez
+  affiliation: CEPAL - Unidad de Estadísticas Sociales
+- name: Stalyn Guerrero
+  affiliation: CEPAL - Unidad de Estadísticas Sociales
+date: '`r format(Sys.Date())`'
+format: html
+project:
+  type: website
+  output-dir: docs
+---
+
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  cache.path = "0Recursos/01/",
+  fig.path = "0Recursos/01/"
+)
+library(printr)
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+library(rstan)
+library(rstantools)
+library(rstanarm)
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+```
+
+## Lectura de librerías
+
+```{r}
+library(survey)
+library(tidyverse)
+library(srvyr)
+library(TeachingSampling)
+library(haven)
+library(readxl)
+library(dplyr)
+library(DBI)
+library(odbc)
+```
+
+
+# Lectura de la encuesta 
+
+```{r}
+encuestaDOM <-  readRDS("../Data/encuestaDOM.Rds")
+id_dominio <- "id_dominio"
+sum((encuestaDOM$factor_expansion)/4)
+```
+
+definición de las upm, estrato y factor_anual para la encuesta 
+```{r}
+encuestaDOM <-
+  encuestaDOM %>%
+  mutate(
+    upm = str_pad(string = upm,width = 9,pad = "0"),
+    estrato = str_pad(string = estrato,width = 5,pad = "0"),
+    factor_anual = factor_expansion / 4
+  )
+
+```
+## Definición del diseño muestral con la libreria survey 
+
+```{r}
+options(survey.lonely.psu= 'adjust' )
+disenoDOM <- encuestaDOM %>%
+  as_survey_design(
+    strata = estrato,
+    ids = upm,
+    weights = factor_anual,
+    nest=T
+  )
+
+```
+
+## Calculo del indicador 
+
+```{r}
+
+indicador_dom <-
+  disenoDOM %>% group_by_at(id_dominio) %>% 
+  filter(ocupado == 1 & pet == 1) %>%
+  summarise(
+    n = unweighted(n()),
+    Rd = survey_ratio(
+      numerator = orden_sector == 2 ,
+      denominator = 1,
+      vartype = c("se", "ci", "var", "cv"),
+      deff = T
+    )
+  )
+
+```
+
+Unión del indicador con los nombres de los dominios 
+
+```{r}
+indicador_dom <-
+  full_join(indicador_dom, distinct((
+    encuestaDOM %>% dplyr::select(id_dominio, des_municipio)
+  )), by = id_dominio) 
+```
+
+# Guardar resultado de la estimación directa 
+
+```{r, eval=FALSE}
+
+saveRDS(indicador_dom,'Data/indicador_dom.Rds' )
+```
+

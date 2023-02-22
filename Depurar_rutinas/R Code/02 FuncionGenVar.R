@@ -1,7 +1,6 @@
 ################################################################################
 ## Title:        Modelo Fay Herriot para estimaciones directas utilizando     ##
 ##               transformación arcoseno y FGV                                ##
-## Returns:      Estimación de Horvitz Thompson para los dominios             ##
 ## Author:       Joel Mendez - Carlos Pena - Stalyn Guerrero- Andrés Gutiérrez##
 ## Date:         01-2023                                                      ##
 ## Este código intenta estimar la varianza para los valores cuya estimación   ##
@@ -35,7 +34,7 @@ indicador_dom <- full_join(indicador_dom, n_upm, by = id_dominio)
 # varianza 0, y todos los que tengan un deff mayor que 1
 
 indicador_dom1 <- indicador_dom %>% 
-  filter(Rd_var>0 & Rd_deff>=1) 
+  filter(Rd_var>0 & Rd_deff>=1 & n_upm >= 2) 
 
 ############Plots de la data#########
 

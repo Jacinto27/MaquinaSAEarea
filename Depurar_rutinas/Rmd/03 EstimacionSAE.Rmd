@@ -1,0 +1,147 @@
+---
+title: Estimación de la tasa de informalidad en República Dominicana empleando
+       modelos de área con transformación arcoseno
+subtitle: Estimación del modelo de área
+author:
+- name: Andrés Gutiérrez
+  affiliation: CEPAL - Unidad de Estadísticas Sociales
+- name: Stalyn Guerrero
+  affiliation: CEPAL - Unidad de Estadísticas Sociales
+date: '`r format(Sys.Date())`'
+format: html
+project:
+  type: website
+  output-dir: docs
+---
+
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  cache.path = "0Recursos/03/",
+  fig.path = "0Recursos/03/"
+)
+library(printr)
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+```
+
+## Lectura de librerías
+```{r}
+library(survey)
+library(srvyr)
+library(TeachingSampling)
+library(stringr)
+library(magrittr)
+library(sae)
+library(ggplot2)
+library(emdi)
+library(patchwork)
+library(readxl)
+library(tidyverse)
+select <- dplyr::select
+id_dominio <- "id_dominio"
+```
+
+## Lectura de bases de datos 
+
+```{r}
+# Estimación Directa + FGV
+base_FH <- readRDS('../Data/base_FH.Rds')
+
+# Variables predicadoras 
+statelevel_predictors <- readRDS("../Data/statelevel_predictors_df.rds")
+DEE_Mun <- readRDS('../Data/DEE_Mun.Rds') 
+
+```
+
+## Consolidando las bases de datos. 
+
+```{r}
+base_completa <-
+  base_FH %>% select(id_dominio, Rd, hat_var, n_eff_FGV,n) %>%
+  full_join(statelevel_predictors, by = id_dominio)
+
+base_completa <- left_join(base_completa, DEE_Mun, by = id_dominio)
+```
+
+guardando las base consolidadas  
+
+```{r, eval=FALSE}
+saveRDS(base_completa, 'Data/base_completa.Rds')
+```
+
+## Estimando el modelo de área con transformación arcoseno
+
+```{r, eval=FALSE}
+fh_arcsin <- fh(
+  fixed = Rd ~ 0 + P45_TUVO_EMPLEO  +  P46_ACTIVIDAD_PORPAGA  +
+    P47_AYUDO_SINPAGA  +  P30_DONDE_NACE  +  P41_ANOS_UNIVERSITARIOS  +
+    P38_ANOEST  +  P44_PAIS_VIVIA_CODIGO  +  P50_DISPUESTO_TRABAJAR  +
+    P51_TRABAJO_ANTES  +  P40_SEGRADUO  +  P29_EDAD_ANOS_CUMPLIDOS  +
+    P35_SABE_LEER  +  P27_SEXO  +  H25C_TOTAL  +  P45R1_CONDICION_ACTIVIDAD_OCUPADO  +
+    P45R1_CONDICION_ACTIVIDAD_DISCAPACITADO  +  P45R1_CONDICION_ACTIVIDAD_1erTrabajo  +
+    P45R1_CONDICION_ACTIVIDAD_EDUCACION  + P54R1_CATOCUP_SINCOM +
+    P27_SEXO_JEFE + P29_EDAD_JEFE + ZONA_Rur + H31_HACINAMIENTO + H15_PROCEDENCIA_AGUA +
+    H17_ALUMBRADO + H12_SANITARIO + V03_PAREDES + V04_TECHO + V05_PISO +
+    H32_GRADSAN + H35_GRUPSEC +
+    luces_nocturnas_promedio  +
+    cubrimiento_cultivo_suma +
+    cubrimiento_urbano_suma +
+    accesibilidad_hospitales_promedio +
+    accesibilidad_hosp_caminado_promedio,
+  vardir = "hat_var",
+  combined_data = base_completa %>% data.frame(),
+  domains = id_dominio,
+  method = "reml",
+  transformation = "arcsin",
+  backtransformation = "bc",
+  eff_smpsize = "n_eff_FGV",
+  MSE = TRUE,
+  mse_type = "boot",
+  B = 500
+)
+
+```
+leer el modelo compilado previamente.
+```{r}
+fh_arcsin <- readRDS('../Data/fh_arcsin.Rds')
+```
+
+## Estimaciones de los dominios a partir del modelo. 
+
+```{r}
+data_Gamma <- fh_arcsin$model$gamma %>% 
+  transmute(id_dominio = Domain, Gamma)
+
+estimaciones <- estimators(fh_arcsin,
+                           indicator = "All",
+                           MSE = TRUE,
+                           CV = TRUE) %>%
+  as.data.frame() %>%
+  rename(id_dominio = Domain) %>%
+  left_join(base_completa %>%
+              transmute(id_dominio,
+                        n = ifelse(is.na(n), 0, n)),
+            by = id_dominio) %>%
+  left_join(data_Gamma, by = id_dominio) %>%
+dplyr::select(id_dominio, everything())
+tba(head(estimaciones, 20))
+```
+
+guardar estimaciones
+
+```{r, eval=FALSE}
+saveRDS(estimaciones, '../Data/estimaciones.Rds')
+```
+

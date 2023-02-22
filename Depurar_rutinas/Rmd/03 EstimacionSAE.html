@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.165">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Andrés Gutiérrez">
+<meta name="author" content="Stalyn Guerrero">
+<meta name="dcterms.date" content="2023-02-22">
+
+<title>Estimación de la tasa de informalidad en República Dominicana empleando modelos de área con transformación arcoseno</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="03 EstimacionSAE_files/libs/clipboard/clipboard.min.js"></script>
+<script src="03 EstimacionSAE_files/libs/quarto-html/quarto.js"></script>
+<script src="03 EstimacionSAE_files/libs/quarto-html/popper.min.js"></script>
+<script src="03 EstimacionSAE_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="03 EstimacionSAE_files/libs/quarto-html/anchor.min.js"></script>
+<link href="03 EstimacionSAE_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="03 EstimacionSAE_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="03 EstimacionSAE_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="03 EstimacionSAE_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="03 EstimacionSAE_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+<script src="03 EstimacionSAE_files/libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="03 EstimacionSAE_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Estimación de la tasa de informalidad en República Dominicana empleando modelos de área con transformación arcoseno</h1>
+<p class="subtitle lead">Estimación del modelo de área</p>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Authors</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    Andrés Gutiérrez 
+  </div>
+    <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            CEPAL - Unidad de Estadísticas Sociales
+          </p>
+      </div>
+      <div class="quarto-title-meta-contents">
+    Stalyn Guerrero 
+  </div>
+    <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            CEPAL - Unidad de Estadísticas Sociales
+          </p>
+      </div>
+    </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 22, 2023</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="lectura-de-librerías" class="level2">
+<h2 class="anchored" data-anchor-id="lectura-de-librerías">Lectura de librerías</h2>
+<div class="cell" data-hash="0Recursos/03/unnamed-chunk-1_6bf4d76281dd23951969951fef19e6dd">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(srvyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TeachingSampling)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sae)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(emdi)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>select <span class="ot">&lt;-</span> dplyr<span class="sc">::</span>select</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>id_dominio <span class="ot">&lt;-</span> <span class="st">"id_dominio"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="lectura-de-bases-de-datos" class="level2">
+<h2 class="anchored" data-anchor-id="lectura-de-bases-de-datos">Lectura de bases de datos</h2>
+<div class="cell" data-hash="0Recursos/03/unnamed-chunk-2_18f13c8974cb344472a1df411b8f8afa">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimación Directa + FGV</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>base_FH <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">'../Data/base_FH.Rds'</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Variables predicadoras </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>statelevel_predictors <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../Data/statelevel_predictors_df.rds"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>DEE_Mun <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">'../Data/DEE_Mun.Rds'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="consolidando-las-bases-de-datos." class="level2">
+<h2 class="anchored" data-anchor-id="consolidando-las-bases-de-datos.">Consolidando las bases de datos.</h2>
+<div class="cell" data-hash="0Recursos/03/unnamed-chunk-3_fb958255d1367a484c7b36c464ec8497">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>base_completa <span class="ot">&lt;-</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  base_FH <span class="sc">%&gt;%</span> <span class="fu">select</span>(id_dominio, Rd, hat_var, n_eff_FGV,n) <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(statelevel_predictors, <span class="at">by =</span> id_dominio)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>base_completa <span class="ot">&lt;-</span> <span class="fu">left_join</span>(base_completa, DEE_Mun, <span class="at">by =</span> id_dominio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>guardando las base consolidadas</p>
+<div class="cell" data-hash="0Recursos/03/unnamed-chunk-4_6d3c8ac775208d955f424a02f63dda85">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(base_completa, <span class="st">'Data/base_completa.Rds'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="estimando-el-modelo-de-área-con-transformación-arcoseno" class="level2">
+<h2 class="anchored" data-anchor-id="estimando-el-modelo-de-área-con-transformación-arcoseno">Estimando el modelo de área con transformación arcoseno</h2>
+<div class="cell" data-hash="0Recursos/03/unnamed-chunk-5_8dab6ad6878c504c58a2f72f176ded6c">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fh_arcsin <span class="ot">&lt;-</span> <span class="fu">fh</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">fixed =</span> Rd <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> P45_TUVO_EMPLEO  <span class="sc">+</span>  P46_ACTIVIDAD_PORPAGA  <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    P47_AYUDO_SINPAGA  <span class="sc">+</span>  P30_DONDE_NACE  <span class="sc">+</span>  P41_ANOS_UNIVERSITARIOS  <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    P38_ANOEST  <span class="sc">+</span>  P44_PAIS_VIVIA_CODIGO  <span class="sc">+</span>  P50_DISPUESTO_TRABAJAR  <span class="sc">+</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    P51_TRABAJO_ANTES  <span class="sc">+</span>  P40_SEGRADUO  <span class="sc">+</span>  P29_EDAD_ANOS_CUMPLIDOS  <span class="sc">+</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    P35_SABE_LEER  <span class="sc">+</span>  P27_SEXO  <span class="sc">+</span>  H25C_TOTAL  <span class="sc">+</span>  P45R1_CONDICION_ACTIVIDAD_OCUPADO  <span class="sc">+</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    P45R1_CONDICION_ACTIVIDAD_DISCAPACITADO  <span class="sc">+</span>  P45R1_CONDICION_ACTIVIDAD_1erTrabajo  <span class="sc">+</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    P45R1_CONDICION_ACTIVIDAD_EDUCACION  <span class="sc">+</span> P54R1_CATOCUP_SINCOM <span class="sc">+</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    P27_SEXO_JEFE <span class="sc">+</span> P29_EDAD_JEFE <span class="sc">+</span> ZONA_Rur <span class="sc">+</span> H31_HACINAMIENTO <span class="sc">+</span> H15_PROCEDENCIA_AGUA <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    H17_ALUMBRADO <span class="sc">+</span> H12_SANITARIO <span class="sc">+</span> V03_PAREDES <span class="sc">+</span> V04_TECHO <span class="sc">+</span> V05_PISO <span class="sc">+</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    H32_GRADSAN <span class="sc">+</span> H35_GRUPSEC <span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    luces_nocturnas_promedio  <span class="sc">+</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    cubrimiento_cultivo_suma <span class="sc">+</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    cubrimiento_urbano_suma <span class="sc">+</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    accesibilidad_hospitales_promedio <span class="sc">+</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    accesibilidad_hosp_caminado_promedio,</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">vardir =</span> <span class="st">"hat_var"</span>,</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">combined_data =</span> base_completa <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>(),</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">domains =</span> id_dominio,</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"reml"</span>,</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">transformation =</span> <span class="st">"arcsin"</span>,</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">backtransformation =</span> <span class="st">"bc"</span>,</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">eff_smpsize =</span> <span class="st">"n_eff_FGV"</span>,</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">MSE =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">mse_type =</span> <span class="st">"boot"</span>,</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">B =</span> <span class="dv">500</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>leer el modelo compilado previamente.</p>
+<div class="cell" data-hash="0Recursos/03/unnamed-chunk-6_38526c52a9af3a82b34ad9180626a4ed">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fh_arcsin <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">'../Data/fh_arcsin.Rds'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="estimaciones-de-los-dominios-a-partir-del-modelo." class="level2">
+<h2 class="anchored" data-anchor-id="estimaciones-de-los-dominios-a-partir-del-modelo.">Estimaciones de los dominios a partir del modelo.</h2>
+<div class="cell" data-hash="0Recursos/03/unnamed-chunk-7_ab3531dfecf5175cc56e4b9b963a0014">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>data_Gamma <span class="ot">&lt;-</span> fh_arcsin<span class="sc">$</span>model<span class="sc">$</span>gamma <span class="sc">%&gt;%</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(<span class="at">id_dominio =</span> Domain, Gamma)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>estimaciones <span class="ot">&lt;-</span> <span class="fu">estimators</span>(fh_arcsin,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                           <span class="at">indicator =</span> <span class="st">"All"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                           <span class="at">MSE =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">CV =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">id_dominio =</span> Domain) <span class="sc">%&gt;%</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(base_completa <span class="sc">%&gt;%</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>              <span class="fu">transmute</span>(id_dominio,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>                        <span class="at">n =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(n), <span class="dv">0</span>, n)),</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> id_dominio) <span class="sc">%&gt;%</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(data_Gamma, <span class="at">by =</span> id_dominio) <span class="sc">%&gt;%</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(id_dominio, <span class="fu">everything</span>())</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="fu">tba</span>(<span class="fu">head</span>(estimaciones, <span class="dv">20</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped lightable-classic" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> id_dominio </th>
+   <th style="text-align:right;"> Direct </th>
+   <th style="text-align:right;"> Direct_MSE </th>
+   <th style="text-align:right;"> Direct_CV </th>
+   <th style="text-align:right;"> FH </th>
+   <th style="text-align:right;"> FH_MSE </th>
+   <th style="text-align:right;"> FH_CV </th>
+   <th style="text-align:right;"> n </th>
+   <th style="text-align:right;"> Gamma </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> 0101 </td>
+   <td style="text-align:right;"> 0.4147 </td>
+   <td style="text-align:right;"> 0.0005 </td>
+   <td style="text-align:right;"> 0.0534 </td>
+   <td style="text-align:right;"> 0.4142 </td>
+   <td style="text-align:right;"> 0.0004 </td>
+   <td style="text-align:right;"> 0.0496 </td>
+   <td style="text-align:right;"> 2951 </td>
+   <td style="text-align:right;"> 0.1207 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0201 </td>
+   <td style="text-align:right;"> 0.4526 </td>
+   <td style="text-align:right;"> 0.0053 </td>
+   <td style="text-align:right;"> 0.1613 </td>
+   <td style="text-align:right;"> 0.5390 </td>
+   <td style="text-align:right;"> 0.0017 </td>
+   <td style="text-align:right;"> 0.0766 </td>
+   <td style="text-align:right;"> 221 </td>
+   <td style="text-align:right;"> 0.0128 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0202 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 0.6466 </td>
+   <td style="text-align:right;"> 0.0051 </td>
+   <td style="text-align:right;"> 0.1104 </td>
+   <td style="text-align:right;"> 86 </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0203 </td>
+   <td style="text-align:right;"> 0.7138 </td>
+   <td style="text-align:right;"> 0.0101 </td>
+   <td style="text-align:right;"> 0.1406 </td>
+   <td style="text-align:right;"> 0.7917 </td>
+   <td style="text-align:right;"> 0.0029 </td>
+   <td style="text-align:right;"> 0.0682 </td>
+   <td style="text-align:right;"> 86 </td>
+   <td style="text-align:right;"> 0.0056 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0204 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 0.7472 </td>
+   <td style="text-align:right;"> 0.0053 </td>
+   <td style="text-align:right;"> 0.0972 </td>
+   <td style="text-align:right;"> 51 </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0205 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 0.7119 </td>
+   <td style="text-align:right;"> 0.0104 </td>
+   <td style="text-align:right;"> 0.1431 </td>
+   <td style="text-align:right;"> 34 </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0206 </td>
+   <td style="text-align:right;"> 0.5527 </td>
+   <td style="text-align:right;"> 0.0133 </td>
+   <td style="text-align:right;"> 0.2088 </td>
+   <td style="text-align:right;"> 0.5870 </td>
+   <td style="text-align:right;"> 0.0041 </td>
+   <td style="text-align:right;"> 0.1087 </td>
+   <td style="text-align:right;"> 65 </td>
+   <td style="text-align:right;"> 0.0052 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0208 </td>
+   <td style="text-align:right;"> 0.8122 </td>
+   <td style="text-align:right;"> 0.0097 </td>
+   <td style="text-align:right;"> 0.1210 </td>
+   <td style="text-align:right;"> 0.6703 </td>
+   <td style="text-align:right;"> 0.0060 </td>
+   <td style="text-align:right;"> 0.1156 </td>
+   <td style="text-align:right;"> 74 </td>
+   <td style="text-align:right;"> 0.0044 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0210 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 0.7081 </td>
+   <td style="text-align:right;"> 0.0108 </td>
+   <td style="text-align:right;"> 0.1465 </td>
+   <td style="text-align:right;"> 16 </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0301 </td>
+   <td style="text-align:right;"> 0.5668 </td>
+   <td style="text-align:right;"> 0.0039 </td>
+   <td style="text-align:right;"> 0.1100 </td>
+   <td style="text-align:right;"> 0.5305 </td>
+   <td style="text-align:right;"> 0.0013 </td>
+   <td style="text-align:right;"> 0.0683 </td>
+   <td style="text-align:right;"> 264 </td>
+   <td style="text-align:right;"> 0.0170 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0302 </td>
+   <td style="text-align:right;"> 0.7561 </td>
+   <td style="text-align:right;"> 0.0059 </td>
+   <td style="text-align:right;"> 0.1017 </td>
+   <td style="text-align:right;"> 0.6841 </td>
+   <td style="text-align:right;"> 0.0040 </td>
+   <td style="text-align:right;"> 0.0921 </td>
+   <td style="text-align:right;"> 123 </td>
+   <td style="text-align:right;"> 0.0085 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0303 </td>
+   <td style="text-align:right;"> 0.6078 </td>
+   <td style="text-align:right;"> 0.0047 </td>
+   <td style="text-align:right;"> 0.1125 </td>
+   <td style="text-align:right;"> 0.6168 </td>
+   <td style="text-align:right;"> 0.0012 </td>
+   <td style="text-align:right;"> 0.0572 </td>
+   <td style="text-align:right;"> 206 </td>
+   <td style="text-align:right;"> 0.0139 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0304 </td>
+   <td style="text-align:right;"> 0.6450 </td>
+   <td style="text-align:right;"> 0.0051 </td>
+   <td style="text-align:right;"> 0.1110 </td>
+   <td style="text-align:right;"> 0.7021 </td>
+   <td style="text-align:right;"> 0.0025 </td>
+   <td style="text-align:right;"> 0.0717 </td>
+   <td style="text-align:right;"> 176 </td>
+   <td style="text-align:right;"> 0.0121 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0305 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 0.6842 </td>
+   <td style="text-align:right;"> 0.0053 </td>
+   <td style="text-align:right;"> 0.1066 </td>
+   <td style="text-align:right;"> 51 </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0401 </td>
+   <td style="text-align:right;"> 0.5419 </td>
+   <td style="text-align:right;"> 0.0021 </td>
+   <td style="text-align:right;"> 0.0840 </td>
+   <td style="text-align:right;"> 0.5609 </td>
+   <td style="text-align:right;"> 0.0012 </td>
+   <td style="text-align:right;"> 0.0627 </td>
+   <td style="text-align:right;"> 481 </td>
+   <td style="text-align:right;"> 0.0319 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0402 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 0.7460 </td>
+   <td style="text-align:right;"> 0.0047 </td>
+   <td style="text-align:right;"> 0.0916 </td>
+   <td style="text-align:right;"> 75 </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0403 </td>
+   <td style="text-align:right;"> 0.6788 </td>
+   <td style="text-align:right;"> 0.0083 </td>
+   <td style="text-align:right;"> 0.1345 </td>
+   <td style="text-align:right;"> 0.6959 </td>
+   <td style="text-align:right;"> 0.0036 </td>
+   <td style="text-align:right;"> 0.0859 </td>
+   <td style="text-align:right;"> 108 </td>
+   <td style="text-align:right;"> 0.0072 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0404 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 0.5999 </td>
+   <td style="text-align:right;"> 0.0057 </td>
+   <td style="text-align:right;"> 0.1257 </td>
+   <td style="text-align:right;"> 68 </td>
+   <td style="text-align:right;"> NA </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0405 </td>
+   <td style="text-align:right;"> 0.5383 </td>
+   <td style="text-align:right;"> 0.0050 </td>
+   <td style="text-align:right;"> 0.1309 </td>
+   <td style="text-align:right;"> 0.5777 </td>
+   <td style="text-align:right;"> 0.0026 </td>
+   <td style="text-align:right;"> 0.0889 </td>
+   <td style="text-align:right;"> 221 </td>
+   <td style="text-align:right;"> 0.0136 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 0407 </td>
+   <td style="text-align:right;"> 0.7513 </td>
+   <td style="text-align:right;"> 0.0124 </td>
+   <td style="text-align:right;"> 0.1482 </td>
+   <td style="text-align:right;"> 0.6447 </td>
+   <td style="text-align:right;"> 0.0046 </td>
+   <td style="text-align:right;"> 0.1050 </td>
+   <td style="text-align:right;"> 67 </td>
+   <td style="text-align:right;"> 0.0042 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<p>guardar estimaciones</p>
+<div class="cell" data-hash="0Recursos/03/unnamed-chunk-8_76d0bdd43d152ce94de6359862c7d7b7">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(estimaciones, <span class="st">'Data/estimaciones.Rds'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

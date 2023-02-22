@@ -1,0 +1,148 @@
+---
+title: Estimación de la tasa de informalidad en República Dominicana empleando
+       modelos de área con transformación arcoseno
+subtitle: Gráfico comparativo de las estimaciones.
+author:
+- name: Andrés Gutiérrez
+  affiliation: CEPAL - Unidad de Estadísticas Sociales
+- name: Stalyn Guerrero
+  affiliation: CEPAL - Unidad de Estadísticas Sociales
+date: '`r format(Sys.Date())`'
+format: html
+project:
+  type: website
+  output-dir: docs
+---
+
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  cache.path = "0Recursos/06/",
+  fig.path = "0Recursos/06/"
+)
+library(printr)
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+theme_set(theme_bw())
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+```
+
+
+## Lectura de librerías
+
+```{r}
+library(plotly)
+library(dplyr)
+library(tidyr)
+library(forcats)
+library(survey)
+library(srvyr)
+```
+
+## Lecturas de bases de datos. 
+
+```{r}
+encuestaDOM <-  readRDS("../Data/encuestaDOM.Rds")
+estimacionesPre <- readRDS('../Data/estimacionesBench.Rds') %>% 
+  dplyr::select(id_region, id_dominio, W_i)
+
+TablaFinal <- readRDS('../Data/TablaFinal.Rds') %>% 
+  inner_join(estimacionesPre, by = "id_dominio")
+
+base_completa <- readRDS('../Data/base_completa.Rds')
+```
+
+Estimaciones agregadas por región 
+
+```{r}
+estimaciones_agregada <- TablaFinal %>% data.frame() %>% 
+  group_by(id_region) %>% 
+  summarize(
+    Sintetico=sum(W_i*sintetico_back),
+    FH_bench=sum(W_i*FH_RBench),
+    FH = sum(W_i*FayHerriot)
+  )
+tba(estimaciones_agregada)
+```
+
+Estimación del agregados 
+
+```{r}
+encuestaDOM <-
+  encuestaDOM %>%
+  mutate(
+    upm = as.character(upm),
+    estrato = as.character(estrato),
+    factor_anual = factor_expansion / 4
+  )
+
+#Creación de objeto diseno--------------------------------------- 
+disenoDOM <- encuestaDOM %>%
+  as_survey_design(
+    strata = estrato,
+    ids = upm,
+    weights = factor_anual,
+    nest=T
+  )
+
+#Cálculo del indicador ----------------
+indicador_dir <-
+  disenoDOM %>% group_by(id_region) %>%
+  filter(ocupado == 1 & pet == 1) %>%
+  summarise(
+    n = unweighted(n()),
+    Rd = survey_ratio(
+      numerator = orden_sector == 2 ,
+      denominator = 1,
+      vartype = c("se", "ci"),
+      deff = F
+    )
+  )
+```
+
+creando el gráfico 
+
+```{r}
+data_plot <- left_join(estimaciones_agregada, 
+                       indicador_dir, by = 'id_region')  %>% data.frame()
+
+temp <- data_plot %>% select(-Rd_low, -Rd_upp,-Rd_se) %>%
+  gather(key = "Estimacion",value = "value", -n,-id_region) %>% 
+  mutate(Estimacion = case_when(Estimacion == "FH" ~ "Fay Harriot",
+                                Estimacion == "FH_bench" ~ "FH bench",
+                                Estimacion == "Rd"~ "Directo",
+                                      TRUE ~ Estimacion))
+lims_IC <-  data_plot %>%
+  select(n,id_region,value = Rd, Rd_low, Rd_upp) %>% 
+  mutate(Estimacion = "Directo")
+
+p <- ggplot(temp,
+            aes(
+              x = fct_reorder2(id_region, id_region, n),
+              y = value,
+              shape = Estimacion,
+              color = Estimacion
+            )) +
+  geom_errorbar(
+    data = lims_IC,
+    aes(ymin = Rd_low ,
+        ymax = Rd_upp, x = id_region),
+    width = 0.2,
+    size = 1
+  )  +
+  geom_jitter(size = 3)+
+  labs(x = "Región")
+ggplotly(p)
+
+```
+

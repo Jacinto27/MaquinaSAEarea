@@ -215,7 +215,7 @@ for (i in 1:D) {
 }
 
 
-#------------------ Gráfico de Distancias de Cook por comuna ------------------#
+#------------------ Gráfico de Distancias de Cook  ------------------#
 data.frame(cookDis = CD, dominios = base_completa$DES_MUNICIPIO) %>% 
   filter(cookDis > 0.1)
 

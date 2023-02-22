@@ -10,19 +10,24 @@ library(plotly)
 library(dplyr)
 library(tidyr)
 library(forcats)
+library(survey)
+library(srvyr)
 
 encuestaDOM <-  readRDS("Data/encuestaDOM.Rds")
-tablafinal <- readRDS('Data/TablaFinal.Rds')
-estimacionesBench <- readRDS('Data/estimacionesBench.Rds') 
+estimacionesPre <- readRDS('Data/estimacionesBench.Rds') %>% 
+  dplyr::select(id_region, id_dominio, W_i)
 
-estimaciones_agregada <- estimacionesBench %>% 
+TablaFinal <- readRDS('Data/TablaFinal.Rds') %>% 
+  inner_join(estimacionesPre, by = "id_dominio")
+
+base_completa <- readRDS('Data/base_completa.Rds')
+############## Estimación agregada ######################
+estimaciones_agregada <- TablaFinal %>% data.frame() %>% 
   group_by(id_region) %>% 
   summarize(
-    Sintetico=sum(
-      W_i*((FH-Gamma*Direct)/(1-Gamma))
-      , na.rm=T),
+    Sintetico=sum(W_i*sintetico_back),
     FH_bench=sum(W_i*FH_RBench),
-    FH = sum(W_i*FH)
+    FH = sum(W_i*FayHerriot)
   )
 
 options(survey.lonely.psu= 'adjust' )

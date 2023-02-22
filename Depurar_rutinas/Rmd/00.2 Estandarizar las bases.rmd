@@ -13,16 +13,38 @@ project:
   type: website
   output-dir: docs
 ---
--
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  cache.path = "0Recursos/002/",
+  fig.path = "0Recursos/002/"
+)
+library(printr)
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+library(rstan)
+library(rstantools)
+library(rstanarm)
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
 ```
 
 # Introducción 
 
 El código presentado es un conjunto de sintaxis en *R* que tienen como objetivo preparar los datos necesarios para la aplicación del modelo Fay-Herriot para la estimación directa utilizando la transformación arcoseno y FGV
 
+### Lectura de librerias 
 ```{r}
 rm(list = ls())
 library(tidyverse)
@@ -32,5 +54,137 @@ library(readxl)
 library(tmap)
 library(sp)
 library(sf)
+```
+
+## Lectura de encuesta. 
+
+Se realiza la estandarización de los nombre de las comunas 'id_dominio' y 'id_region'
+
+```{r}
+encuestaDOM <-  readRDS("../Data/encuestaDOM.Rds") 
+encuestaDOM %<>% 
+  mutate(id_dominio = str_pad(string = id_municipio, width = 4, pad = "0"),
+         id_region = str_pad(string = orden_region, width = 2, pad = "0"))
+
+```
+
+## Lectura de información auxiliar (covariable)
+Lectura de información censal 
+```{r}
+auxiliar_org <-  readRDS("../Data/auxiliar_org.Rds") %>%
+  select(
+    -c(
+      "F182013_stable_lights",
+      "X2016_crops.coverfraction",
+      "X2016_urban.coverfraction",
+      "accessibility",
+      "accessibility_walking_only"
+    )
+  ) %>%
+  mutate(id_dominio = str_pad(
+    string = id_municipio,
+    width = 4,
+    pad = "0"
+  ))
+
+```
+
+Lectura de la información satelital y uniendo las bases censales. 
+
+```{r}
+auxiliar_satelital <-  readRDS("../Data/auxiliar_satelital.Rds") %>%
+  mutate_if(is.numeric, function(x)as.numeric(scale(x))) %>%  mutate(
+    ENLACE = substring(ENLACE, 3),
+    id_dominio = str_pad(
+      string = ENLACE,
+      width = 4,
+      pad = "0"
+    )
+  )
+
+statelevel_predictors <- inner_join(auxiliar_org, auxiliar_satelital, 
+                                    by = "id_dominio")
+
+```
+
+## Otra fuente de información 
+
+```{r}
+DEE_Mun <- read_xlsx('../Data/datos del DEE ONE agrupdos por municipios.xlsx') %>% 
+  mutate(id_dominio = str_pad(
+    string = Cod,
+    width = 4,
+    pad = "0"
+  ), Cod =NULL)
+
+```
+## Unificando nombres de la shapefile 
+
+```{r}
+Shapefile <- read_sf( "../shapefiles2010/MUNCenso2010.shp" ) %>% 
+  mutate(
+    ENLACE = substring(ENLACE,3),
+    id_dominio = str_pad(
+      string = ENLACE,
+      width = 4,
+      pad = "0"
+    )
+  )  %>% select(id_dominio)  
+
+```
+
+## Validando id_dominio
+
+```{r}
+encuestaDOM %>% distinct(id_dominio, DES_PROVINCIA) %>%
+  full_join(statelevel_predictors %>% distinct(id_dominio)) %>% 
+  head(10) %>% tba()
+
+encuestaDOM %>% distinct(id_dominio, DES_PROVINCIA) %>%
+  full_join(DEE_Mun %>% distinct(id_dominio, Des))%>% 
+  head(10) %>% tba()
+
+encuestaDOM %>% distinct(id_dominio, DES_PROVINCIA) %>%
+  full_join(Shapefile %>% data.frame() %>% select(id_dominio))%>% 
+  head(10) %>% tba()
+
+```
+
+## Guardar archivos  
+
+```{r,eval=FALSE}
+saveRDS(encuestaDOM, file = "../Data/encuestaDOM.Rds")
+saveRDS(statelevel_predictors, file = "../Data/statelevel_predictors_df.rds")
+saveRDS(DEE_Mun, file = "../Data/DEE_Mun.Rds")
+st_write(obj = Shapefile,"../shapefiles2010/DOM.shp")
+```
+
+## Agregados censales (municipios y región). 
+
+```{r,eval=TRUE}
+agregado_region <- readRDS("../Data/encuestaDOMRegion.Rds") %>% 
+  transmute(pp_region = hh_depto,
+           id_region = str_pad(string = grupo_region, width = 2,
+                             pad = "0"))
+tba(agregado_region)
+```
+
+Guardar archivo 
+```{r,eval=FALSE}
+saveRDS(agregado_region, file = "../Data/agregado_persona_region.rds")
+```
+
+agregados del municipio 
+```{r,eval=FALSE}
+readRDS("../Data/personas_dominio.Rds") %>% 
+  mutate( id_region = str_pad(string = orden_region, width = 2,
+                              pad = "0"),
+          orden_region = NULL,
+          pp_dominio = total_pp,
+          total_pp  = NULL,
+          id_municipio = NULL) %>% 
+  saveRDS(file = "../Data/agregado_persona_dominio.rds")  
+
+
 ```
 
