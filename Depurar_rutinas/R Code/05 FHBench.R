@@ -40,14 +40,14 @@ poligonos_dominios <- read_sf( "shapefiles2010/DOM.shp")
 id_dominio <- "id_dominio"
 #--------------------------------------------#
 base_completa <- readRDS('Data/base_completa.Rds')
-estimacion <- readRDS('Data/estimaciones.Rds')
-base_FH <- left_join(base_completa, estimacion,   by = id_dominio)
+estimacionesPre <- readRDS('Data/estimaciones.Rds')
+base_FH <- left_join(base_completa, estimacionesPre,   by = id_dominio)
 encuesta <- readRDS("Data/encuestaDOM.Rds")
 
 
 #------ Estimaciones del modelo ajustado: FH con transformación arcoseno ------#
 
-estimacionesPre <- readRDS("Data/estimaciones.Rds")
+
 fh_arcsin <- readRDS("Data/fh_arcsin.Rds")
 
 #------------------------ Tamaño poblacional por municipio -----------------------#
@@ -82,7 +82,7 @@ directoDepto <- disenoDOM %>%
     denominator = 1,
     vartype = c("se", "ci", "var", "cv"),
     deff = T
-  )) %>% ##ARREGLAR VALOR AQUI
+  )) %>% 
   transmute(id_region, theta_region = Rd)
 
 #-- Consolidación BD: Región, Comuna, estimación región, estimación FH comuna -#

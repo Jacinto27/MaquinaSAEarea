@@ -1,0 +1,36 @@
+---
+title: Estimación de la tasa de informalidad en República Dominicana empleando
+       modelos de área con transformación arcoseno
+subtitle: Estandarizar bases de datos
+author:
+- name: Andrés Gutiérrez
+  affiliation: CEPAL - Unidad de Estadísticas Sociales
+- name: Stalyn Guerrero
+  affiliation: CEPAL - Unidad de Estadísticas Sociales
+date: '`r format(Sys.Date())`'
+format: html
+project:
+  type: website
+  output-dir: docs
+---
+-
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introducción 
+
+El código presentado es un conjunto de sintaxis en *R* que tienen como objetivo preparar los datos necesarios para la aplicación del modelo Fay-Herriot para la estimación directa utilizando la transformación arcoseno y FGV
+
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(magrittr)
+library(stringr)
+library(readxl)
+library(tmap)
+library(sp)
+library(sf)
+```
+

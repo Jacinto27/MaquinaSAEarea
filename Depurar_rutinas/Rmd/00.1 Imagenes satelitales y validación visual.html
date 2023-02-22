@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.165">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Andrés Gutiérrez">
+<meta name="author" content="Stalyn Guerrero">
+<meta name="dcterms.date" content="2023-02-22">
+
+<title>Estimación de la tasa de informalidad en República Dominicana empleando modelos de área con transformación arcoseno</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="00.1 Imagenes satelitales y validación visual_files/libs/clipboard/clipboard.min.js"></script>
+<script src="00.1 Imagenes satelitales y validación visual_files/libs/quarto-html/quarto.js"></script>
+<script src="00.1 Imagenes satelitales y validación visual_files/libs/quarto-html/popper.min.js"></script>
+<script src="00.1 Imagenes satelitales y validación visual_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="00.1 Imagenes satelitales y validación visual_files/libs/quarto-html/anchor.min.js"></script>
+<link href="00.1 Imagenes satelitales y validación visual_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="00.1 Imagenes satelitales y validación visual_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="00.1 Imagenes satelitales y validación visual_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="00.1 Imagenes satelitales y validación visual_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="00.1 Imagenes satelitales y validación visual_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+<script src="00.1 Imagenes satelitales y validación visual_files/libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="00.1 Imagenes satelitales y validación visual_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Estimación de la tasa de informalidad en República Dominicana empleando modelos de área con transformación arcoseno</h1>
+<p class="subtitle lead">Descarga de imágenes satelitales y validación de visual</p>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Authors</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    Andrés Gutiérrez 
+  </div>
+    <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            CEPAL - Unidad de Estadísticas Sociales
+          </p>
+      </div>
+      <div class="quarto-title-meta-contents">
+    Stalyn Guerrero 
+  </div>
+    <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            CEPAL - Unidad de Estadísticas Sociales
+          </p>
+      </div>
+    </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 22, 2023</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<section id="introducción." class="level1">
+<h1>Introducción.</h1>
+<p>La técnica de estimación de áreas pequeñas conocida como Fay-Herriot, se basa en la combinación de información de una muestra de la población y de una fuente auxiliar, como las imágenes satelitales. Esta técnica se utiliza para mejorar la precisión de las estimaciones de áreas pequeñas, especialmente cuando la muestra de la población es limitada o no es representativa de la población completa.</p>
+<p>Las imágenes satelitales pueden proporcionar información sobre características geográficas y ambientales de una zona, como la densidad de vegetación, el tipo de suelo, el uso del suelo, la topografía, entre otros. Esta información se puede utilizar para mejorar las estimaciones de las características de la población que se está estudiando.</p>
+<p>La técnica Fay-Herriot es muy útil en áreas pequeñas donde la variabilidad de los datos es alta y la muestra es limitada. Las imágenes satelitales pueden ayudar a compensar la falta de información y proporcionar una fuente adicional de datos para mejorar las estimaciones.</p>
+</section>
+<section id="librerias-requeridas" class="level1">
+<h1>Librerias requeridas</h1>
+<p>Para realizar la descarga de imágenes satelitales, se debe surtir un proceso previo donde se enlazan, <em>R</em> - <em>Python</em> y <em>Google Earth Engine</em>. Después de haber realizado la configuración requerida es posible realizar la descarga de información desde Google Earth Engine usando <em>R</em>. A continuación se listan las librerías necesaria para obtener la información.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-1_33380f030cd49296e5d2cbf54e2a3ea2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())      <span class="co"># Limpiar la memoria de R. </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">memory.limit</span>(<span class="dv">500000</span>) <span class="co"># Aumentar los limites de la memoria de procesamiento</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] Inf</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)   <span class="co"># Procesamiento de bases de datos.</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reticulate)  <span class="co"># Conexión con Python</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rgee)        <span class="co"># Conexión con Google Earth Engine</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)          <span class="co"># Paquete para manejar datos geográficos</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sp)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(concaveman)  <span class="co"># Colapso de polígonos dentro de un archivo shapefile. </span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(geojsonio)   <span class="co"># Requerido por rgee </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="inicializando-google-earth-engine-desde-r" class="level1">
+<h1>Inicializando Google Earth Engine desde R</h1>
+<p>El proceso de la descarga de información de Google Earth Engine comienza con el inicio de sesión en Google Earth Engine desde R, para ello se debe ejecutar el siguiente bloque de código, donde <em>“C://Users//sguerrero//Anaconda3//envs//rgee_py//python.exe”</em> debe ser sustituido por la ruta donde creo el espacio de trabajo para <strong>Python</strong>.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-2_e0272a8fb5e1fddcd3131449495fecdf">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>rgee_environment_dir <span class="ot">=</span> <span class="st">"C://Users//sguerrero//Anaconda3//envs//rgee_py//python.exe"</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Configurar python (Algunas veces no es detectado y se debe reiniciar R)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>reticulate<span class="sc">::</span><span class="fu">use_python</span>(rgee_environment_dir, <span class="at">required =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Al ejecutar la linea de código seleccione la opción <em>2</em></p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-3_7ae9e257b87531ca0ecb62b0397cc6d2">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>rgee<span class="sc">::</span><span class="fu">ee_install_set_pyenv</span>(<span class="at">py_path =</span> rgee_environment_dir, <span class="at">py_env =</span> <span class="st">"rgee_py"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Por ultimo, inicialice Google Earth Engine</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-4_1c495817a1c96350f7156727ba2ed70f">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">RETICULATE_PYTHON =</span> rgee_environment_dir)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">EARTHENGINE_PYTHON =</span> rgee_environment_dir)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>rgee<span class="sc">::</span><span class="fu">ee_Initialize</span>(<span class="at">drive =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>si todo ha salido bien, debería ver un resultado como el que muestra a continuación.</p>
+<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-5_154fedc79077e0b20f94880a3c6a9ce3">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="www/Figura1_001.PNG" width="600" height="150" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="descarga-de-información-del-satélite-a-nivel-distrito." class="level1">
+<h1>Descarga de información del Satélite a nivel distrito.</h1>
+<p>Ahora se muestra el proceso de descarga de la información satélite a nivel de distrito, para ello es necesario contar con un archivo <em>Shapefile</em>. El shapefile es un formato de archivo utilizado para almacenar información geoespacial, que incluye datos de vectores como puntos, líneas y polígonos, junto con sus atributos asociados.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-6_0627eeeaad5943220f5b16b291f53b4a">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lectura del shapefile de los distritos. </span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>poligonos_distrito <span class="ot">&lt;-</span> <span class="fu">read_sf</span>( <span class="st">"shapefiles2010/DMCenso2010.shp"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Extrayendo los parámetros de la imagen satelital. </span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>luces <span class="ot">&lt;-</span> ee<span class="sc">$</span><span class="fu">ImageCollection</span>(<span class="st">"NOAA/DMSP-OLS/NIGHTTIME_LIGHTS"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">filterDate</span>(<span class="st">"2013-01-01"</span>, <span class="st">"2014-01-01"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">map</span>(<span class="cf">function</span>(x) x<span class="sc">$</span><span class="fu">select</span>(<span class="st">"stable_lights"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">toBands</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Obteniendo la medida de resumen (media) de los pixeles de la imagen. El proceso se realiza distrito a distrito. La sintaxis que es utilizada corresponde a una mologación de código <strong>Java</strong> en <strong>R</strong>.</p>
+<p><strong>Nota:</strong> Un píxel es un punto o un pequeño cuadrado que contiene información de color y brillo que se utiliza para representar una porción de la imagen.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-7_9217835a6bc2e6a482fe07560b2d0692">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>DOM_luces_distrito <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_distrito<span class="sc">$</span>ENLACE),</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">ee_extract</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> luces,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_distrito[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Dado que la información fue extraída por separada para cada distrito. A continuación se muestra como se crea un ‘data.frame’ a partir de la lista ‘DOM_luces_distrito’</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-8_e2c9432433129d28b892af3367c5982c">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>DOM_luces_distrito <span class="sc">%&lt;&gt;%</span> <span class="fu">bind_rows</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Para obtener un mapa con los resultados obtenidos se ejecuta la sintaxis siguiente.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-9_b94c1fe306e0680a17ebe3cfcbde0810">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>poligonos_distrito <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(poligonos_distrito, DOM_luces_distrito)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>map_dist <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(poligonos_distrito)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>map_dist <span class="ot">&lt;-</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  map_dist <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"F182013_stable_lights"</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Luces nocturnas(media)"</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_dist,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/Luces nocturna distr.jpg"</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>El mapa resultante se debe comparar con la información disponible en Google Earth Engine con el propósito de realizar una validación visual entre el imágen del satélite y la información descargada.</p>
+<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-10_e04f8182bd4d693787b4b6a513c9a015">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="www/Figura2_001_Luces%20nocturna%20distr.jpg" width="800" height="650" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="descarga-de-información-satélite-a-nivel-municipal" class="level1">
+<h1>Descarga de información Satélite a nivel municipal</h1>
+<p>El proceso de descarga de información satelital para el municipio sigue los mismos pasos, con pequeñas variaciones en la sintaxis acorde con la información satelital que se este obteniendo.</p>
+<section id="luces-nocturnas" class="level2">
+<h2 class="anchored" data-anchor-id="luces-nocturnas">Luces nocturnas</h2>
+<p>Para cada una de las variables satelitales se emplea como medida de resumen la media y la suma.</p>
+<p>Lectura de la shapefile del municipio.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-11_22fa49c9d12ccc0d354aa5de9118776c">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>poligonos_minucipio <span class="ot">&lt;-</span> <span class="fu">read_sf</span>( <span class="st">"../shapefiles2010/MUNCenso2010.shp"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-12_1041f1fd8b88d5f96499deb9fa84a590">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>luces <span class="ot">&lt;-</span> ee<span class="sc">$</span><span class="fu">ImageCollection</span>(<span class="st">"NOAA/DMSP-OLS/NIGHTTIME_LIGHTS"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">filterDate</span>(<span class="st">"2013-01-01"</span>, <span class="st">"2014-01-01"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">map</span>(<span class="cf">function</span>(x) x<span class="sc">$</span><span class="fu">select</span>(<span class="st">"stable_lights"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">toBands</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="medida-de-resumen-la-media" class="level3">
+<h3 class="anchored" data-anchor-id="medida-de-resumen-la-media">Medida de resumen la media</h3>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-13_c85144596cecda5469d1b5cee3d5448c">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>DOM_luces <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> luces,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>DOM_luces <span class="sc">%&lt;&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_luces_mean.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="medida-de-resumen-suma" class="level3">
+<h3 class="anchored" data-anchor-id="medida-de-resumen-suma">Medida de resumen suma</h3>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-14_16310633435bd76111528b9ffd6bf879">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>DOM_luces <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> luces,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">sum</span>(),</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>DOM_luces <span class="sc">%&lt;&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_luces_sum.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="cubrimiento-urbano-y-cubrimiento-cultivos" class="level2">
+<h2 class="anchored" data-anchor-id="cubrimiento-urbano-y-cubrimiento-cultivos">Cubrimiento urbano y cubrimiento cultivos</h2>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-15_e32436f9af46d1d0ce4baa40398bf2da">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>tiposuelo <span class="ot">=</span> ee<span class="sc">$</span><span class="fu">ImageCollection</span>(<span class="st">"COPERNICUS/Landcover/100m/Proba-V-C3/Global"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">filterDate</span>(<span class="st">"2016-01-01"</span>, <span class="st">"2016-12-31"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">map</span>(<span class="cf">function</span>(x) x<span class="sc">$</span><span class="fu">select</span>(<span class="st">"urban-coverfraction"</span>, <span class="st">"crops-coverfraction"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">toBands</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="medida-de-resumen-la-media-1" class="level3">
+<h3 class="anchored" data-anchor-id="medida-de-resumen-la-media-1">Medida de resumen la media</h3>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-16_d6a7692c7ea4057c6cc528ba3e7b5b44">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>DOM_suelo <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> tiposuelo,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>DOM_suelo <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_suelo_mean.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="medida-de-resumen-suma-1" class="level3">
+<h3 class="anchored" data-anchor-id="medida-de-resumen-suma-1">Medida de resumen suma</h3>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-17_7134ae1ee3fb40eac139f33923053430">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>DOM_suelo <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> tiposuelo,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">sum</span>(),</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>DOM_suelo <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_suelo_suma.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="distancia-a-hospitales" class="level2">
+<h2 class="anchored" data-anchor-id="distancia-a-hospitales">Distancia a hospitales</h2>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-18_d7ec9a371ca97f5037b725cd367faf04">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>dist_salud <span class="ot">=</span> ee<span class="sc">$</span><span class="fu">Image</span>(<span class="st">'Oxford/MAP/accessibility_to_healthcare_2019'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="medida-de-resumen-la-media-2" class="level3">
+<h3 class="anchored" data-anchor-id="medida-de-resumen-la-media-2">Medida de resumen la media</h3>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-19_7479511cefc0f41ca51f1089c91b6834">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>DOM_dist_salud <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> dist_salud,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>DOM_dist_salud <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_salud_mean.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="medida-de-resumen-suma-2" class="level3">
+<h3 class="anchored" data-anchor-id="medida-de-resumen-suma-2">Medida de resumen suma</h3>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-20_c3f1da676e651cad9b22f8b3cb0b8ce1">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>DOM_dist_salud <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                      <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">x =</span> dist_salud,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                        ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">sum</span>(),</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>                      ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>DOM_dist_salud <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_salud_suma.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="csp-ghm-global-human-modification" class="level2">
+<h2 class="anchored" data-anchor-id="csp-ghm-global-human-modification">CSP gHM: Global Human Modification</h2>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-21_5824cf56c796cea0f8bf6dfd1ff8e847">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>CSP_gHM <span class="ot">=</span> ee<span class="sc">$</span><span class="fu">ImageCollection</span>(<span class="st">'CSP/HM/GlobalHumanModification'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="medida-de-resumen-la-media-3" class="level3">
+<h3 class="anchored" data-anchor-id="medida-de-resumen-la-media-3">Medida de resumen la media</h3>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-22_171433d55f22a4ba6cd266ee336e316b">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>DOM_CSP_gHM <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                      <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">x =</span> CSP_gHM,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                        ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>                      ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">id_municipio =</span> .x)))</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>DOM_CSP_gHM <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_gHM_mean.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="medida-de-resumen-suma-3" class="level3">
+<h3 class="anchored" data-anchor-id="medida-de-resumen-suma-3">Medida de resumen suma</h3>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-23_46b040db79445d7429d6af4f5238e6bc">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>DOM_CSP_gHM <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                   <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">x =</span> CSP_gHM,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>                     ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">sum</span>(),</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>                   ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>                   <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">id_municipio =</span> .x)))</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>DOM_CSP_gHM <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_gHM_suma.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="consolidando-las-variables-satelitales" class="level1">
+<h1>Consolidando las variables satelitales</h1>
+<p>Ahora que toda las variables satelitales fueron descargadas y almacenadas en un archivo ‘.rds’ se deben consolidar en un único archivo, para lo cual se utiliza el siguiente código. Además de renombrar las variables.</p>
+<section id="medida-de-resumen-la-media-4" class="level3">
+<h3 class="anchored" data-anchor-id="medida-de-resumen-la-media-4">Medida de resumen la media</h3>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-24_7eb811d7f2489d5a1824fd79266945c7">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>satelital_promedio <span class="ot">&lt;-</span> <span class="fu">reduce</span>(<span class="fu">list</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_gHM_mean.rds"</span>),</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_salud_mean.rds"</span>),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_suelo_mean.rds"</span>),</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_luces_mean.rds"</span>)), inner_join) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">luces_nocturnas =</span> F182013_stable_lights,</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">cubrimiento_cultivo =</span> X2016_crops.coverfraction,</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">cubrimiento_urbano =</span> X2016_urban.coverfraction,</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">accesibilidad_hospitales =</span> accessibility,</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">accesibilidad_hosp_caminado =</span> accessibility_walking_only,</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">modificacion_humana =</span> X2016_gHM)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="fu">tba</span>(<span class="fu">head</span>(satelital_promedio, <span class="dv">15</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped lightable-classic" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> ENLACE </th>
+   <th style="text-align:right;"> modificacion_humana </th>
+   <th style="text-align:right;"> accesibilidad_hospitales </th>
+   <th style="text-align:right;"> accesibilidad_hosp_caminado </th>
+   <th style="text-align:right;"> cubrimiento_cultivo </th>
+   <th style="text-align:right;"> cubrimiento_urbano </th>
+   <th style="text-align:right;"> luces_nocturnas </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> 100101 </td>
+   <td style="text-align:right;"> 0.8512 </td>
+   <td style="text-align:right;"> 0.6314 </td>
+   <td style="text-align:right;"> 8.2032 </td>
+   <td style="text-align:right;"> 0.4969 </td>
+   <td style="text-align:right;"> 82.3803 </td>
+   <td style="text-align:right;"> 61.6816 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050201 </td>
+   <td style="text-align:right;"> 0.3896 </td>
+   <td style="text-align:right;"> 52.3864 </td>
+   <td style="text-align:right;"> 168.3625 </td>
+   <td style="text-align:right;"> 8.0452 </td>
+   <td style="text-align:right;"> 3.9507 </td>
+   <td style="text-align:right;"> 5.4292 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050202 </td>
+   <td style="text-align:right;"> 0.3493 </td>
+   <td style="text-align:right;"> 38.2478 </td>
+   <td style="text-align:right;"> 162.7940 </td>
+   <td style="text-align:right;"> 6.1779 </td>
+   <td style="text-align:right;"> 1.6302 </td>
+   <td style="text-align:right;"> 2.4353 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050203 </td>
+   <td style="text-align:right;"> 0.2800 </td>
+   <td style="text-align:right;"> 56.4654 </td>
+   <td style="text-align:right;"> 136.7688 </td>
+   <td style="text-align:right;"> 4.2257 </td>
+   <td style="text-align:right;"> 0.5977 </td>
+   <td style="text-align:right;"> 0.9202 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050204 </td>
+   <td style="text-align:right;"> 0.2309 </td>
+   <td style="text-align:right;"> 73.5606 </td>
+   <td style="text-align:right;"> 189.4570 </td>
+   <td style="text-align:right;"> 4.5242 </td>
+   <td style="text-align:right;"> 0.5840 </td>
+   <td style="text-align:right;"> 0.4475 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050205 </td>
+   <td style="text-align:right;"> 0.3025 </td>
+   <td style="text-align:right;"> 105.4853 </td>
+   <td style="text-align:right;"> 260.1237 </td>
+   <td style="text-align:right;"> 4.0241 </td>
+   <td style="text-align:right;"> 1.1075 </td>
+   <td style="text-align:right;"> 0.5929 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050206 </td>
+   <td style="text-align:right;"> 0.4615 </td>
+   <td style="text-align:right;"> 33.5826 </td>
+   <td style="text-align:right;"> 133.0851 </td>
+   <td style="text-align:right;"> 14.9559 </td>
+   <td style="text-align:right;"> 3.4069 </td>
+   <td style="text-align:right;"> 2.6681 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050207 </td>
+   <td style="text-align:right;"> 0.6151 </td>
+   <td style="text-align:right;"> 13.9386 </td>
+   <td style="text-align:right;"> 105.5657 </td>
+   <td style="text-align:right;"> 12.0439 </td>
+   <td style="text-align:right;"> 4.0286 </td>
+   <td style="text-align:right;"> 7.1367 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050208 </td>
+   <td style="text-align:right;"> 0.3218 </td>
+   <td style="text-align:right;"> 48.4565 </td>
+   <td style="text-align:right;"> 134.1144 </td>
+   <td style="text-align:right;"> 5.3874 </td>
+   <td style="text-align:right;"> 1.4284 </td>
+   <td style="text-align:right;"> 1.8673 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050209 </td>
+   <td style="text-align:right;"> 0.2043 </td>
+   <td style="text-align:right;"> 134.2056 </td>
+   <td style="text-align:right;"> 324.6904 </td>
+   <td style="text-align:right;"> 2.6433 </td>
+   <td style="text-align:right;"> 0.3586 </td>
+   <td style="text-align:right;"> 0.0286 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050210 </td>
+   <td style="text-align:right;"> 0.2702 </td>
+   <td style="text-align:right;"> 56.6110 </td>
+   <td style="text-align:right;"> 173.5820 </td>
+   <td style="text-align:right;"> 4.6026 </td>
+   <td style="text-align:right;"> 0.5170 </td>
+   <td style="text-align:right;"> 1.6565 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 060301 </td>
+   <td style="text-align:right;"> 0.4137 </td>
+   <td style="text-align:right;"> 56.5053 </td>
+   <td style="text-align:right;"> 254.6072 </td>
+   <td style="text-align:right;"> 9.3719 </td>
+   <td style="text-align:right;"> 2.8411 </td>
+   <td style="text-align:right;"> 4.0678 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 060302 </td>
+   <td style="text-align:right;"> 0.3323 </td>
+   <td style="text-align:right;"> 46.2911 </td>
+   <td style="text-align:right;"> 247.5742 </td>
+   <td style="text-align:right;"> 4.5119 </td>
+   <td style="text-align:right;"> 1.1275 </td>
+   <td style="text-align:right;"> 1.7294 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 060303 </td>
+   <td style="text-align:right;"> 0.3136 </td>
+   <td style="text-align:right;"> 58.1096 </td>
+   <td style="text-align:right;"> 259.7428 </td>
+   <td style="text-align:right;"> 8.3016 </td>
+   <td style="text-align:right;"> 1.2898 </td>
+   <td style="text-align:right;"> 2.1443 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 060304 </td>
+   <td style="text-align:right;"> 0.3264 </td>
+   <td style="text-align:right;"> 84.6066 </td>
+   <td style="text-align:right;"> 396.0371 </td>
+   <td style="text-align:right;"> 2.4981 </td>
+   <td style="text-align:right;"> 2.1171 </td>
+   <td style="text-align:right;"> 1.5881 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</section>
+<section id="medida-de-resumen-suma-4" class="level3">
+<h3 class="anchored" data-anchor-id="medida-de-resumen-suma-4">Medida de resumen suma</h3>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-25_328afcc49847c93d7babd76d203180ed">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>satelital_suma <span class="ot">&lt;-</span> <span class="fu">reduce</span>(<span class="fu">list</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_gHM_suma.rds"</span>),</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_salud_suma.rds"</span>),</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_suelo_suma.rds"</span>),</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_luces_sum.rds"</span>)), inner_join) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">luces_nocturnas =</span> F182013_stable_lights,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">cubrimiento_cultivo =</span> X2016_crops.coverfraction,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">cubrimiento_urbano =</span> X2016_urban.coverfraction,</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">accesibilidad_hospitales =</span> accessibility,</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">accesibilidad_hosp_caminado =</span> accessibility_walking_only,</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">modificacion_humana =</span> X2016_gHM)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="fu">tba</span>(<span class="fu">head</span>(satelital_suma, <span class="dv">15</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped lightable-classic" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> ENLACE </th>
+   <th style="text-align:right;"> modificacion_humana </th>
+   <th style="text-align:right;"> accesibilidad_hospitales </th>
+   <th style="text-align:right;"> accesibilidad_hosp_caminado </th>
+   <th style="text-align:right;"> cubrimiento_cultivo </th>
+   <th style="text-align:right;"> cubrimiento_urbano </th>
+   <th style="text-align:right;"> luces_nocturnas </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> 100101 </td>
+   <td style="text-align:right;"> 82.5124 </td>
+   <td style="text-align:right;"> 57.4419 </td>
+   <td style="text-align:right;"> 746.2627 </td>
+   <td style="text-align:right;"> 50.6941 </td>
+   <td style="text-align:right;"> 8405.0510 </td>
+   <td style="text-align:right;"> 5983.3569 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050201 </td>
+   <td style="text-align:right;"> 171.3378 </td>
+   <td style="text-align:right;"> 22531.8859 </td>
+   <td style="text-align:right;"> 72414.3451 </td>
+   <td style="text-align:right;"> 3716.1412 </td>
+   <td style="text-align:right;"> 1824.8588 </td>
+   <td style="text-align:right;"> 2393.9961 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050202 </td>
+   <td style="text-align:right;"> 91.2574 </td>
+   <td style="text-align:right;"> 9832.0875 </td>
+   <td style="text-align:right;"> 41848.2706 </td>
+   <td style="text-align:right;"> 1694.9412 </td>
+   <td style="text-align:right;"> 447.2667 </td>
+   <td style="text-align:right;"> 636.1412 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050203 </td>
+   <td style="text-align:right;"> 127.9557 </td>
+   <td style="text-align:right;"> 25805.5575 </td>
+   <td style="text-align:right;"> 62505.4706 </td>
+   <td style="text-align:right;"> 2037.2706 </td>
+   <td style="text-align:right;"> 288.1608 </td>
+   <td style="text-align:right;"> 420.5569 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050204 </td>
+   <td style="text-align:right;"> 140.4386 </td>
+   <td style="text-align:right;"> 44815.7165 </td>
+   <td style="text-align:right;"> 115423.8745 </td>
+   <td style="text-align:right;"> 2912.0353 </td>
+   <td style="text-align:right;"> 375.8863 </td>
+   <td style="text-align:right;"> 272.5804 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050205 </td>
+   <td style="text-align:right;"> 41.4888 </td>
+   <td style="text-align:right;"> 14465.5526 </td>
+   <td style="text-align:right;"> 35671.6275 </td>
+   <td style="text-align:right;"> 582.4549 </td>
+   <td style="text-align:right;"> 160.3020 </td>
+   <td style="text-align:right;"> 81.3137 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050206 </td>
+   <td style="text-align:right;"> 55.5381 </td>
+   <td style="text-align:right;"> 4050.7147 </td>
+   <td style="text-align:right;"> 16052.6667 </td>
+   <td style="text-align:right;"> 1897.8784 </td>
+   <td style="text-align:right;"> 432.3294 </td>
+   <td style="text-align:right;"> 321.6784 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050207 </td>
+   <td style="text-align:right;"> 31.3481 </td>
+   <td style="text-align:right;"> 703.2686 </td>
+   <td style="text-align:right;"> 5326.3059 </td>
+   <td style="text-align:right;"> 646.2588 </td>
+   <td style="text-align:right;"> 216.1686 </td>
+   <td style="text-align:right;"> 363.6078 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050208 </td>
+   <td style="text-align:right;"> 93.6305 </td>
+   <td style="text-align:right;"> 14104.8195 </td>
+   <td style="text-align:right;"> 39038.3216 </td>
+   <td style="text-align:right;"> 1653.1882 </td>
+   <td style="text-align:right;"> 438.3294 </td>
+   <td style="text-align:right;"> 543.3216 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050209 </td>
+   <td style="text-align:right;"> 51.0529 </td>
+   <td style="text-align:right;"> 33551.4108 </td>
+   <td style="text-align:right;"> 81172.5922 </td>
+   <td style="text-align:right;"> 697.5176 </td>
+   <td style="text-align:right;"> 94.6353 </td>
+   <td style="text-align:right;"> 7.1373 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 050210 </td>
+   <td style="text-align:right;"> 61.0249 </td>
+   <td style="text-align:right;"> 12601.1716 </td>
+   <td style="text-align:right;"> 38637.9882 </td>
+   <td style="text-align:right;"> 1095.7882 </td>
+   <td style="text-align:right;"> 123.0863 </td>
+   <td style="text-align:right;"> 374.0510 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 060301 </td>
+   <td style="text-align:right;"> 123.7160 </td>
+   <td style="text-align:right;"> 16886.6670 </td>
+   <td style="text-align:right;"> 76089.6196 </td>
+   <td style="text-align:right;"> 2952.5961 </td>
+   <td style="text-align:right;"> 895.0941 </td>
+   <td style="text-align:right;"> 1215.5412 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 060302 </td>
+   <td style="text-align:right;"> 99.1125 </td>
+   <td style="text-align:right;"> 13793.4891 </td>
+   <td style="text-align:right;"> 73770.3098 </td>
+   <td style="text-align:right;"> 1418.2078 </td>
+   <td style="text-align:right;"> 354.4157 </td>
+   <td style="text-align:right;"> 515.6078 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 060303 </td>
+   <td style="text-align:right;"> 144.3256 </td>
+   <td style="text-align:right;"> 26755.0105 </td>
+   <td style="text-align:right;"> 119591.6784 </td>
+   <td style="text-align:right;"> 4030.1922 </td>
+   <td style="text-align:right;"> 626.1412 </td>
+   <td style="text-align:right;"> 987.0039 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 060304 </td>
+   <td style="text-align:right;"> 44.6838 </td>
+   <td style="text-align:right;"> 12292.1785 </td>
+   <td style="text-align:right;"> 57538.7490 </td>
+   <td style="text-align:right;"> 382.9333 </td>
+   <td style="text-align:right;"> 324.5333 </td>
+   <td style="text-align:right;"> 230.7216 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<p>Por último, se guarda el archivo que contiene las dos medidas de resumen en un nuevo ‘.rds’</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-26_9836bd3a7faab2ede98cc80179a451c1">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">inner_join</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  satelital_promedio,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  satelital_suma,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="st">"ENLACE"</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">"_promedio"</span>, <span class="st">"_suma"</span>)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"Data/auxiliar_satelital.Rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="creando-mapas-de-las-variables-satelitales" class="level1">
+<h1>Creando mapas de las variables satelitales</h1>
+<p>Como parte del proceso de validación se construyen los mapas de cada una variables y se deben comparar con la imagen disponible en <em>Google Earth Engine</em>. Ahora, se realiza la unión entre los polígonos (shapefile) y las ‘data.frame’ con las variables satelitales</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-27_55a6e7e60b0de33053f7363457bb0b4b">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>poligonos_promedio <span class="ot">&lt;-</span> <span class="fu">read_sf</span>( <span class="st">"../shapefiles2010/MUNCenso2010.shp"</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(ENLACE) <span class="sc">%&gt;%</span> <span class="fu">inner_join</span>(satelital_promedio) </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>poligonos_suma <span class="ot">&lt;-</span> <span class="fu">read_sf</span>( <span class="st">"../shapefiles2010/MUNCenso2010.shp"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a> dplyr<span class="sc">::</span><span class="fu">select</span>(ENLACE) <span class="sc">%&gt;%</span> <span class="fu">inner_join</span>(satelital_suma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>El siguiente paso es crear un objeto ‘tamp’, para crear los mapas.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-28_fbe09578006b21440872047a73d56a13">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(poligonos_suma)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(poligonos_promedio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Ahora, se crean los mapas cara una de las variables.</p>
+<section id="modificacion-humana" class="level3">
+<h3 class="anchored" data-anchor-id="modificacion-humana">Modificacion humana</h3>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-29_16b35b5833662e09963e5ba7abdcb00f">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>m1_modificacion_humana<span class="ot">&lt;-</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"modificacion_humana"</span>,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"modificacion_humana(suma)"</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>m2_modificacion_humana <span class="ot">&lt;-</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"modificacion_humana"</span>,</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"modificacion_humana(media)"</span>,</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>map_modificacion_humana <span class="ot">&lt;-</span> <span class="fu">tmap_arrange</span>(<span class="fu">list</span>(m1_modificacion_humana,</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>                                             m2_modificacion_humana),</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">norw =</span> <span class="dv">1</span>)</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>map_modificacion_humana</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="0Recursos/001/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Para guardar el mapa utilizamos la sintaxis.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-30_598b2d7849a93a519d73f7d23d1ce503">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_modificacion_humana,</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/modificacion_humana.jpg"</span>,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="accesibilidad-hospitales-caminado" class="level2">
+<h2 class="anchored" data-anchor-id="accesibilidad-hospitales-caminado">Accesibilidad hospitales caminado</h2>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-31_c159a8a89cbf8191bb9e3e50769739f9">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>m1_accesibilidad_hosp_caminado<span class="ot">&lt;-</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"accesibilidad_hosp_caminado"</span>,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"accesibilidad_hosp_caminado(suma)"</span>,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>m2_accesibilidad_hosp_caminado <span class="ot">&lt;-</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"accesibilidad_hosp_caminado"</span>,</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"accesibilidad_hosp_caminado(media)"</span>,</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>map_accesibilidad_hosp_caminado <span class="ot">&lt;-</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tmap_arrange</span>(</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(</span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>      m1_accesibilidad_hosp_caminado,</span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>      m2_accesibilidad_hosp_caminado</span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">norw =</span> <span class="dv">1</span></span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>map_accesibilidad_hosp_caminado</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="0Recursos/001/unnamed-chunk-31-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Para guardar el mapa utilizamos la sintaxis.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-32_94203a918e7ca137a748df0108c8fb4e">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_accesibilidad_hosp_caminado,</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/accesibilidad_hosp_caminado.jpg"</span>,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="accesibilidad-hospitales" class="level2">
+<h2 class="anchored" data-anchor-id="accesibilidad-hospitales">Accesibilidad hospitales</h2>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-33_cb86f3a130903262ac6c922d1ab61e3b">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>m1_accesibilidad_hospitales <span class="ot">&lt;-</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"accesibilidad_hospitales"</span>,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"accesibilidad_hospitales(suma)"</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>m2_accesibilidad_hospitales <span class="ot">&lt;-</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"accesibilidad_hospitales"</span>,</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"accesibilidad_hospitales(media)"</span>,</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>map_accesibilidad_hospitales <span class="ot">&lt;-</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tmap_arrange</span>(</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(m1_accesibilidad_hospitales,</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>         m2_accesibilidad_hospitales),</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">norw =</span> <span class="dv">1</span></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>map_accesibilidad_hospitales</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="0Recursos/001/unnamed-chunk-33-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Para guardar el mapa utilizamos la sintaxis.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-34_dcca7337500ed87fb6e3da6633b87c20">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_accesibilidad_hospitales,</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/accesibilidad_hospitales.jpg"</span>,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="cubrimiento-urbano" class="level2">
+<h2 class="anchored" data-anchor-id="cubrimiento-urbano">Cubrimiento urbano</h2>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-35_c2a750640e7d8e55c01c239656087fb2">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>m1_cubrimiento_urbano <span class="ot">&lt;-</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cubrimiento_urbano"</span>,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"cubrimiento_urbano(suma)"</span>,</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>m2_cubrimiento_urbano <span class="ot">&lt;-</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cubrimiento_urbano"</span>,</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"cubrimiento_urbano(media)"</span>,</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>map_cubrimiento_urbano <span class="ot">&lt;-</span> <span class="fu">tmap_arrange</span>(</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(m1_cubrimiento_urbano,</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>       m2_cubrimiento_urbano),</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">norw =</span> <span class="dv">1</span></span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>map_cubrimiento_urbano</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="0Recursos/001/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Para guardar el mapa utilizamos la sintaxis.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-36_e76db1e12b708ed3b648ce0702c6f010">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_cubrimiento_urbano,</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/cubrimiento_urbano.jpg"</span>,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="cubrimiento-cultivo" class="level2">
+<h2 class="anchored" data-anchor-id="cubrimiento-cultivo">Cubrimiento cultivo</h2>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-37_a3491b5b66aa3f380d6acdd9203ceeab">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>m1_cubrimiento_cultivo <span class="ot">&lt;-</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cubrimiento_cultivo"</span>,</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"cubrimiento_cultivo(suma)"</span>,</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>m2_cubrimiento_cultivo <span class="ot">&lt;-</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cubrimiento_cultivo"</span>,</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"cubrimiento_cultivo(media)"</span>,</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>map_cubrimiento_cultivo <span class="ot">&lt;-</span></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tmap_arrange</span>(</span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(m1_cubrimiento_cultivo, m2_cubrimiento_cultivo),</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">norw =</span> <span class="dv">1</span></span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>map_cubrimiento_cultivo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="0Recursos/001/unnamed-chunk-37-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Para guardar el mapa utilizamos la sintaxis.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-38_e18af94784ec9abd0f1a555d965745ba">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_cubrimiento_cultivo,</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/cubrimiento_cultivo.jpg"</span>,</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="luces-nocturnas-1" class="level2">
+<h2 class="anchored" data-anchor-id="luces-nocturnas-1">Luces nocturnas</h2>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-39_6243e7e36669e3f0c7152de998250cdf">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>m1_luces <span class="ot">&lt;-</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"luces_nocturnas"</span>,</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"luces_nocturnas(suma)"</span>,</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>m2_luces <span class="ot">&lt;-</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"luces_nocturnas"</span>,</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"luces_nocturnas(media)"</span>,</span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>map_luces <span class="ot">&lt;-</span> <span class="fu">tmap_arrange</span>(<span class="fu">list</span>(m1_luces,m2_luces),</span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>                          <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>                          <span class="at">norw =</span> <span class="dv">1</span>)</span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>map_luces</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Para guardar el mapa utilizamos la sintaxis.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-40_ce3723bae3a4e8d819d4ea78e70a7ece">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_luces,</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/luces.jpg"</span>,</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">6920</span>,</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">4080</span>,</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="correlación-estimación-directa" class="level2">
+<h2 class="anchored" data-anchor-id="correlación-estimación-directa">Correlación estimación directa</h2>
+<p>Crear una columnas para identificar los dominios en cada base.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-41_5460aca141f130ac46d0b00d5a201c5d">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>satelital_suma <span class="sc">%&lt;&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dominio =</span> <span class="fu">substring</span>(ENLACE, <span class="dv">3</span>),</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">string =</span> id_dominio,</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">pad =</span> <span class="st">"0"</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>satelital_promedio <span class="sc">%&lt;&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dominio =</span> <span class="fu">substring</span>(ENLACE, <span class="dv">3</span>),</span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">string =</span> id_dominio,</span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">pad =</span> <span class="st">"0"</span></span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="estimaciones-directas" class="level2">
+<h2 class="anchored" data-anchor-id="estimaciones-directas">Estimaciones directas</h2>
+<p>Leer la base de datos con las estimaciones directas previamente calculadas.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-42_758c19da4764b9d724d0fb1e64418d47">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>estimacion_dir <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../Data/base_FH.Rds"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(hat_var)) <span class="sc">%&gt;%</span> </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(id_dominio, Rd)</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>estimacion_dir_suma <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(estimacion_dir, satelital_suma)</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>estimacion_dir_promedio <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(estimacion_dir, satelital_promedio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="correlación-de-las-variables-satelital-vs-estimación-directa" class="level2">
+<h2 class="anchored" data-anchor-id="correlación-de-las-variables-satelital-vs-estimación-directa">Correlación de las variables satelital Vs estimación directa</h2>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-43_52365d90c400f0a0545f7044ad780ac5">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>cor_satelite <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    estimacion_dir_suma<span class="sc">$</span>Rd,</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    estimacion_dir_suma <span class="sc">%&gt;%</span>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>ENLACE,<span class="sc">-</span>id_dominio, <span class="sc">-</span>Rd)</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    estimacion_dir_promedio<span class="sc">$</span>Rd,</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>    estimacion_dir_promedio <span class="sc">%&gt;%</span>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>ENLACE,<span class="sc">-</span>id_dominio, <span class="sc">-</span>Rd)</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(cor_satelite) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Suma"</span>, <span class="st">"Media"</span>)</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(cor_satelite) <span class="sc">%&gt;%</span><span class="fu">tba</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-striped lightable-classic" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Suma </th>
+   <th style="text-align:right;"> Media </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> modificacion_humana </td>
+   <td style="text-align:right;"> -0.2028 </td>
+   <td style="text-align:right;"> -0.5018 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> accesibilidad_hospitales </td>
+   <td style="text-align:right;"> 0.0140 </td>
+   <td style="text-align:right;"> 0.2699 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> accesibilidad_hosp_caminado </td>
+   <td style="text-align:right;"> -0.0446 </td>
+   <td style="text-align:right;"> 0.2151 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> cubrimiento_cultivo </td>
+   <td style="text-align:right;"> -0.2582 </td>
+   <td style="text-align:right;"> -0.2252 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> cubrimiento_urbano </td>
+   <td style="text-align:right;"> -0.4682 </td>
+   <td style="text-align:right;"> -0.4248 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> luces_nocturnas </td>
+   <td style="text-align:right;"> -0.4673 </td>
+   <td style="text-align:right;"> -0.4964 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</section>
+</section>
+<section id="información-auxiliar-en-el-modelo" class="level1">
+<h1>Información auxiliar en el modelo</h1>
+<p>Creando mapas para las variables censales</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-44_d69dbedc32faaf724d365aaff58ecf7f">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>auxiliar <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../Data/auxiliar_org.Rds"</span>)  <span class="sc">%&gt;%</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>F182013_stable_lights,<span class="sc">-</span>X2016_crops.coverfraction,</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>X2016_urban.coverfraction,<span class="sc">-</span>accessibility,</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>accessibility_walking_only,<span class="sc">-</span>ID_PROVINCIA</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_if</span>(is.numeric) <span class="sc">%&gt;%</span> </span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>   <span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">string =</span> id_municipio,</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">pad =</span> <span class="st">"0"</span></span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Lectura del polígono</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-45_162feb0edcdab354a3dba3f4d1d76533">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>poligonos_auxiliar <span class="ot">&lt;-</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_sf</span>(<span class="st">"../shapefiles2010/MUNCenso2010.shp"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_dominio =</span> <span class="fu">substring</span>(ENLACE, <span class="dv">3</span>),</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">string =</span> id_dominio,</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">pad =</span> <span class="st">"0"</span></span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(id_dominio, TOPONIMIA) <span class="sc">%&gt;%</span></span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(auxiliar)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>creando objeto de ‘tmap’</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-46_2f8ccadc2befdcf74a5c540b208c048b">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>map_auxiliar <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(poligonos_auxiliar)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (ii <span class="cf">in</span> <span class="fu">names</span>(auxiliar)[<span class="sc">-</span><span class="dv">1</span>]) {</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  m1_auxiliar <span class="ot">&lt;-</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>    map_auxiliar <span class="sc">+</span> <span class="fu">tm_polygons</span>(ii,</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>                               <span class="at">title =</span> ii,</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>                               <span class="at">palette =</span> <span class="st">"YlOrRd"</span>)</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tmap_save</span>(</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>    m1_auxiliar,</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(<span class="st">"../map_temp/"</span>, ii, <span class="st">".jpg"</span>),</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">height =</span> <span class="dv">2000</span>,</span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb46-16"><a href="#cb46-16" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

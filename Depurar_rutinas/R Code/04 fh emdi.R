@@ -35,7 +35,7 @@ library(sp)
 library(sf)
 library(dplyr)
 library(magrittr)
-#select <- dplyr::select
+select <- dplyr::select
 
 ###----------------- Cargue de función de recorte de Potter -----------------###
 
@@ -77,7 +77,7 @@ rand.eff <- fh_arcsin$model$random_effects
 srand.eff <- (rand.eff - mean(rand.eff)) / sd(rand.eff)
 
 #--- Gráfico de residuales estandarizados ---#
-
+theme_set(theme_bw())
 ggplot(data.frame(Residuals = fh_arcsin$model$std_real_residuals)) +
   geom_point(aes(y = Residuals, x = 1:length(Residuals))) +
   labs(y = "Residuales estandarizados", x = "") +
@@ -86,7 +86,7 @@ ggplot(data.frame(Residuals = fh_arcsin$model$std_real_residuals)) +
 ###-------------------------------- QQ Plots --------------------------------###
 
 dev.off()
-theme_set(theme_bw())
+
 
 p1 <- ggplot(data.frame(Residuals = std_residuals),
              aes(sample = Residuals)) +
@@ -137,7 +137,6 @@ p3 | p4
 # Validaciones 2 ----------------------------------------------------------
 
 summary(fh_arcsin)
-#EJEMPLO
 # Residual diagnostics:
 #                         Skewness Kurtosis Shapiro_W Shapiro_p
 # Standardized_Residuals 0.2087304 2.716825 0.9890151 0.6659384
@@ -161,10 +160,6 @@ S2Beta <- sum(residuos ^ 2) / (D - 1)
 su2 <- fh_arcsin$model$variance
 (R2 <- 1 - (su2 / (((D - q) / (D - 1)) * su2 + S2Beta)))
 # > R2
-#EJEMPLO
-#[1] 0.9314482
-
-#NOSOTROS
 #[1] 0.9927712
 #------------------------------------------------------------------------------#
 #-- Estimación SAE como función del tamaño muestral (Directo, FH y sintético) -#
@@ -221,12 +216,14 @@ for (i in 1:D) {
 
 
 #------------------ Gráfico de Distancias de Cook por comuna ------------------#
+data.frame(cookDis = CD, dominios = base_completa$DES_MUNICIPIO) %>% 
+  filter(cookDis > 0.1)
 
-data.frame(cookDis = CD, comuna = base_completa$DES_MUNICIPIO) %>%
+data.frame(cookDis = CD, dominios = base_completa$DES_MUNICIPIO) %>%
   ggplot(aes(y = cookDis, x = 1:N_dominios)) +
   geom_point(col = "blue") + 
   geom_text(aes(label = ifelse(cookDis > 0.1,
-                               as.character(comuna), '')), 
+                               as.character(dominios), '')), 
             hjust = 0, vjust = 0) +
   labs(y = "Distancia de Cook", x = "Municipios")
 
@@ -263,6 +260,15 @@ ggplot(estimaciones %>%
 estimaciones %>% 
   ggplot(aes(y =Direct_CV)) + 
   geom_boxplot()
+#--- Boxplot: CV Directo y RRMSE FH (observados) ---#
+
+melted <- estimaciones %>% filter(!is.na(Direct_CV)) %>% 
+  dplyr::select(Direct_CV, rrmse_FH) %>% 
+  melt()
+
+ggplot(melted, aes(factor(variable), value)) + 
+  geom_boxplot()  +
+  labs(y = "Coeficiente de variación", x = "")
 
 #--- Boxplot: CV Directo y RRMSE FH ---#
 
@@ -273,6 +279,17 @@ melted <- estimaciones %>%
 ggplot(melted, aes(factor(variable), value)) + 
   geom_boxplot()  +
   labs(y = "Coeficiente de variación", x = "")
+
+### Boxplot: Error estándar Directo y RMSE FH (observados) ###
+
+melted <- estimaciones %>% filter(!is.na(Direct_CV)) %>% 
+  dplyr::select(Direct_ee, rmse_FH) %>% 
+  melt()
+
+ggplot(melted, 
+       aes(factor(variable), value)) + 
+  geom_boxplot() +
+  labs(y = "Errores estándar", x = "")
 
 ### Boxplot: Error estándar Directo y RMSE FH ###
 

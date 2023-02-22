@@ -18,9 +18,16 @@ select <- dplyr::select
 id_dominio <- "id_dominio"
 
 ## Lectura de indicadores estimados en el paso anterior. 
+encuestaDOM <-  readRDS("Data/encuestaDOM.Rds") %>% 
+  mutate(
+    upm = str_pad(string = upm,width = 9,pad = "0"))
+## Conteos de upms por id_dominio
+n_upm <- encuestaDOM %>% distinct(id_dominio,upm) %>% 
+  group_by(id_dominio) %>% tally(name = "n_upm")
 
 indicador_dom <- readRDS('Data/indicador_dom.Rds')
 
+indicador_dom <- full_join(indicador_dom, n_upm, by = id_dominio)
 # Filtrar valores para obtener solo aquellos que puedan 
 # estimar bién la varianza --------
 
@@ -56,7 +63,7 @@ p4 <- ggplot(baseFGV,
              aes(x = sqrt(Rd), y = ln_sigma2)) + 
   geom_point() +
   geom_smooth(method = "loess") + 
-  xlab("Raiz cuadrada de Porcentaje de formalidad")
+  xlab("Raiz cuadrada de tasa de formalidad")
 
 
 (p1 | p2) / (p3 | p4)
@@ -79,7 +86,6 @@ summary(FGV1)
 # Multiple R-squared:  0.6985,	Adjusted R-squared:  0.6684 
 # F-statistic: 23.17 on 8 and 80 DF,  p-value: < 2.2e-16
 
-#-----------Estimación de valores excluidos--------------
 ## Determinar el valor de la constante delta. 
 
 delta.hat = sum(baseFGV$Rd_var) / sum(exp(fitted.values(FGV1)))
@@ -103,7 +109,8 @@ ggplot(baseFGV,
 
 #------------Unir las estimaciones con la data original-------------
 base_sae <- left_join(indicador_dom,
-                      baseFGV %>% select(id_dominio, hat_var), by = id_dominio) %>%
+                      baseFGV %>% select(id_dominio, hat_var), 
+                      by = id_dominio) %>%
   mutate(
     Rd_var = ifelse(is.na(hat_var), NA_real_, Rd_var),
     Rd_deff = ifelse(is.na(hat_var), NA_real_, Rd_deff)
@@ -123,8 +130,8 @@ base_FH <- base_sae %>%
     # Criterio MDS para regularizar el DeffFGV
     deff_FGV = ifelse(deff_FGV <= 1, NA_real_, deff_FGV), #Deff estimado
     n_eff_FGV = n / deff_FGV, #Número efectivo de personas encuestadas
-    hat_var=ifelse(deff_FGV <= 1, NA_real_, hat_var), #Si no se estimó varianza para ese municipio, también excluir la estimación directa de este municipio, esto es relevante para el modelo FH 
-    Rd=ifelse(is.na(hat_var), NA_real_, Rd) 
+    hat_var = ifelse(deff_FGV <= 1, NA_real_, hat_var), #Si no se estimó varianza para ese municipio, también excluir la estimación directa de este municipio, esto es relevante para el modelo FH 
+    Rd = ifelse(is.na(hat_var), NA_real_, Rd) 
   )
 
 

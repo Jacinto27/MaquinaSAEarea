@@ -2,7 +2,7 @@
 ## Title:        Modelo Fay Herriot para estimaciones directas utilizando     ##
 ##               transformación arcoseno y FGV                                ##
 ## Returns:      Estimación de Horvitz Thompson para los dominios             ##
-## Author:       Joel Mendez - Carlos Pena - Stalyn Guerrero- Andrés Gutiérrez##
+## Author:       Stalyn Guerrero - Andrés Gutiérrez-Joel Mendez - Carlos Pena ##
 ## Date:         01-2023                                                      ##
 ## El código es empleado para estimar el modelo de área de FH                 ##
 ################################################################################
@@ -16,7 +16,6 @@ gc()
 ###--- Librerías ---###
 #######################
 
-########### CARGANDO PAQUETES (INSTALA AUTOMATICAMENTE SI NO ESTAN EN EL COMPUTADOR)
 library(survey)
 library(srvyr)
 library(TeachingSampling)
@@ -28,9 +27,7 @@ library(emdi)
 library(patchwork)
 library(readxl)
 library(tidyverse)
-
-
-rm(lista_paquetes)
+select <- dplyr::select
 
 #--------------------  estimación directa + FGV --------------------#
 base_FH <- readRDS('Data/base_FH.Rds') #Estimación Directa + FGV
