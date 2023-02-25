@@ -8,7 +8,7 @@
 
 <meta name="author" content="Andrés Gutiérrez">
 <meta name="author" content="Stalyn Guerrero">
-<meta name="dcterms.date" content="2023-02-22">
+<meta name="dcterms.date" content="2023-02-25">
 
 <title>Estimación de la tasa de informalidad en República Dominicana empleando modelos de área con transformación arcoseno</title>
 <style>
@@ -147,7 +147,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 22, 2023</p>
+      <p class="date">February 25, 2023</p>
     </div>
   </div>
     
@@ -156,28 +156,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
-<ul>
-<li></li>
-</ul>
 <section id="introducción" class="level1">
 <h1>Introducción</h1>
-<p>El código presentado es un conjunto de sintaxis en <em>R</em> que tienen como objetivo preparar los datos necesarios para la aplicación del modelo Fay-Herriot para la estimación directa utilizando la transformación arcoseno y FGV</p>
+<p>El modelo Fay-Herriot utiliza información auxiliar, en forma de covariables, para mejorar la precisión de la estimación. Este conjunto de sintaxis en R tiene como objetivo preparar los datos necesarios para la aplicación del modelo Fay-Herriot para la estimación directa, utilizando la transformación arcoseno y la Función Generalizada de Varianza. Para lograr esto, se utilizarán diferentes fuentes de información (encuestas, registros administrativos, imágenes satelitales, shapefile y el Censo). Por esta razón, es fundamental la estandarización de las bases de datos, que consiste en tener una uniformidad de la estructura, formato y contenido de los datos, lo que permite su comparación y combinación sin errores o confusiones. La estandarización de bases de datos es esencial para la integración de datos provenientes de diferentes fuentes, lo que facilita la toma de decisiones durante el proceso y la obtención de resultados precisos y confiables. En resumen, la estandarización de bases de datos es crucial para garantizar la calidad y confiabilidad de la información utilizada en los procesos de análisis.</p>
 <section id="lectura-de-librerias" class="level3">
 <h3 class="anchored" data-anchor-id="lectura-de-librerias">Lectura de librerias</h3>
-<div class="cell" data-hash="0Recursos/002/unnamed-chunk-1_9d214061490a82b34949e010d9b0351b">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sp)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>El código presenta una serie de librerías de <code>R</code> que se utilizan para la preparación de los datos. La librería <code>tidyverse</code> proporciona un conjunto de paquetes para la procesamiento y visualización de datos. <code>magrittr</code> se utiliza para facilitar la lectura del código, mientras que <code>stringr</code> es una librería que proporciona herramientas para la manipulación de cadenas de caracteres. <code>readxl</code> es una librería utilizada para leer archivos de Excel. <code>tmap</code> y <code>sp</code> se utilizan para la visualización de mapas, mientras que <code>sf</code> es una librería que proporciona herramientas para la manipulación de datos espaciales. En conjunto, estas librerías permiten la estandarización de bases de datos y la posterior integración de información proveniente de diferentes fuentes.</p>
+<div class="cell" data-hash="0Recursos/002/unnamed-chunk-1_51f81163e152dd5014c88c0a9d4ec6d0">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sp)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="lectura-de-encuesta." class="level2">
 <h2 class="anchored" data-anchor-id="lectura-de-encuesta.">Lectura de encuesta.</h2>
-<p>Se realiza la estandarización de los nombre de las comunas ‘id_dominio’ y ‘id_region’</p>
+<p>El código cargará un archivo <code>encuestaDOM.Rds</code> que contiene los datos de la encuesta realizada. Luego, utiliza la función <code>mutate()</code> del paquete <code>dplyr</code> para crear dos nuevas columnas <code>id_dominio</code> e <code>id_region</code> que representan el identificador del municipio y la región respectivamente. La función <code>str_pad()</code> del paquete <code>stringr</code> se utiliza para agregar ceros a la izquierda de los números, lo que asegura que los identificadores tengan el mismo número de dígitos. El operador <code>%&lt;&gt;%</code> se utiliza para encadenar las funciones y guardar el resultado en la misma variable <code>encuestaDOM</code>.</p>
 <div class="cell" data-hash="0Recursos/002/unnamed-chunk-2_88048ed3ee9c3a277942a56042ee1c2b">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>encuestaDOM <span class="ot">&lt;-</span>  <span class="fu">readRDS</span>(<span class="st">"../Data/encuestaDOM.Rds"</span>) </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>encuestaDOM <span class="sc">%&lt;&gt;%</span> </span>
@@ -187,25 +184,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="lectura-de-información-auxiliar-covariable" class="level2">
 <h2 class="anchored" data-anchor-id="lectura-de-información-auxiliar-covariable">Lectura de información auxiliar (covariable)</h2>
-<p>Lectura de información censal</p>
-<div class="cell" data-hash="0Recursos/002/unnamed-chunk-3_f803660106721a3a54d66c3f67b262eb">
+<p>Este código carga el archivo <code>auxiliar_org.Rds</code> que contiene la información <em>Censal</em> y luego agrega una columna llamada <code>id_dominio</code>, la cual consiste en el valor de la columna <code>id_municipio</code> rellenada con ceros a la izquierda para completar 4 dígitos. La función utilizada para rellenar con ceros es <code>str_pad</code> de la librería <code>stringr</code>.</p>
+<div class="cell" data-hash="0Recursos/002/unnamed-chunk-3_2310ecec138f93dd436869f3908a7675">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>auxiliar_org <span class="ot">&lt;-</span>  <span class="fu">readRDS</span>(<span class="st">"../Data/auxiliar_org.Rds"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span><span class="fu">c</span>(</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>      <span class="st">"F182013_stable_lights"</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"X2016_crops.coverfraction"</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"X2016_urban.coverfraction"</span>,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"accessibility"</span>,</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>      <span class="st">"accessibility_walking_only"</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">string =</span> id_municipio,</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">4</span>,</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">pad =</span> <span class="st">"0"</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">string =</span> id_municipio,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">pad =</span> <span class="st">"0"</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  ))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Lectura de la información satelital y uniendo las bases censales.</p>
+<p>El código tiene como objetivo crear una base de datos auxiliar a partir de la información satelital y otra de la información del Censo. Primero se carga la información del archivo <code>auxiliar_satelital</code> y se estandarizan las variables numéricas mediante la función <code>scale()</code> Luego se realiza una manipulación de la variable <code>ENLACE</code> y se crea una nueva variable <code>id_dominio</code> mediante la función <code>str_pad()</code>. Después se realiza una unión interna de las bases de datos <code>auxiliar_org</code> y <code>auxiliar_satelital</code> por la variable <code>id_dominio</code>, para crear la base de datos <code>statelevel_predictors</code>, la cual servirá de información auxilia</p>
 <div class="cell" data-hash="0Recursos/002/unnamed-chunk-4_64ccba20173900defa1c92593dc95d29">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>auxiliar_satelital <span class="ot">&lt;-</span>  <span class="fu">readRDS</span>(<span class="st">"../Data/auxiliar_satelital.Rds"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.numeric, <span class="cf">function</span>(x)<span class="fu">as.numeric</span>(<span class="fu">scale</span>(x))) <span class="sc">%&gt;%</span>  <span class="fu">mutate</span>(</span>
@@ -223,6 +211,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="otra-fuente-de-información" class="level2">
 <h2 class="anchored" data-anchor-id="otra-fuente-de-información">Otra fuente de información</h2>
+<p>El fragmento de código presenta la carga de un archivo Excel que contiene datos del DEE agrupados por municipios. Los datos son modificados mediante la función <code>mutate()</code> para incluir un identificador de dominio y se elimina la columna <code>Cod</code>.</p>
 <div class="cell" data-hash="0Recursos/002/unnamed-chunk-5_fedcc25c7f4114f00bb9909e271786ab">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>DEE_Mun <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">'../Data/datos del DEE ONE agrupdos por municipios.xlsx'</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
@@ -232,9 +221,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  ), <span class="at">Cod =</span><span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="unificando-nombres-de-la-shapefile" class="level2">
-<h2 class="anchored" data-anchor-id="unificando-nombres-de-la-shapefile">Unificando nombres de la shapefile</h2>
-<div class="cell" data-hash="0Recursos/002/unnamed-chunk-6_188b278f9fe24b6b8d66218ec1fbf177">
+<section id="definiendo-el-identificador-de-dominio-en-la-shapefile." class="level2">
+<h2 class="anchored" data-anchor-id="definiendo-el-identificador-de-dominio-en-la-shapefile.">Definiendo el identificador de dominio en la shapefile.</h2>
+<p>Este código carga un archivo de <code>shapefile</code> y lo convierte en un objeto de la clase <code>sf</code> utilizando la función <code>read_sf()</code> de la librería <code>sf</code>. Posteriormente, se realiza una mutación en la cual se crea una nueva variable llamada <code>id_dominio</code> que corresponde a los cuatro últimos dígitos de la variable <code>ENLACE</code> que se encuentra en el <code>shapefile</code>. Esto se logra mediante la función <code>substring()</code> y la función <code>str_pad()</code> de la librería <code>stringr</code>. Finalmente, se selecciona la variable <code>id_dominio</code> y <code>geometry</code> del objeto <code>sf</code> utilizando la función <code>select</code>.</p>
+<div class="cell" data-hash="0Recursos/002/unnamed-chunk-6_dc79c572551ec3719c83e7972487bad7">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Shapefile <span class="ot">&lt;-</span> <span class="fu">read_sf</span>( <span class="st">"../shapefiles2010/MUNCenso2010.shp"</span> ) <span class="sc">%&gt;%</span> </span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">ENLACE =</span> <span class="fu">substring</span>(ENLACE,<span class="dv">3</span>),</span>
@@ -243,11 +233,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">width =</span> <span class="dv">4</span>,</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">pad =</span> <span class="st">"0"</span></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  )  <span class="sc">%&gt;%</span> <span class="fu">select</span>(id_dominio)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  )  <span class="sc">%&gt;%</span> <span class="fu">select</span>(id_dominio, geometry)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="validando-id_dominio" class="level2">
 <h2 class="anchored" data-anchor-id="validando-id_dominio">Validando id_dominio</h2>
+<p>La validación del identificador <code>id_dominio</code> es importante para asegurarnos de que todas las bases de datos que se utilizarán en el modelo tienen una correspondencia adecuada entre ellas. En el código presentado se realizan tres validaciones utilizando la función <code>full_join()</code> y la función <code>distinct()</code>. En la primera validación, se comparan los identificadores de <code>encuestaDOM</code> con los de <code>statelevel_predictors</code>. En la segunda validación, se comparan los identificadores de <code>encuestaDOM</code> con los de <code>DEE_Mun</code>. Finalmente, en la tercera validación, se comparan los identificadores de <code>encuestaDOM</code> con los de <code>Shapefile</code>. En todas las validaciones se utilizó la función <code>head()</code> para mostrar las primeras 10 filas y la función <code>tba()</code> para visualizar los resultados en forma de tabla. De esta forma, se puede verificar que el identificador <code>id_dominio</code> es consistente en todas las bases de datos utilizadas.</p>
 <div class="cell" data-hash="0Recursos/002/unnamed-chunk-7_0ec942e0d5371fa964e8f5909e012d2a">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>encuestaDOM <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(id_dominio, DES_PROVINCIA) <span class="sc">%&gt;%</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(statelevel_predictors <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(id_dominio)) <span class="sc">%&gt;%</span> </span>
@@ -435,6 +426,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="guardar-archivos" class="level2">
 <h2 class="anchored" data-anchor-id="guardar-archivos">Guardar archivos</h2>
+<p>Las instrucciones presentadas permiten guardar las bases de datos que se utilizarán en el modelo Fay-Herriot para la estimación directa. Las funciones <code>saveRDS()</code> y <code>st_write()</code> se utilizan para guardar las bases en formatos compatibles con el software R, permitiendo su posterior uso en otras sesiones de trabajo. Es importante guardar las bases de datos una vez que se han validado los identificadores, para asegurarse de que no hay errores en el proceso de identificación de las observaciones.</p>
 <div class="cell" data-hash="0Recursos/002/unnamed-chunk-8_4b2f9c454b695062822c185404c333a5">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(encuestaDOM, <span class="at">file =</span> <span class="st">"../Data/encuestaDOM.Rds"</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(statelevel_predictors, <span class="at">file =</span> <span class="st">"../Data/statelevel_predictors_df.rds"</span>)</span>
@@ -444,6 +436,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="agregados-censales-municipios-y-región." class="level2">
 <h2 class="anchored" data-anchor-id="agregados-censales-municipios-y-región.">Agregados censales (municipios y región).</h2>
+<p>Se importaron las bases de agregados censales por municipios y por región. Se utilizó la función <code>readRDS()</code> para importar la base <code>encuestaDOMRegion.Rds</code> que contiene información del Censo por región y la función <code>transmute()</code> para seleccionar y renombrar las variables de interés. La base resultante <code>agregado_region</code> se guardó en un archivo <code>.rds</code>.</p>
 <div class="cell" data-hash="0Recursos/002/unnamed-chunk-9_b415c0628d3d4f299171697c619d0211">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>agregado_region <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../Data/encuestaDOMRegion.Rds"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(<span class="at">pp_region =</span> hh_depto,</span>
@@ -481,20 +474,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </div>
 </div>
-<p>Guardar archivo</p>
 <div class="cell" data-hash="0Recursos/002/unnamed-chunk-10_6d0267d44833774586b41b8b051d9baa">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(agregado_region, <span class="at">file =</span> <span class="st">"../Data/agregado_persona_region.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>agregados del municipio</p>
-<div class="cell" data-hash="0Recursos/002/unnamed-chunk-11_ec7dae1db1a450a4a221afb177d3dfb9">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"Data/personas_dominio.Rds"</span>) <span class="sc">%&gt;%</span> </span>
+<p>Además, se cargó la base <code>personas_dominio.Rds</code> que contiene la cantidad de personas por dominio y se utilizó la función <code>mutate()</code> para crear la variable <code>id_region</code> y transformar la variable <code>total_pp</code> en <code>pp_dominio</code>. Finalmente, se eliminaron las variables <code>total_pp</code> e <code>id_municipio.</code> La base resultante se guardó en un archivo <code>.rds</code>.</p>
+<div class="cell" data-hash="0Recursos/002/unnamed-chunk-11_655be1b38655f25d9fed3be90420e3fc">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../Data/personas_dominio.Rds"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>( <span class="at">id_region =</span> <span class="fu">str_pad</span>(<span class="at">string =</span> orden_region, <span class="at">width =</span> <span class="dv">2</span>,</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">pad =</span> <span class="st">"0"</span>),</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">orden_region =</span> <span class="cn">NULL</span>,</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">pp_dominio =</span> total_pp,</span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">total_pp  =</span> <span class="cn">NULL</span>,</span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">id_municipio =</span> <span class="cn">NULL</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="at">file =</span> <span class="st">"Data/agregado_persona_dominio.rds"</span>)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="at">file =</span> <span class="st">"../Data/agregado_persona_dominio.rds"</span>)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>

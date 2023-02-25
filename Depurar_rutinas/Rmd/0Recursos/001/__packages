@@ -15,11 +15,6 @@ rstan
 rstantools
 Rcpp
 rstanarm
-sampling
-Matrix
-survival
-survey
-srvyr
 reticulate
 rgee
 sf

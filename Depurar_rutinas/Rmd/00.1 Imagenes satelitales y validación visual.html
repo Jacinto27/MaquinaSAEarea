@@ -8,7 +8,7 @@
 
 <meta name="author" content="Andrés Gutiérrez">
 <meta name="author" content="Stalyn Guerrero">
-<meta name="dcterms.date" content="2023-02-22">
+<meta name="dcterms.date" content="2023-02-25">
 
 <title>Estimación de la tasa de informalidad en República Dominicana empleando modelos de área con transformación arcoseno</title>
 <style>
@@ -147,7 +147,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 22, 2023</p>
+      <p class="date">February 25, 2023</p>
     </div>
   </div>
     
@@ -158,16 +158,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <section id="introducción." class="level1">
 <h1>Introducción.</h1>
-<p>La técnica de estimación de áreas pequeñas conocida como Fay-Herriot, se basa en la combinación de información de una muestra de la población y de una fuente auxiliar, como las imágenes satelitales. Esta técnica se utiliza para mejorar la precisión de las estimaciones de áreas pequeñas, especialmente cuando la muestra de la población es limitada o no es representativa de la población completa.</p>
+<p>La técnica de estimación de áreas pequeñas de Fay-Herriot, se basa en la combinación de información de una muestra de la población y de una fuente auxiliar, como las imágenes satelitales. Esta técnica se utiliza para mejorar la precisión de las estimaciones de áreas pequeñas, especialmente cuando la muestra de la población es limitada o no es representativa de la población completa.</p>
 <p>Las imágenes satelitales pueden proporcionar información sobre características geográficas y ambientales de una zona, como la densidad de vegetación, el tipo de suelo, el uso del suelo, la topografía, entre otros. Esta información se puede utilizar para mejorar las estimaciones de las características de la población que se está estudiando.</p>
 <p>La técnica Fay-Herriot es muy útil en áreas pequeñas donde la variabilidad de los datos es alta y la muestra es limitada. Las imágenes satelitales pueden ayudar a compensar la falta de información y proporcionar una fuente adicional de datos para mejorar las estimaciones.</p>
 </section>
 <section id="librerias-requeridas" class="level1">
 <h1>Librerias requeridas</h1>
-<p>Para realizar la descarga de imágenes satelitales, se debe surtir un proceso previo donde se enlazan, <em>R</em> - <em>Python</em> y <em>Google Earth Engine</em>. Después de haber realizado la configuración requerida es posible realizar la descarga de información desde Google Earth Engine usando <em>R</em>. A continuación se listan las librerías necesaria para obtener la información.</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-1_33380f030cd49296e5d2cbf54e2a3ea2">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())      <span class="co"># Limpiar la memoria de R. </span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">memory.limit</span>(<span class="dv">500000</span>) <span class="co"># Aumentar los limites de la memoria de procesamiento</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Para llevar a cabo la descarga de imágenes satelitales, es necesario realizar un proceso previo que involucra la interconexión entre tres herramientas: R, Python y Google Earth Engine. Una vez configuradas estas herramientas, es posible obtener información desde Google Earth Engine utilizando R. Es importante destacar que, para llevar a cabo esta tarea, se requiere del uso de diversas librerías que se encargan de procesar y descargar la información necesaria. A continuación, se presentan las librerías imprescindibles para llevar a cabo este proceso de manera eficiente.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-1_bc7b5299545f6a41efe48b6a607ca4f3">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">memory.limit</span>(<span class="dv">50000</span>)  <span class="co"># Aumentar los limites de la memoria de procesamiento</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] Inf</code></pre>
 </div>
@@ -184,28 +183,28 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="inicializando-google-earth-engine-desde-r" class="level1">
 <h1>Inicializando Google Earth Engine desde R</h1>
-<p>El proceso de la descarga de información de Google Earth Engine comienza con el inicio de sesión en Google Earth Engine desde R, para ello se debe ejecutar el siguiente bloque de código, donde <em>“C://Users//sguerrero//Anaconda3//envs//rgee_py//python.exe”</em> debe ser sustituido por la ruta donde creo el espacio de trabajo para <strong>Python</strong>.</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-2_e0272a8fb5e1fddcd3131449495fecdf">
+<p>El proceso de la descarga de información de Google Earth Engine comienza con el inicio de sesión en Google Earth Engine desde R, para ello se debe ejecutar el siguiente bloque de código:</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-2_f63e94f16ed660450641033363736621">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>rgee_environment_dir <span class="ot">=</span> <span class="st">"C://Users//sguerrero//Anaconda3//envs//rgee_py//python.exe"</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Configurar python (Algunas veces no es detectado y se debe reiniciar R)</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>reticulate<span class="sc">::</span><span class="fu">use_python</span>(rgee_environment_dir, <span class="at">required =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>reticulate<span class="sc">::</span><span class="fu">use_python</span>(rgee_environment_dir, <span class="at">required =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Al ejecutar la linea de código seleccione la opción <em>2</em></p>
+<p>donde <strong>“C://Users//sguerrero//Anaconda3//envs//rgee_py//python.exe”</strong> debe ser sustituido por la ruta donde creo el espacio de trabajo para <strong>Python</strong>. Ahora, a ejecutar la siguiente linea de código seleccione la opción <em>2</em>, para agilizar el proceso.</p>
 <div class="cell" data-hash="0Recursos/001/unnamed-chunk-3_7ae9e257b87531ca0ecb62b0397cc6d2">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>rgee<span class="sc">::</span><span class="fu">ee_install_set_pyenv</span>(<span class="at">py_path =</span> rgee_environment_dir, <span class="at">py_env =</span> <span class="st">"rgee_py"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Por ultimo, inicialice Google Earth Engine</p>
+<p>Finalmente, al ejecutar el comando ‘rgee::ee_Initialize(drive = T)’, se inicia la conexión entre Google Earth Engine y R, lo que permite la descarga de imágenes satelitales. Con este paso completado, se está preparado para comenzar a trabajar con los datos satelitales disponibles en la plataforma.</p>
 <div class="cell" data-hash="0Recursos/001/unnamed-chunk-4_1c495817a1c96350f7156727ba2ed70f">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">RETICULATE_PYTHON =</span> rgee_environment_dir)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="at">EARTHENGINE_PYTHON =</span> rgee_environment_dir)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>rgee<span class="sc">::</span><span class="fu">ee_Initialize</span>(<span class="at">drive =</span> T)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>si todo ha salido bien, debería ver un resultado como el que muestra a continuación.</p>
-<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-5_154fedc79077e0b20f94880a3c6a9ce3">
+<p>Sí todo ha salido bien, debería ver un resultado como el que muestra a continuación.</p>
+<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-5_542befe2818fefde3a4de8e12dbef68d">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="www/Figura1_001.PNG" width="600" height="150" class="figure-img"></p>
+<p></p><figcaption class="figure-caption">Inicializando Google Earth Engine</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -213,7 +212,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="descarga-de-información-del-satélite-a-nivel-distrito." class="level1">
 <h1>Descarga de información del Satélite a nivel distrito.</h1>
-<p>Ahora se muestra el proceso de descarga de la información satélite a nivel de distrito, para ello es necesario contar con un archivo <em>Shapefile</em>. El shapefile es un formato de archivo utilizado para almacenar información geoespacial, que incluye datos de vectores como puntos, líneas y polígonos, junto con sus atributos asociados.</p>
+<p>A continuación, se explicará el proceso de descarga de información satelital a nivel de distrito. Para comenzar, es necesario contar con un archivo <strong>Shapefile</strong>, el cual es un formato utilizado para almacenar información geoespacial. Este tipo de archivo contiene datos vectoriales tales como puntos, líneas y polígonos, junto con sus atributos asociados. En el siguiente bloque de código esta dividido en dos partes. La primera parte del código se encarga de leer el <strong>Shapefile</strong> que contiene los datos de los distritos, utilizando la función <code>read_sf</code> del paquete <code>sf</code>. El archivo se almacena en la variable <code>poligonos_distrito</code>.</p>
+<p>La segunda parte del código extrae los parámetros de una imagen satelital mediante el uso del paquete <code>rgee</code>. La imagen es una colección de imágenes nocturnas llamada <strong>NOAA/DMSP-OLS/NIGHTTIME_LIGHTS</strong>. Se filtran las imágenes de un periodo particular (“2013-01-01” hasta “2014-01-01”) y se selecciona una banda específica de la imagen (“stable_lights”). Luego, se utilizan las imágenes seleccionadas para generar una nueva banda de la imagen, que se almacena en la variable “luces”.</p>
 <div class="cell" data-hash="0Recursos/001/unnamed-chunk-6_0627eeeaad5943220f5b16b291f53b4a">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lectura del shapefile de los distritos. </span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>poligonos_distrito <span class="ot">&lt;-</span> <span class="fu">read_sf</span>( <span class="st">"shapefiles2010/DMCenso2010.shp"</span>)</span>
@@ -224,8 +224,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">map</span>(<span class="cf">function</span>(x) x<span class="sc">$</span><span class="fu">select</span>(<span class="st">"stable_lights"</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">toBands</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Obteniendo la medida de resumen (media) de los pixeles de la imagen. El proceso se realiza distrito a distrito. La sintaxis que es utilizada corresponde a una mologación de código <strong>Java</strong> en <strong>R</strong>.</p>
-<p><strong>Nota:</strong> Un píxel es un punto o un pequeño cuadrado que contiene información de color y brillo que se utiliza para representar una porción de la imagen.</p>
+<p>El proceso de obtención de la medida de resumen (media) de los pixeles de una imagen se realiza distrito por distrito. Para homologar los códigos de <strong>Java</strong> en <strong>R</strong>, se utiliza una sintaxis específica. Cabe mencionar que cada píxel de una imagen representa una porción de la misma, y contiene información sobre el color y el brillo de dicha porción. Por lo tanto, la obtención de la medida de resumen de los pixeles resulta fundamental para el análisis de la imagen en cuestión.</p>
 <div class="cell" data-hash="0Recursos/001/unnamed-chunk-7_9217835a6bc2e6a482fe07560b2d0692">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>DOM_luces_distrito <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_distrito<span class="sc">$</span>ENLACE),</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(</span>
@@ -237,12 +236,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Dado que la información fue extraída por separada para cada distrito. A continuación se muestra como se crea un ‘data.frame’ a partir de la lista ‘DOM_luces_distrito’</p>
+<p>El código presentado utiliza la librería <code>purrr</code> de R para extraer la media de los valores que toma cada pixel de la imagen satelital que hacen referencia a la iluminación nocturna para cada distrito presente en una lista de polígonos. La función <code>map</code> aplica una función a cada distrito presente en <code>poligonos_distrito</code> que extrae la media de brillo de <code>stable_lights</code> para el polígono que corresponde al distrito en cuestión. La función <code>tryCatch</code> maneja posibles errores en la extracción de la media de brillo para cada distrito y retorna un <code>data.frame</code> con los valores extraídos y el nombre del distrito correspondiente.</p>
+<p>Dado que la información fue extraída por separada para cada distrito. A continuación se muestra como se crea un <code>data.frame</code> a partir de la lista <code>DOM_luces_distrito</code></p>
 <div class="cell" data-hash="0Recursos/001/unnamed-chunk-8_e2c9432433129d28b892af3367c5982c">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>DOM_luces_distrito <span class="sc">%&lt;&gt;%</span> <span class="fu">bind_rows</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Para obtener un mapa con los resultados obtenidos se ejecuta la sintaxis siguiente.</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-9_b94c1fe306e0680a17ebe3cfcbde0810">
+<p>Para obtener un mapa con los resultados obtenidos se ejecuta la sintaxis siguiente. Donde se realiza un <code>inner_join</code> entre las variables polígonos (<code>poligonos_distrito</code>) y la información satelital (<code>DOM_luces_distrito</code>). Con el resultado obtenido, es posible emplear la función <code>tm_shape</code> de la librería <code>tmap</code> para definir la variable <code>map_dist</code> que contiene las características necesarias para desarrollar el mapa. Ahora, con la función <code>tm_polygons</code> se especifica la variable, el titulo y la paleta de colores que llevará el mapa. Por último, guarda el resultado obtenido con la función <code>tmap_save</code>.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-9_1e42c03ac077abb2c96282ddc9cfa9af">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>poligonos_distrito <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(poligonos_distrito, DOM_luces_distrito)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>map_dist <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(poligonos_distrito)</span>
@@ -254,18 +254,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_dist,</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/Luces nocturna distr.jpg"</span>,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>          <span class="st">"../map_temp/Luces nocturna distr.jpg"</span>,</span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
 <span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>El mapa resultante se debe comparar con la información disponible en Google Earth Engine con el propósito de realizar una validación visual entre el imágen del satélite y la información descargada.</p>
-<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-10_e04f8182bd4d693787b4b6a513c9a015">
+<p>El mapa resultante se debe comparar con la información disponible en Google Earth Engine con el propósito de realizar una validación visual entre el imagen del satélite y la información descargada.</p>
+<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-10_d89c08238c3280c84217f07d8cfe296f">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="www/Figura2_001_Luces%20nocturna%20distr.jpg" width="800" height="650" class="figure-img"></p>
+<p><img src="www/Figura3_001_Luces%20nocturna%20satelite.jpg" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="www/Figura2_001_Luces%20nocturna%20distr.jpg" width="500" height="350" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -273,193 +280,197 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="descarga-de-información-satélite-a-nivel-municipal" class="level1">
 <h1>Descarga de información Satélite a nivel municipal</h1>
-<p>El proceso de descarga de información satelital para el municipio sigue los mismos pasos, con pequeñas variaciones en la sintaxis acorde con la información satelital que se este obteniendo.</p>
+<p>Para descargar información satelital del municipio, se sigue un proceso similar al utilizado para descargar información de los distritos, aunque con algunas variaciones en la sintaxis que dependen del tipo de información satelital que se esté obteniendo. Cabe mencionar que las variaciones en la sintaxis se deben a las particularidades de cada tipo de información satelital y no afectan significativamente el proceso de descarga de la misma. Cabe mencionar que, para cada una de las variables satelitales se emplea como medida de resumen la media y la suma.</p>
 <section id="luces-nocturnas" class="level2">
 <h2 class="anchored" data-anchor-id="luces-nocturnas">Luces nocturnas</h2>
-<p>Para cada una de las variables satelitales se emplea como medida de resumen la media y la suma.</p>
-<p>Lectura de la shapefile del municipio.</p>
+<p>Siguiendo los pasos realizados para el distrito, se hace la lectura del shapefile para los municipio.</p>
 <div class="cell" data-hash="0Recursos/001/unnamed-chunk-11_22fa49c9d12ccc0d354aa5de9118776c">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>poligonos_minucipio <span class="ot">&lt;-</span> <span class="fu">read_sf</span>( <span class="st">"../shapefiles2010/MUNCenso2010.shp"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-12_1041f1fd8b88d5f96499deb9fa84a590">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>luces <span class="ot">&lt;-</span> ee<span class="sc">$</span><span class="fu">ImageCollection</span>(<span class="st">"NOAA/DMSP-OLS/NIGHTTIME_LIGHTS"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">filterDate</span>(<span class="st">"2013-01-01"</span>, <span class="st">"2014-01-01"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">map</span>(<span class="cf">function</span>(x) x<span class="sc">$</span><span class="fu">select</span>(<span class="st">"stable_lights"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">toBands</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 <section id="medida-de-resumen-la-media" class="level3">
 <h3 class="anchored" data-anchor-id="medida-de-resumen-la-media">Medida de resumen la media</h3>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-13_c85144596cecda5469d1b5cee3d5448c">
+<p>Note que, el cambio en el código es la variable <code>poligonos_distrito</code> que es sustituida por <code>poligonos_minucipio</code>, de esta forma obtenemos las medidas de resumen por municipios. Además, se incluye una linea de código para guardar los resultados en un archivo de formato <code>.rds</code>.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-12_a00e73b51dab634d08bf6bdcd05a0011">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>DOM_luces <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> luces,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>DOM_luces <span class="sc">%&lt;&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_luces_mean.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="medida-de-resumen-suma" class="level3">
+<h3 class="anchored" data-anchor-id="medida-de-resumen-suma">Medida de resumen suma</h3>
+<p>En el proceso de la suma la variación del código se presenta en la función de resumen, dado que es sustituido <code>ee$Reducer$mean()</code> por <code>ee$Reducer$sum()</code>, de esta forma se obtiene la suma de los valores de los pixeles dentro del polígono del municipio.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-13_15302269bd8ad6759e739477e6082d1d">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>DOM_luces <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> luces,</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">sum</span>(),</span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>DOM_luces <span class="sc">%&lt;&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_luces_mean.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="medida-de-resumen-suma" class="level3">
-<h3 class="anchored" data-anchor-id="medida-de-resumen-suma">Medida de resumen suma</h3>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-14_16310633435bd76111528b9ffd6bf879">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>DOM_luces <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> luces,</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">sum</span>(),</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>DOM_luces <span class="sc">%&lt;&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_luces_sum.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_luces_sum.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
-<section id="cubrimiento-urbano-y-cubrimiento-cultivos" class="level2">
-<h2 class="anchored" data-anchor-id="cubrimiento-urbano-y-cubrimiento-cultivos">Cubrimiento urbano y cubrimiento cultivos</h2>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-15_e32436f9af46d1d0ce4baa40398bf2da">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>tiposuelo <span class="ot">=</span> ee<span class="sc">$</span><span class="fu">ImageCollection</span>(<span class="st">"COPERNICUS/Landcover/100m/Proba-V-C3/Global"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">filterDate</span>(<span class="st">"2016-01-01"</span>, <span class="st">"2016-12-31"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">map</span>(<span class="cf">function</span>(x) x<span class="sc">$</span><span class="fu">select</span>(<span class="st">"urban-coverfraction"</span>, <span class="st">"crops-coverfraction"</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">toBands</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="cubrimiento-de-suelo-urbano-y-cubrimiento-de-suelo-cultivos" class="level2">
+<h2 class="anchored" data-anchor-id="cubrimiento-de-suelo-urbano-y-cubrimiento-de-suelo-cultivos">Cubrimiento de suelo urbano y cubrimiento de suelo cultivos</h2>
+<p>La siguiente imagen que se procesa corresponde al cubrimiento urbano y cubrimiento cultivos, para acceder a la información satelital se procede con la función <code>ee$ImageCollection()</code>, y se filtra por fecha con la función <code>ee$ImageCollection$filterDate()</code>. La información satelital se procesa con la función <code>ee$ImageCollection$map()</code>, que permite aplicar una función de resumen a cada imagen satelital presente en la colección. En este caso, se utiliza la función <code>select()</code> para seleccionar únicamente las bandas correspondientes cubrimiento de suelo urbano y al cubrimiento de suelos cultivos. Finalmente, se fusionan las imágenes satelitales resultantes en un único raster con la función <code>ee$ImageCollection$toBands()</code>.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-14_ffdee8322df0ea7592d22e97842488f7">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>tiposuelo <span class="ot">=</span> ee<span class="sc">$</span><span class="fu">ImageCollection</span>(<span class="st">"COPERNICUS/Landcover/100m/Proba-V-C3/Global"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">filterDate</span>(<span class="st">"2016-01-01"</span>, <span class="st">"2016-12-31"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">map</span>(<span class="cf">function</span>(x) x<span class="sc">$</span><span class="fu">select</span>(<span class="st">"urban-coverfraction"</span>, <span class="st">"crops-coverfraction"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  ee<span class="sc">$</span>ImageCollection<span class="sc">$</span><span class="fu">toBands</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="medida-de-resumen-la-media-1" class="level3">
 <h3 class="anchored" data-anchor-id="medida-de-resumen-la-media-1">Medida de resumen la media</h3>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-16_d6a7692c7ea4057c6cc528ba3e7b5b44">
+<p>Dado que se cambio la fuente de información,es necesario realizar la actualización del código, para este caso cambiamos la variable <code>luces</code> por la variable <code>tiposuelo</code> y conservamos como medida de resumen la media.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-15_1ad8ed256f4f47f5668220b3e09cdef5">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>DOM_suelo <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> tiposuelo,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>DOM_suelo <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"../map_temp/data/temp_suelo_mean.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="medida-de-resumen-suma-1" class="level3">
+<h3 class="anchored" data-anchor-id="medida-de-resumen-suma-1">Medida de resumen suma</h3>
+<p>Continuando el procesamiento de la variable <code>tiposuelo</code>, ahora se realiza la descarga empleando como medida de resumen la suma.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-16_297c5e99c0ac226752833159c0fb99b1">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>DOM_suelo <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> tiposuelo,</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> </span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">sum</span>(),</span>
 <span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
 <span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
 <span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>DOM_suelo <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_suelo_mean.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_suelo_suma.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="medida-de-resumen-suma-1" class="level3">
-<h3 class="anchored" data-anchor-id="medida-de-resumen-suma-1">Medida de resumen suma</h3>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-17_7134ae1ee3fb40eac139f33923053430">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>DOM_suelo <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> tiposuelo,</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> </span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">sum</span>(),</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>DOM_suelo <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_suelo_suma.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<p>el procesamiento anterior regresa un <code>data.frame</code> con tres columnas, el ENLACE, que corresponde al código del municipio, X2016_crops.coverfraction y X2016_urban.coverfraction.</p>
 </section>
 </section>
 <section id="distancia-a-hospitales" class="level2">
 <h2 class="anchored" data-anchor-id="distancia-a-hospitales">Distancia a hospitales</h2>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-18_d7ec9a371ca97f5037b725cd367faf04">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>dist_salud <span class="ot">=</span> ee<span class="sc">$</span><span class="fu">Image</span>(<span class="st">'Oxford/MAP/accessibility_to_healthcare_2019'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Este conjunto de datos se basa en modelos de accesibilidad que se construyen a partir de información sobre la infraestructura de la atención médica y la geografía del terreno. Los modelos se basan en el tiempo de viaje esperado entre diferentes áreas geográficas y los diferentes tipos de instalaciones médicas, como hospitales, clínicas y consultorios médicos.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-17_c0ef22add347e53614ba824beb740286">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>dist_salud <span class="ot">=</span> ee<span class="sc">$</span><span class="fu">Image</span>(<span class="st">'Oxford/MAP/accessibility_to_healthcare_2019'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="medida-de-resumen-la-media-2" class="level3">
 <h3 class="anchored" data-anchor-id="medida-de-resumen-la-media-2">Medida de resumen la media</h3>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-19_7479511cefc0f41ca51f1089c91b6834">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>DOM_dist_salud <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> dist_salud,</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>DOM_dist_salud <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_salud_mean.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Ahora, la medida de resumen es la media y el proceso es igual a los descritos previamente, la variación de los códigos en la fuente de información.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-18_a2f0c6a5eaa7f71fbb6b01cd72a5bfa4">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>DOM_dist_salud <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                 <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x =</span> dist_salud,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                   ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                 ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>DOM_dist_salud <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_salud_mean.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="medida-de-resumen-suma-2" class="level3">
 <h3 class="anchored" data-anchor-id="medida-de-resumen-suma-2">Medida de resumen suma</h3>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-20_c3f1da676e651cad9b22f8b3cb0b8ce1">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>DOM_dist_salud <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                      <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">x =</span> dist_salud,</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                        ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">sum</span>(),</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">sf =</span> <span class="cn">FALSE</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>                      ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>DOM_dist_salud <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_salud_suma.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-19_589da8aa38b3962ad1ac104200e74ff6">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>DOM_dist_salud <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                      <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">x =</span> dist_salud,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                        ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">sum</span>(),</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>                      ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">ENLACE =</span> .x)))</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>DOM_dist_salud <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_salud_suma.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
 <section id="csp-ghm-global-human-modification" class="level2">
 <h2 class="anchored" data-anchor-id="csp-ghm-global-human-modification">CSP gHM: Global Human Modification</h2>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-21_5824cf56c796cea0f8bf6dfd1ff8e847">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>CSP_gHM <span class="ot">=</span> ee<span class="sc">$</span><span class="fu">ImageCollection</span>(<span class="st">'CSP/HM/GlobalHumanModification'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Este conjunto de datos muestra la escala y el impacto de la influencia humana en la superficie terrestre, a través de la recopilación y análisis de varios indicadores relacionados con la actividad humana, como la infraestructura construida, el uso del suelo, la densidad de población y la urbanización.</p>
+<p>La escala del conjunto de datos es de 1 kilómetro cuadrado y se extiende a nivel mundial, proporcionando una visión general de la modificación humana en diferentes áreas del mundo. El conjunto de datos se actualiza regularmente para reflejar los cambios en la modificación humana en el tiempo.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-20_0a6c3986f927cce63b9a8101c277ebec">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>CSP_gHM <span class="ot">=</span> ee<span class="sc">$</span><span class="fu">ImageCollection</span>(<span class="st">'CSP/HM/GlobalHumanModification'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="medida-de-resumen-la-media-3" class="level3">
 <h3 class="anchored" data-anchor-id="medida-de-resumen-la-media-3">Medida de resumen la media</h3>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-22_171433d55f22a4ba6cd266ee336e316b">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>DOM_CSP_gHM <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                      <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">x =</span> CSP_gHM,</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                        ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">sf =</span> <span class="cn">FALSE</span></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>                      ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">id_municipio =</span> .x)))</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>DOM_CSP_gHM <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_gHM_mean.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Como es habitual se hace la modificación del código para la variable <code>CSP_gHM</code>.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-21_571e2e82b65bd52cd18cc9df2ea9070e">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>DOM_CSP_gHM <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                      <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">x =</span> CSP_gHM,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>                        ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">mean</span>(),</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                      ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">id_municipio =</span> .x)))</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>DOM_CSP_gHM <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_gHM_mean.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="medida-de-resumen-suma-3" class="level3">
 <h3 class="anchored" data-anchor-id="medida-de-resumen-suma-3">Medida de resumen suma</h3>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-23_46b040db79445d7429d6af4f5238e6bc">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>DOM_CSP_gHM <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                   <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">x =</span> CSP_gHM,</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>                     ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">sum</span>(),</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sf =</span> <span class="cn">FALSE</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>                   ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>                   <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">id_municipio =</span> .x)))</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>DOM_CSP_gHM <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_gHM_suma.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-22_e10185cd1e003f327c2a561cba7c0ac8">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>DOM_CSP_gHM <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">unique</span>(poligonos_minucipio<span class="sc">$</span>ENLACE),</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                   <span class="sc">~</span><span class="fu">tryCatch</span>(<span class="fu">ee_extract</span>(</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">x =</span> CSP_gHM,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> poligonos_minucipio[<span class="st">"ENLACE"</span>] <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ENLACE <span class="sc">==</span> .x),</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                     ee<span class="sc">$</span>Reducer<span class="sc">$</span><span class="fu">sum</span>(),</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sf =</span> <span class="cn">FALSE</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>                   ) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">ENLACE =</span> .x),</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                   <span class="at">error =</span> <span class="cf">function</span>(e)<span class="fu">data.frame</span>(<span class="at">id_municipio =</span> .x)))</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>DOM_CSP_gHM <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"map_temp/data/temp_gHM_suma.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
 </section>
 <section id="consolidando-las-variables-satelitales" class="level1">
 <h1>Consolidando las variables satelitales</h1>
-<p>Ahora que toda las variables satelitales fueron descargadas y almacenadas en un archivo ‘.rds’ se deben consolidar en un único archivo, para lo cual se utiliza el siguiente código. Además de renombrar las variables.</p>
+<p>Una vez que se han descargado y almacenado todas las variables satelitales en archivos ‘.rds’, es necesario consolidarlos en un único archivo para poder realizar el análisis. Para ello, se utiliza el código siguiente que combina las variables satelitales en un <code>data.frame</code>, para la media y la suma por separado. Además, el código también renombra las variables para hacerlas más descriptivas y fáciles de entender. En este caso se renombran variables como “luces_nocturnas”, <em>cubrimiento_cultivo</em>, <em>cubrimiento_urbano</em>, <em>accesibilidad_hospitales</em>, <em>accesibilidad_hosp_caminado</em> y <em>modificacion_humana</em> para reflejar de manera más clara los datos que representan. Una vez completada la consolidación, se puede comenzar a analizar los datos de manera más detallada.</p>
 <section id="medida-de-resumen-la-media-4" class="level3">
 <h3 class="anchored" data-anchor-id="medida-de-resumen-la-media-4">Medida de resumen la media</h3>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-24_7eb811d7f2489d5a1824fd79266945c7">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>satelital_promedio <span class="ot">&lt;-</span> <span class="fu">reduce</span>(<span class="fu">list</span>(</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_gHM_mean.rds"</span>),</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_salud_mean.rds"</span>),</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_suelo_mean.rds"</span>),</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_luces_mean.rds"</span>)), inner_join) <span class="sc">%&gt;%</span> </span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">luces_nocturnas =</span> F182013_stable_lights,</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">cubrimiento_cultivo =</span> X2016_crops.coverfraction,</span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">cubrimiento_urbano =</span> X2016_urban.coverfraction,</span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">accesibilidad_hospitales =</span> accessibility,</span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">accesibilidad_hosp_caminado =</span> accessibility_walking_only,</span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">modificacion_humana =</span> X2016_gHM)</span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="fu">tba</span>(<span class="fu">head</span>(satelital_promedio, <span class="dv">15</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-23_5fcf591c160531617e69b74f913434f7">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>satelital_promedio <span class="ot">&lt;-</span> <span class="fu">reduce</span>(<span class="fu">list</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_gHM_mean.rds"</span>),</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_salud_mean.rds"</span>),</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_suelo_mean.rds"</span>),</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_luces_mean.rds"</span>)), inner_join) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">luces_nocturnas =</span> F182013_stable_lights,</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">cubrimiento_cultivo =</span> X2016_crops.coverfraction,</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">cubrimiento_urbano =</span> X2016_urban.coverfraction,</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">accesibilidad_hospitales =</span> accessibility,</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">accesibilidad_hosp_caminado =</span> accessibility_walking_only,</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">modificacion_humana =</span> X2016_gHM)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="fu">tba</span>(<span class="fu">head</span>(satelital_promedio, <span class="dv">15</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table class="table table-striped lightable-classic" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
@@ -618,20 +629,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="medida-de-resumen-suma-4" class="level3">
 <h3 class="anchored" data-anchor-id="medida-de-resumen-suma-4">Medida de resumen suma</h3>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-25_328afcc49847c93d7babd76d203180ed">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>satelital_suma <span class="ot">&lt;-</span> <span class="fu">reduce</span>(<span class="fu">list</span>(</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_gHM_suma.rds"</span>),</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_salud_suma.rds"</span>),</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_suelo_suma.rds"</span>),</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_luces_sum.rds"</span>)), inner_join) <span class="sc">%&gt;%</span> </span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">luces_nocturnas =</span> F182013_stable_lights,</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">cubrimiento_cultivo =</span> X2016_crops.coverfraction,</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">cubrimiento_urbano =</span> X2016_urban.coverfraction,</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">accesibilidad_hospitales =</span> accessibility,</span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">accesibilidad_hosp_caminado =</span> accessibility_walking_only,</span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">modificacion_humana =</span> X2016_gHM)</span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="fu">tba</span>(<span class="fu">head</span>(satelital_suma, <span class="dv">15</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-24_b4084c8ca5f1b5cbc46d659ac1ce2f7a">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>satelital_suma <span class="ot">&lt;-</span> <span class="fu">reduce</span>(<span class="fu">list</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_gHM_suma.rds"</span>),</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_salud_suma.rds"</span>),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_suelo_suma.rds"</span>),</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">readRDS</span>(<span class="st">"../map_temp/data/temp_luces_sum.rds"</span>)), inner_join) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">luces_nocturnas =</span> F182013_stable_lights,</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">cubrimiento_cultivo =</span> X2016_crops.coverfraction,</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">cubrimiento_urbano =</span> X2016_urban.coverfraction,</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">accesibilidad_hospitales =</span> accessibility,</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">accesibilidad_hosp_caminado =</span> accessibility_walking_only,</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">modificacion_humana =</span> X2016_gHM)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a><span class="fu">tba</span>(<span class="fu">head</span>(satelital_suma, <span class="dv">15</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table class="table table-striped lightable-classic" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
@@ -788,313 +799,417 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>Por último, se guarda el archivo que contiene las dos medidas de resumen en un nuevo ‘.rds’</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-26_9836bd3a7faab2ede98cc80179a451c1">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">inner_join</span>(</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  satelital_promedio,</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  satelital_suma,</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="st">"ENLACE"</span>,</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">"_promedio"</span>, <span class="st">"_suma"</span>)</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"Data/auxiliar_satelital.Rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-25_7026c2a1bbe7a46fcfaa1ea61a807fe8">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">inner_join</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  satelital_promedio,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  satelital_suma,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="st">"ENLACE"</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">"_promedio"</span>, <span class="st">"_suma"</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="st">"../Data/auxiliar_satelital.Rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
 <section id="creando-mapas-de-las-variables-satelitales" class="level1">
 <h1>Creando mapas de las variables satelitales</h1>
-<p>Como parte del proceso de validación se construyen los mapas de cada una variables y se deben comparar con la imagen disponible en <em>Google Earth Engine</em>. Ahora, se realiza la unión entre los polígonos (shapefile) y las ‘data.frame’ con las variables satelitales</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-27_55a6e7e60b0de33053f7363457bb0b4b">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>poligonos_promedio <span class="ot">&lt;-</span> <span class="fu">read_sf</span>( <span class="st">"../shapefiles2010/MUNCenso2010.shp"</span>)<span class="sc">%&gt;%</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(ENLACE) <span class="sc">%&gt;%</span> <span class="fu">inner_join</span>(satelital_promedio) </span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>poligonos_suma <span class="ot">&lt;-</span> <span class="fu">read_sf</span>( <span class="st">"../shapefiles2010/MUNCenso2010.shp"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a> dplyr<span class="sc">::</span><span class="fu">select</span>(ENLACE) <span class="sc">%&gt;%</span> <span class="fu">inner_join</span>(satelital_suma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Durante el proceso de validación del modelo, es fundamental la comparación de los mapas generados con las imágenes disponibles en Google Earth Engine. Para llevar a cabo esta tarea, es necesario realizar la unión entre los polígonos (shapefile) y las <code>data.frame</code> que contienen las variables satelitales. En este sentido, se utiliza el código presentado a continuación para crear los dos objetos: <code>poligonos_promedio</code> y <code>poligonos_suma</code>.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-26_e58af516e369d2d8d1764f3078b66e82">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>poligonos_promedio <span class="ot">&lt;-</span> <span class="fu">read_sf</span>( <span class="st">"../shapefiles2010/MUNCenso2010.shp"</span>)<span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(ENLACE) <span class="sc">%&gt;%</span> <span class="fu">inner_join</span>(satelital_promedio) </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>poligonos_suma <span class="ot">&lt;-</span> <span class="fu">read_sf</span>( <span class="st">"../shapefiles2010/MUNCenso2010.shp"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a> dplyr<span class="sc">::</span><span class="fu">select</span>(ENLACE) <span class="sc">%&gt;%</span> <span class="fu">inner_join</span>(satelital_suma)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>El siguiente paso es crear un objeto ‘tamp’, para crear los mapas.</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-28_fbe09578006b21440872047a73d56a13">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(poligonos_suma)</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(poligonos_promedio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>El objeto <code>poligonos_promedio</code> se genera a partir del shapefile de los municipios y la información de las variables satelitales que se han promediado. Por otro lado, el objeto <code>poligonos_suma</code> se construye de manera similar, pero utilizando la información de las variables satelitales que se han sumado.</p>
+<p>El siguiente paso es crear los objeto <code>m1</code> y <code>m2</code>, para lo cual usamos la función <code>tm_shape</code> de la librería <code>tmap</code>.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-27_13cc1357e7e76c573323e7538997aae7">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(poligonos_suma)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(poligonos_promedio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Ahora, se crean los mapas cara una de las variables.</p>
+<p>Para crear los mapas se utiliza una sintaxis similar para cada variable, por lo que se haces pocas modificaciones entre los bloques de código.</p>
 <section id="modificacion-humana" class="level3">
 <h3 class="anchored" data-anchor-id="modificacion-humana">Modificacion humana</h3>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-29_16b35b5833662e09963e5ba7abdcb00f">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>m1_modificacion_humana<span class="ot">&lt;-</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"modificacion_humana"</span>,</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"modificacion_humana(suma)"</span>,</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>m2_modificacion_humana <span class="ot">&lt;-</span></span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"modificacion_humana"</span>,</span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"modificacion_humana(media)"</span>,</span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>map_modificacion_humana <span class="ot">&lt;-</span> <span class="fu">tmap_arrange</span>(<span class="fu">list</span>(m1_modificacion_humana,</span>
-<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>                                             m2_modificacion_humana),</span>
-<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">ncol =</span> <span class="dv">2</span>,</span>
-<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">norw =</span> <span class="dv">1</span>)</span>
-<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>map_modificacion_humana</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>El presente código genera dos mapas utilizando la librería <code>tmap</code> de R. Primero, establece algunas opciones con <code>tmap_options(check.and.fix = TRUE)</code> para verificar y corregir posibles errores.</p>
+<p>Luego, se crean dos objetos de mapa <code>m1_modificacion_humana</code> y <code>m2_modificacion_humana</code>, que muestran la variable <strong>modificacion_humana</strong> en dos formas diferentes: la suma y el promedio. Cada uno de los mapas utiliza <code>tm_polygons()</code> para representar los polígonos del mapa y las variables correspondientes. También establece un título para cada mapa con <code>title</code> y una paleta de colores con <code>palette</code>.</p>
+<p>Finalmente, utiliza <code>tmap_arrange()</code> para combinar los dos mapas en una cuadrícula de dos columnas (ncol = 2) y una fila (nrow = 1), y lo guarda en el objeto <code>map_modificacion_humana</code>. Al final se muestra el mapa combinado.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-28_462ad1459d1875e675b7ec27537a36f6">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>m1_modificacion_humana<span class="ot">&lt;-</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"modificacion_humana"</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"modificacion_humana(suma)"</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>m2_modificacion_humana <span class="ot">&lt;-</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"modificacion_humana"</span>,</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"modificacion_humana(media)"</span>,</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>map_modificacion_humana <span class="ot">&lt;-</span> <span class="fu">tmap_arrange</span>(<span class="fu">list</span>(m1_modificacion_humana,</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>                                             m2_modificacion_humana),</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>                                                <span class="at">norw =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>El último paso es guardar el mapa resultante, para este fin se utiliza la sintaxis.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-29_0daf6abe0b836160fd056ab7fe10ff5a">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_modificacion_humana,</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"../map_temp/modificacion_humana.jpg"</span>,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>A continuación se presenta un comparativo entre la información obtenida en Google Earth Engine y la procesada en R, donde se puede apreciar que el uso del promedio de los pixeles es una medida de resumen más adecuada, ya que refleja de mejor manera la información capturada por el satélite. Es importante destacar que esta comparación es esencial para validar el proceso de procesamiento de las variables satelitales, ya que permite verificar que la información obtenida en R se asemeje a la imagen de referencia disponible en Google Earth Engine. De esta manera, se asegura que la información procesada sea lo más cercana posible a la realidad y se evita la toma de decisiones basadas en información errónea.</p>
+<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-30_7042619a8a12e208739e23c043daa6e7">
 <div class="cell-output-display">
-<p><img src="0Recursos/001/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="www/Figura3_000_modificacion_humana.png" width="500" height="350" class="figure-img"></p>
+</figure>
 </div>
 </div>
-<p>Para guardar el mapa utilizamos la sintaxis.</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-30_598b2d7849a93a519d73f7d23d1ce503">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_modificacion_humana,</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/modificacion_humana.jpg"</span>,</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../map_temp/modificacion_humana.jpg" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
-<section id="accesibilidad-hospitales-caminado" class="level2">
-<h2 class="anchored" data-anchor-id="accesibilidad-hospitales-caminado">Accesibilidad hospitales caminado</h2>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-31_c159a8a89cbf8191bb9e3e50769739f9">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>m1_accesibilidad_hosp_caminado<span class="ot">&lt;-</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"accesibilidad_hosp_caminado"</span>,</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"accesibilidad_hosp_caminado(suma)"</span>,</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>m2_accesibilidad_hosp_caminado <span class="ot">&lt;-</span></span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"accesibilidad_hosp_caminado"</span>,</span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"accesibilidad_hosp_caminado(media)"</span>,</span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>map_accesibilidad_hosp_caminado <span class="ot">&lt;-</span></span>
-<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tmap_arrange</span>(</span>
-<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(</span>
-<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>      m1_accesibilidad_hosp_caminado,</span>
-<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>      m2_accesibilidad_hosp_caminado</span>
-<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
-<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">norw =</span> <span class="dv">1</span></span>
-<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>map_accesibilidad_hosp_caminado</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="accesibilidad-hospitales-caminado" class="level3">
+<h3 class="anchored" data-anchor-id="accesibilidad-hospitales-caminado">Accesibilidad hospitales caminado</h3>
+<p>Para obtener el mapa correspondiente a la variable <em>accesibilidad_hosp_caminado</em>, se sigue un proceso similar al descrito anteriormente. En primer lugar, se crean los objetos <code>m1_accesibilidad_hosp_caminado</code> y <code>m2_accesibilidad_hosp_caminado</code> utilizando la función <code>tm_shape</code> y <code>tm_polygons</code> de la librería <code>tmap</code>, respectivamente. Estos objetos se unen en el objeto <code>map_accesibilidad_hosp_caminado</code> utilizando la función <code>tmap_arrange</code> para mostrar ambas visualizaciones en una misma imagen.</p>
+<p>Finalmente, se utiliza la función <code>tmap_save</code> para guardar la imagen resultante en formato PNG. De esta manera, se obtiene un mapa que muestra la accesibilidad a hospitales caminando.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-31_0ea09ac0995db4d96a1c138118f95393">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>m1_accesibilidad_hosp_caminado<span class="ot">&lt;-</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"accesibilidad_hosp_caminado"</span>,</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"accesibilidad_hosp_caminado(suma)"</span>,</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>m2_accesibilidad_hosp_caminado <span class="ot">&lt;-</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"accesibilidad_hosp_caminado"</span>,</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"accesibilidad_hosp_caminado(media)"</span>,</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>map_accesibilidad_hosp_caminado <span class="ot">&lt;-</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tmap_arrange</span>(</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>      m1_accesibilidad_hosp_caminado,</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>      m2_accesibilidad_hosp_caminado</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">norw =</span> <span class="dv">1</span></span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_accesibilidad_hosp_caminado,</span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>          <span class="st">"../map_temp/accesibilidad_hosp_caminado.jpg"</span>,</span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
+<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>La imagen satelital de la variable <code>accesibilidad_hosp_caminado</code> proporciona información sobre los tiempos promedio que una persona tarda en llegar a un hospital o clínica. En la escala de grises utilizada para la gráfica, los tonos más oscuros indican tiempos menores, mientras que los tonos más claros indican tiempos mayores. Al observar la imagen, podemos confirmar que el promedio sigue siendo la medida de resumen que mejor refleja la información capturada por el satélite.</p>
+<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-32_f41df74fbec41b351ac907f88a37fff7">
 <div class="cell-output-display">
-<p><img src="0Recursos/001/unnamed-chunk-31-1.png" class="img-fluid" width="672"></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="www/Figura4_000_accesibilidad_hosp_caminado.png" width="500" height="350" class="figure-img"></p>
+</figure>
 </div>
 </div>
-<p>Para guardar el mapa utilizamos la sintaxis.</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-32_94203a918e7ca137a748df0108c8fb4e">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_accesibilidad_hosp_caminado,</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/accesibilidad_hosp_caminado.jpg"</span>,</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../map_temp/accesibilidad_hosp_caminado.jpg" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
 <section id="accesibilidad-hospitales" class="level2">
 <h2 class="anchored" data-anchor-id="accesibilidad-hospitales">Accesibilidad hospitales</h2>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-33_cb86f3a130903262ac6c922d1ab61e3b">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>m1_accesibilidad_hospitales <span class="ot">&lt;-</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"accesibilidad_hospitales"</span>,</span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"accesibilidad_hospitales(suma)"</span>,</span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>m2_accesibilidad_hospitales <span class="ot">&lt;-</span></span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"accesibilidad_hospitales"</span>,</span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"accesibilidad_hospitales(media)"</span>,</span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
-<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>map_accesibilidad_hospitales <span class="ot">&lt;-</span></span>
-<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tmap_arrange</span>(</span>
-<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(m1_accesibilidad_hospitales,</span>
-<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>         m2_accesibilidad_hospitales),</span>
-<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
-<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">norw =</span> <span class="dv">1</span></span>
-<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>map_accesibilidad_hospitales</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>La variable <code>accesibilidad_hospitales</code> mide el tiempo promedio que una persona tarda en llegar a clínicas u hospitales, independientemente del medio de transporte utilizado. Como esta variable utiliza la misma fuente de datos que <code>accesibilidad_hosp_caminado</code>, su interpretación visual en escala de grises es similar, donde los tonos más oscuros indican tiempos menores y los tonos más claros, tiempos mayores.</p>
+<p>Después de observar la imagen, se puede confirmar que el promedio sigue siendo la medida de resumen que mejor refleja la información capturada por el satélite. Para obtener el mapa correspondiente a <code>accesibilidad_hospitales</code>, se sigue un proceso similar al descrito previamente: se crean los objetos <code>m1_accesibilidad_hospitales</code> y <code>m2_accesibilidad_hospitales</code> utilizando <code>tm_shape</code> y <code>tm_polygons</code> de la librería <code>tmap</code>, respectivamente. Luego, se unen en el objeto <code>map_accesibilidad_hospitales</code> utilizando <code>tmap_arrange</code> para mostrar ambas visualizaciones en una misma imagen. Finalmente, se utiliza <code>tmap_save</code> para guardar la imagen resultante en formato PNG. De esta manera, se obtiene un mapa que muestra la accesibilidad a hospitales en la zona de estudio.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-33_4c38ea4c712078c77bc97940332ca0dd">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>m1_accesibilidad_hospitales <span class="ot">&lt;-</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"accesibilidad_hospitales"</span>,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"accesibilidad_hospitales(suma)"</span>,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>m2_accesibilidad_hospitales <span class="ot">&lt;-</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"accesibilidad_hospitales"</span>,</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"accesibilidad_hospitales(media)"</span>,</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>map_accesibilidad_hospitales <span class="ot">&lt;-</span></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tmap_arrange</span>(</span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(m1_accesibilidad_hospitales,</span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>         m2_accesibilidad_hospitales),</span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">norw =</span> <span class="dv">1</span></span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_accesibilidad_hospitales,</span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>          <span class="st">"../map_temp/accesibilidad_hospitales.jpg"</span>,</span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
+<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-34_c5e7f21bc062f615bf63d147e0746881">
 <div class="cell-output-display">
-<p><img src="0Recursos/001/unnamed-chunk-33-1.png" class="img-fluid" width="672"></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="www/Figura5_000_accesibilidad_hosp.png" width="500" height="350" class="figure-img"></p>
+</figure>
 </div>
 </div>
-<p>Para guardar el mapa utilizamos la sintaxis.</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-34_dcca7337500ed87fb6e3da6633b87c20">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_accesibilidad_hospitales,</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/accesibilidad_hospitales.jpg"</span>,</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../map_temp/accesibilidad_hospitales.jpg" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
 <section id="cubrimiento-urbano" class="level2">
 <h2 class="anchored" data-anchor-id="cubrimiento-urbano">Cubrimiento urbano</h2>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-35_c2a750640e7d8e55c01c239656087fb2">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>m1_cubrimiento_urbano <span class="ot">&lt;-</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cubrimiento_urbano"</span>,</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"cubrimiento_urbano(suma)"</span>,</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>m2_cubrimiento_urbano <span class="ot">&lt;-</span></span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cubrimiento_urbano"</span>,</span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"cubrimiento_urbano(media)"</span>,</span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
-<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>map_cubrimiento_urbano <span class="ot">&lt;-</span> <span class="fu">tmap_arrange</span>(</span>
-<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(m1_cubrimiento_urbano,</span>
-<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>       m2_cubrimiento_urbano),</span>
-<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncol =</span> <span class="dv">2</span>,</span>
-<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">norw =</span> <span class="dv">1</span></span>
-<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>map_cubrimiento_urbano</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>La imagen satelital representa el cubrimiento urbano, en una escala de tonos que va desde el negro, que indica ausencia de construcciones urbanas, hasta el blanco, que representa la presencia de edificaciones. Esta variable es relevante porque permite identificar las zonas con mayor densidad de población.</p>
+<p>Sin embargo, al procesar los datos, se observó que la variable tiene un comportamiento asimétrico y la escala utilizada para representarla no es adecuada para mostrar los detalles más finos de la imagen. Para superar este problema y validar la información obtenida a través de la descarga de datos, se decidió aplicar una transformación logarítmica a la variable. En el siguiente bloque de código se describe el proceso detalladamente para obtener el mapa correspondiente.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-35_a91605ab53d09cb2af97c49709f9a53a">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(poligonos_suma <span class="sc">%&gt;%</span> </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>             <span class="fu">mutate</span>(<span class="at">cubrimiento_urbano =</span> <span class="fu">log</span>(cubrimiento_urbano <span class="sc">+</span> <span class="dv">1</span>)))</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(poligonos_promedio <span class="sc">%&gt;%</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>             <span class="fu">mutate</span>(<span class="at">cubrimiento_urbano =</span> <span class="fu">log</span>(cubrimiento_urbano <span class="sc">+</span> <span class="dv">1</span>)))</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>m1_cubrimiento_urbano <span class="ot">&lt;-</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cubrimiento_urbano"</span>,</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"cubrimiento_urbano(suma)"</span>,</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>m2_cubrimiento_urbano <span class="ot">&lt;-</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cubrimiento_urbano"</span>,</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"cubrimiento_urbano(media)"</span>,</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>map_cubrimiento_urbano <span class="ot">&lt;-</span> <span class="fu">tmap_arrange</span>(</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(m1_cubrimiento_urbano,</span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>       m2_cubrimiento_urbano),</span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">norw =</span> <span class="dv">1</span></span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_cubrimiento_urbano,</span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>          <span class="st">"../map_temp/cubrimiento_urbano.jpg"</span>,</span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Como se puede notar la modificación realizada consistió en definir nuevamente los objetos <code>m1</code> y <code>m2</code>, donde incluimos la transformación logarítmica mediante el comando <code>mutate(cubrimiento_urbano = log(cubrimiento_urbano + 1))</code>. Es de mencionar, que para la variable original se le suma la constante <code>uno</code> para corregir errores del calculo, en caso que la variable posea un valor de <code>cero</code>. Ahora, al realizar la comparación entre las dos imágenes podemos vemos que la media, como medida de resumen muestra una mayor similitud con la mostrada del satélite.</p>
+<p>Como se puede notar, la modificación realizada en el código, en la cual se incluyó la transformación logarítmica de la variable <code>cubrimiento_urbano</code> para obtener un mapa que muestre una mejor correspondencia con la imagen satelital original. En primer lugar, se crearon nuevamente los objetos <code>m1</code> y <code>m2</code> utilizando el comando <code>tm_shape</code>. A continuación, se aplicó la transformación logarítmica mediante el comando <code>mutate(cubrimiento_urbano = log(cubrimiento_urbano + 1))</code>, donde se suma una constante de <code>uno</code> para evitar errores en el cálculo en caso de que la variable tenga un valor de <code>cero</code>.</p>
+<p>Al comparar la imagen obtenida mediante la transformación logarítmica con la imagen satelital original, no es claro cual de las dos imágenes representa de mejor forma la información capturada por el satélite. Dado que, las dos imágenes muestran valores altos en las ciudades principales, sin embargo, la figura de la suma muestra unos municipios en naranja que nos son reflejados por la gráfica obtenida con el promedio.</p>
+<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-36_231af90cde94197e0f69526da5788168">
 <div class="cell-output-display">
-<p><img src="0Recursos/001/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="www/Figura6_000_cubrimiento_urbano.png" width="500" height="350" class="figure-img"></p>
+</figure>
 </div>
 </div>
-<p>Para guardar el mapa utilizamos la sintaxis.</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-36_e76db1e12b708ed3b648ce0702c6f010">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_cubrimiento_urbano,</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/cubrimiento_urbano.jpg"</span>,</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../map_temp/cubrimiento_urbano.jpg" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
 <section id="cubrimiento-cultivo" class="level2">
 <h2 class="anchored" data-anchor-id="cubrimiento-cultivo">Cubrimiento cultivo</h2>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-37_a3491b5b66aa3f380d6acdd9203ceeab">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>m1_cubrimiento_cultivo <span class="ot">&lt;-</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cubrimiento_cultivo"</span>,</span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"cubrimiento_cultivo(suma)"</span>,</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>m2_cubrimiento_cultivo <span class="ot">&lt;-</span></span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cubrimiento_cultivo"</span>,</span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"cubrimiento_cultivo(media)"</span>,</span>
-<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
-<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>map_cubrimiento_cultivo <span class="ot">&lt;-</span></span>
-<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tmap_arrange</span>(</span>
-<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(m1_cubrimiento_cultivo, m2_cubrimiento_cultivo),</span>
-<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
-<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">norw =</span> <span class="dv">1</span></span>
-<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>map_cubrimiento_cultivo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>La variable <code>cubrimiento_cultivo</code> proporciona información sobre las áreas de cultivo presentes en los municipios y su interpretación visual en la imagen satelital es similar a las variables analizadas anteriormente. Los tonos más oscuros indican baja presencia de cultivos, mientras que los tonos más claros indican mayor presencia de cultivos.</p>
+<p>Para poder comparar la información de esta variable con la mostrada por Google Earth Engine, fue necesario aplicar una transformación logarítmica, similar a la realizada en la variable <code>cubrimiento_urbano.</code> El objetivo de esta transformación fue facilitar la comparación entre ambas fuentes de información. Al comparar las dos imágenes, no se observa una clara diferencia en cuanto a cuál medida de resumen sería más adecuada, pero se opta por utilizar el promedio como medida de resumen para esta variable.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-37_0db2a800da2a5d02616d38ae5214abdd">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(poligonos_suma <span class="sc">%&gt;%</span> </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>             <span class="fu">mutate</span>(<span class="at">cubrimiento_cultivo =</span> <span class="fu">log</span>(cubrimiento_cultivo <span class="sc">+</span> <span class="dv">1</span>)))</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>(poligonos_promedio <span class="sc">%&gt;%</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>             <span class="fu">mutate</span>(<span class="at">cubrimiento_cultivo =</span> <span class="fu">log</span>(cubrimiento_cultivo <span class="sc">+</span> <span class="dv">1</span>)))</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>m1_cubrimiento_cultivo <span class="ot">&lt;-</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cubrimiento_cultivo"</span>,</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"cubrimiento_cultivo(suma)"</span>,</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>m2_cubrimiento_cultivo <span class="ot">&lt;-</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cubrimiento_cultivo"</span>,</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"cubrimiento_cultivo(media)"</span>,</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>map_cubrimiento_cultivo <span class="ot">&lt;-</span></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tmap_arrange</span>(</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(m1_cubrimiento_cultivo, m2_cubrimiento_cultivo),</span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">norw =</span> <span class="dv">1</span></span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_cubrimiento_cultivo,</span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>          <span class="st">"../map_temp/cubrimiento_cultivo.jpg"</span>,</span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
+<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-38_5290a8b41df56b0bd99f19217d092a13">
 <div class="cell-output-display">
-<p><img src="0Recursos/001/unnamed-chunk-37-1.png" class="img-fluid" width="672"></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="www/Figura7_000_cubrimiento_cultivo.png" width="500" height="350" class="figure-img"></p>
+</figure>
 </div>
 </div>
-<p>Para guardar el mapa utilizamos la sintaxis.</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-38_e18af94784ec9abd0f1a555d965745ba">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_cubrimiento_cultivo,</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/cubrimiento_cultivo.jpg"</span>,</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">3000</span>,</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">2000</span>,</span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../map_temp/cubrimiento_cultivo.jpg" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
 <section id="luces-nocturnas-1" class="level2">
 <h2 class="anchored" data-anchor-id="luces-nocturnas-1">Luces nocturnas</h2>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-39_6243e7e36669e3f0c7152de998250cdf">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>m1_luces <span class="ot">&lt;-</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"luces_nocturnas"</span>,</span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"luces_nocturnas(suma)"</span>,</span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>m2_luces <span class="ot">&lt;-</span></span>
-<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
-<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"luces_nocturnas"</span>,</span>
-<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"luces_nocturnas(media)"</span>,</span>
-<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
-<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>map_luces <span class="ot">&lt;-</span> <span class="fu">tmap_arrange</span>(<span class="fu">list</span>(m1_luces,m2_luces),</span>
-<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>                          <span class="at">ncol =</span> <span class="dv">2</span>,</span>
-<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>                          <span class="at">norw =</span> <span class="dv">1</span>)</span>
-<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>map_luces</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>La última variable que validaremos es la intensidad lumínica o luces nocturnas. La variable fue capturada por el satélite en una resolución de 30 metros por píxel. Los valores de la imagen van desde 0 (sin luces) hasta 63 (máxima cantidad de luces), y se pueden utilizar para analizar patrones de urbanización, así como para estimar el crecimiento de ciudades y la densidad de población. Por tanto, se espera que esta variable sea un reflejo de las densidades posesionales de los municipios.</p>
+<p>Al comparar las imágenes vemos que describen y patrón similar dentro del mapa, sin embargo, la suma muestra un alto valor para el municipio de <em>Higüey</em> dado el tamaño del mismo. Por tanto, se opta por el promedio como medida de resumen para la variable <code>luces_nocturnas</code>.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-39_de0a50843038e396bacb621bd4f3ac25">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>m1_luces <span class="ot">&lt;-</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  m1 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"luces_nocturnas"</span>,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"luces_nocturnas(suma)"</span>,</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>m2_luces <span class="ot">&lt;-</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  m2 <span class="sc">+</span> <span class="fu">tm_polygons</span>(</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"luces_nocturnas"</span>,</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"luces_nocturnas(media)"</span>,</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">"YlOrRd"</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>map_luces <span class="ot">&lt;-</span> <span class="fu">tmap_arrange</span>(<span class="fu">list</span>(m1_luces,m2_luces),</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>                          <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>                          <span class="at">norw =</span> <span class="dv">1</span>)</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_luces,</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>          <span class="st">"../map_temp/luces.jpg"</span>,</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">6920</span>,</span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">4080</span>,</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Para guardar el mapa utilizamos la sintaxis.</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-40_ce3723bae3a4e8d819d4ea78e70a7ece">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_save</span>(map_luces,</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"map_temp/luces.jpg"</span>,</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">width =</span> <span class="dv">6920</span>,</span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">height =</span> <span class="dv">4080</span>,</span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">asp =</span> <span class="dv">0</span></span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-40_931fcb683c4428a782fd866c10681e83">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="www/Figura8_000_lights.png" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../map_temp/luces.jpg" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
 <section id="correlación-estimación-directa" class="level2">
 <h2 class="anchored" data-anchor-id="correlación-estimación-directa">Correlación estimación directa</h2>
-<p>Crear una columnas para identificar los dominios en cada base.</p>
+<p>Dado que el objetivo es tener información variables auxiliares que estén asociada con la estimación directa del indicador y que posean una gran capacidad de predicción realizamos un análisis de correlación entre las variables satelitales (sumas y medias) y las estimaciones directas que fueron calculadas con anterioridad. Para realizar el calculo de las correlaciones fue necesario definir el identificador el dominio (municipio) como se muestra en el siguiente código.</p>
 <div class="cell" data-hash="0Recursos/001/unnamed-chunk-41_5460aca141f130ac46d0b00d5a201c5d">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>satelital_suma <span class="sc">%&lt;&gt;%</span> <span class="fu">mutate</span>(</span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dominio =</span> <span class="fu">substring</span>(ENLACE, <span class="dv">3</span>),</span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">string =</span> id_dominio,</span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">4</span>,</span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">pad =</span> <span class="st">"0"</span></span>
-<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>satelital_promedio <span class="sc">%&lt;&gt;%</span> <span class="fu">mutate</span>(</span>
-<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dominio =</span> <span class="fu">substring</span>(ENLACE, <span class="dv">3</span>),</span>
-<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
-<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">string =</span> id_dominio,</span>
-<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">4</span>,</span>
-<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">pad =</span> <span class="st">"0"</span></span>
-<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>satelital_suma <span class="sc">%&lt;&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dominio =</span> <span class="fu">substring</span>(ENLACE, <span class="dv">3</span>),</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">string =</span> id_dominio,</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">pad =</span> <span class="st">"0"</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>satelital_promedio <span class="sc">%&lt;&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dominio =</span> <span class="fu">substring</span>(ENLACE, <span class="dv">3</span>),</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">string =</span> id_dominio,</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">pad =</span> <span class="st">"0"</span></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Este código utiliza la función <code>%&lt;&gt;%</code> de la librería <code>magrittr</code> para asignar el resultado de una operación a un objeto sin necesidad de utilizar el operador de asignación <code>&lt;-</code>. El primer bloque de código se aplica al <code>data.frame</code> de <code>satelital_suma</code> y el segundo bloque se aplica <code>satelital_promedio</code>.</p>
+<p>Ambos bloques de código utilizan la función <code>mutate()</code> de la librería <code>dplyr</code> para crear una nueva columna en cada tabla llamada <code>id_dominio</code>. Esta columna se genera extrayendo una subcadena de la columna <code>ENLACE</code> de cada tabla utilizando la función <code>substring()</code>. El segundo argumento de <code>substring()</code> indica la posición de inicio de la subcadena (en este caso, la tercera posición), mientras que la función <code>str_pad()</code> se utiliza para agregar ceros a la izquierda hasta que la subcadena tenga una longitud de 4 caracteres.</p>
+<p>Estos bloques de código permiten generar una nueva columna en cada tabla que se utilizará para unir la información satelital con otra información utilizando el código de cada municipio o dominio como clave de unión.</p>
 </section>
 <section id="estimaciones-directas" class="level2">
 <h2 class="anchored" data-anchor-id="estimaciones-directas">Estimaciones directas</h2>
-<p>Leer la base de datos con las estimaciones directas previamente calculadas.</p>
+<p>En un proceso explicado más adelante en este documento, se realizaron cálculos de estimaciones directas para los dominios en la muestra. Sin embargo, debido a los criterios de calidad a los que se sometieron estas estimaciones directas, no todos los municipios en la muestra pueden ser utilizados en el modelo de área. Las estimaciones que cumplen con los criterios de calidad se guardaron en el archivo <code>base_FH.rds.</code> A continuación, se realiza la lectura de este archivo mediante el siguiente bloque de código.</p>
+<p>Este código utiliza las tablas <code>estimacion_dir</code> (que se lee desde un archivo RDS) y las tablas <code>satelital_suma</code> y <code>satelital_promedio</code> (que se generan previamente en el código) para realizar un <code>inner_join</code> basado en la columna <code>id_dominio</code>.</p>
+<p>En el primer bloque de código, se utiliza la función <code>filter()</code> para eliminar las filas que no tienen la varianza estimada (<code>hat_var</code>), y la función <code>dplyr::select()</code> para seleccionar solo las columnas <code>id_dominio</code> y <code>Rd</code> de la tabla.</p>
+<p>En el segundo bloque de código, se utilizan las funciones <code>inner_join()</code> y <code>select()</code> de la librería <code>dplyr</code> para unir las tablas <code>estimacion_dir</code> y <code>satelital_suma</code> o <code>satelital_promedio</code>, respectivamente, basado en la columna <code>id_dominio</code>. El resultado de esta operación es una nueva tabla que contiene las columnas de ambas tablas unidas por la columna <code>id_dominio</code>.</p>
 <div class="cell" data-hash="0Recursos/001/unnamed-chunk-42_758c19da4764b9d724d0fb1e64418d47">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>estimacion_dir <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../Data/base_FH.Rds"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(hat_var)) <span class="sc">%&gt;%</span> </span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(id_dominio, Rd)</span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>estimacion_dir_suma <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(estimacion_dir, satelital_suma)</span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>estimacion_dir_promedio <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(estimacion_dir, satelital_promedio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>estimacion_dir <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../Data/base_FH.Rds"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(hat_var)) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(id_dominio, Rd)</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>estimacion_dir_suma <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(estimacion_dir, satelital_suma)</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>estimacion_dir_promedio <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(estimacion_dir, satelital_promedio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="correlación-de-las-variables-satelital-vs-estimación-directa" class="level2">
-<h2 class="anchored" data-anchor-id="correlación-de-las-variables-satelital-vs-estimación-directa">Correlación de las variables satelital Vs estimación directa</h2>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-43_52365d90c400f0a0545f7044ad780ac5">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>cor_satelite <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    estimacion_dir_suma<span class="sc">$</span>Rd,</span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    estimacion_dir_suma <span class="sc">%&gt;%</span>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>ENLACE,<span class="sc">-</span>id_dominio, <span class="sc">-</span>Rd)</span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(</span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    estimacion_dir_promedio<span class="sc">$</span>Rd,</span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>    estimacion_dir_promedio <span class="sc">%&gt;%</span>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>ENLACE,<span class="sc">-</span>id_dominio, <span class="sc">-</span>Rd)</span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(cor_satelite) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Suma"</span>, <span class="st">"Media"</span>)</span>
-<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(cor_satelite) <span class="sc">%&gt;%</span><span class="fu">tba</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="correlación-de-las-variables-satelital" class="level3">
+<h3 class="anchored" data-anchor-id="correlación-de-las-variables-satelital">Correlación de las variables satelital</h3>
+<p>El siguiente código realiza una matriz de correlación entre las variables satelitales y la estimación directa, tanto para la suma como para el promedio. Primero se crea un objeto llamado cor_satelite que se crea a partir de la unión de la correlación entre la estimación directa (<strong>Rd</strong>) y las demás variables satelitales para la suma y para el promedio. Luego, se asignan los nombres de las filas con los valores Suma y Media. Finalmente, se transpone la matriz y se utiliza la función <code>tba()</code> para presentarla de manera ordenada.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-43_7d35544898cca3253fdbf86ace147b62">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>cor_satelite <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    estimacion_dir_suma<span class="sc">$</span>Rd,</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    estimacion_dir_suma <span class="sc">%&gt;%</span>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>ENLACE,<span class="sc">-</span>id_dominio, <span class="sc">-</span>Rd)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cor</span>(</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    estimacion_dir_promedio<span class="sc">$</span>Rd,</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    estimacion_dir_promedio <span class="sc">%&gt;%</span>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>ENLACE,<span class="sc">-</span>id_dominio, <span class="sc">-</span>Rd)</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(cor_satelite) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Suma"</span>, <span class="st">"Media"</span>)</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(cor_satelite) <span class="sc">%&gt;%</span> <span class="fu">tba</span>(<span class="at">cap =</span> <span class="st">"Corelación de las variables satelitales </span><span class="sc">\n</span><span class="st">y la estimación directa"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table class="table table-striped lightable-classic" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>Corelación de las variables satelitales 
+y la estimación directa</caption>
  <thead>
   <tr>
    <th style="text-align:left;">   </th>
@@ -1138,60 +1253,104 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </div>
 </div>
+<p>La tabla muestra los coeficientes de correlación entre las variables satelitales (suma y media) y la estimación directa para los dominios en la muestra. Se observa que la modificación humana tiene una correlación negativa con la estimación directa, tanto en la suma como en la media. Por otro lado, la accesibilidad a hospitales muestra una correlación positiva débil con la estimación directa en ambas medidas. La accesibilidad a hospitales caminando y el cubrimiento de cultivos presentan correlaciones negativas en la suma y correlaciones débiles en la media. Finalmente, el cubrimiento urbano y las luces nocturnas presentan correlaciones negativas en ambas medidas.</p>
+</section>
 </section>
 </section>
 <section id="información-auxiliar-en-el-modelo" class="level1">
 <h1>Información auxiliar en el modelo</h1>
-<p>Creando mapas para las variables censales</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-44_d69dbedc32faaf724d365aaff58ecf7f">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>auxiliar <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../Data/auxiliar_org.Rds"</span>)  <span class="sc">%&gt;%</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>F182013_stable_lights,<span class="sc">-</span>X2016_crops.coverfraction,</span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>X2016_urban.coverfraction,<span class="sc">-</span>accessibility,</span>
-<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>accessibility_walking_only,<span class="sc">-</span>ID_PROVINCIA</span>
-<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_if</span>(is.numeric) <span class="sc">%&gt;%</span> </span>
-<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>   <span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
-<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">string =</span> id_municipio,</span>
-<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">width =</span> <span class="dv">4</span>,</span>
-<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">pad =</span> <span class="st">"0"</span></span>
-<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Otra fuente información importante son las variables agregadas obtenidas a partir del Censo, por ellos se hace de mucha importancia realizar el análisis de la variable para identificar de forma visual su aporte en la predicción del modelo de área.</p>
+<p>Se carga el archivo <code>auxiliar_org.Rds</code> y se eliminaron todas las variables que no son numéricas. A continuación, se seleccionaron solo las variables numéricas para ser utilizadas en el análisis posterior. Además, se agregó una nueva columna llamada <code>id_dominio</code>, que se creó a partir de la columna <code>id_municipio</code>. Para esto, se utilizó la función <code>str_pad</code> para agregar ceros adicionales al inicio de cada valor de la columna <code>id_municipio</code>, de manera que todas las entradas de <code>id_dominio</code> tengan una longitud de 4 dígitos.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-44_dd213da492420cc89cbefe4ffefe24a7">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>auxiliar <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../Data/auxiliar_org.Rds"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_if</span>(is.numeric) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>   <span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">string =</span> id_municipio,</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">pad =</span> <span class="st">"0"</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Lectura del polígono</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-45_162feb0edcdab354a3dba3f4d1d76533">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>poligonos_auxiliar <span class="ot">&lt;-</span></span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_sf</span>(<span class="st">"../shapefiles2010/MUNCenso2010.shp"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_dominio =</span> <span class="fu">substring</span>(ENLACE, <span class="dv">3</span>),</span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">string =</span> id_dominio,</span>
-<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">width =</span> <span class="dv">4</span>,</span>
-<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">pad =</span> <span class="st">"0"</span></span>
-<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(id_dominio, TOPONIMIA) <span class="sc">%&gt;%</span></span>
-<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(auxiliar)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>En el siguiente bloque de código, se procedió a unir la información de los polígonos de los municipios con los datos numéricos contenidos en el archivo <code>auxiliar_org</code>. Para ello, se extrajo el identificador numérico de cada municipio de la variable <code>ENLACE</code> de la tabla <code>poligonos_municipio</code> y se formateó a cuatro dígitos para crear la variable <code>id_dominio</code>. Este identificador se usó para unir los polígonos con los datos numéricos contenidos en <code>auxiliar_org</code>. Se seleccionaron únicamente las variables numéricas contenidas en este último archivo.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-45_841513039cea3c801afa71ae6a11a939">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>poligonos_auxiliar <span class="ot">&lt;-</span> poligonos_minucipio <span class="sc">%&gt;%</span> </span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_dominio =</span> <span class="fu">substring</span>(ENLACE, <span class="dv">3</span>),</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_dominio =</span> <span class="fu">str_pad</span>(</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">string =</span> id_dominio,</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">width =</span> <span class="dv">4</span>,</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">pad =</span> <span class="st">"0"</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(id_dominio, TOPONIMIA) <span class="sc">%&gt;%</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(auxiliar)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>creando objeto de ‘tmap’</p>
-<div class="cell" data-hash="0Recursos/001/unnamed-chunk-46_2f8ccadc2befdcf74a5c540b208c048b">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>map_auxiliar <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(poligonos_auxiliar)</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (ii <span class="cf">in</span> <span class="fu">names</span>(auxiliar)[<span class="sc">-</span><span class="dv">1</span>]) {</span>
-<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  m1_auxiliar <span class="ot">&lt;-</span></span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>    map_auxiliar <span class="sc">+</span> <span class="fu">tm_polygons</span>(ii,</span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>                               <span class="at">title =</span> ii,</span>
-<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>                               <span class="at">palette =</span> <span class="st">"YlOrRd"</span>)</span>
-<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tmap_save</span>(</span>
-<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>    m1_auxiliar,</span>
-<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(<span class="st">"../map_temp/"</span>, ii, <span class="st">".jpg"</span>),</span>
-<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">3000</span>,</span>
-<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">height =</span> <span class="dv">2000</span>,</span>
-<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">asp =</span> <span class="dv">0</span></span>
-<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb46-16"><a href="#cb46-16" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Por último, se crea un mapa para cada variable de la base de datos <code>auxiliar</code>, que contiene información sobre los municipios. Se crea un objeto <code>map_auxiliar</code> a partir de los polígonos de los municipios. Se recorren las columnas de la base de datos auxiliar (excepto la primera, que es la identificación del municipio) y se agrega una capa para cada variable en censal disponible, con un título igual al nombre de la variable. Además, se define una lista <code>path_censo</code> para guardar la ruta donde se guardarán los archivos de imagen de los mapas.</p>
+<div class="cell" data-hash="0Recursos/001/unnamed-chunk-46_2057745d307bd9aa9360597dd01f2d28">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>map_auxiliar <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(poligonos_auxiliar)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>path_censo <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (ii <span class="cf">in</span> <span class="fu">names</span>(auxiliar)[<span class="sc">-</span><span class="dv">1</span>]) {</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  m1_auxiliar <span class="ot">&lt;-</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    map_auxiliar <span class="sc">+</span> <span class="fu">tm_polygons</span>(ii,</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>                               <span class="at">title =</span> ii,</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>                               <span class="at">palette =</span> <span class="st">"YlOrRd"</span>)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a> path_censo[[ii]] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"../map_temp/"</span>, ii, <span class="st">".jpg"</span>)</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># tmap_save(</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   m1_auxiliar,</span></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   paste0("../map_temp/", ii, ".jpg"),</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   width = 3000,</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   height = 2000,</span></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   asp = 0</span></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># )</span></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center" data-hash="0Recursos/001/unnamed-chunk-47_3d64d7c7ad6d2c3a2b856ccd97e168ae">
+<div class="cell-output cell-output-stdout">
+<pre><code>                           Densidad_Pob                         P45_TUVO_EMPLEO 
+         "../map_temp/Densidad_Pob.jpg"       "../map_temp/P45_TUVO_EMPLEO.jpg" 
+                  P46_ACTIVIDAD_PORPAGA                       P47_AYUDO_SINPAGA 
+"../map_temp/P46_ACTIVIDAD_PORPAGA.jpg"     "../map_temp/P47_AYUDO_SINPAGA.jpg" 
+                         P30_DONDE_NACE 
+       "../map_temp/P30_DONDE_NACE.jpg" </code></pre>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../map_temp/Densidad_Pob.jpg" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../map_temp/P45_TUVO_EMPLEO.jpg" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../map_temp/P46_ACTIVIDAD_PORPAGA.jpg" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../map_temp/P47_AYUDO_SINPAGA.jpg" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../map_temp/P30_DONDE_NACE.jpg" width="500" height="350" class="figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
 
