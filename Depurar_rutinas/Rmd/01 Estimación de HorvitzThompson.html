@@ -8,7 +8,7 @@
 
 <meta name="author" content="Andrés Gutiérrez">
 <meta name="author" content="Stalyn Guerrero">
-<meta name="dcterms.date" content="2023-02-22">
+<meta name="dcterms.date" content="2023-02-25">
 
 <title>Estimación de la tasa de informalidad en República Dominicana empleando modelos de área con transformación arcoseno</title>
 <style>
@@ -144,7 +144,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 22, 2023</p>
+      <p class="date">February 25, 2023</p>
     </div>
   </div>
     
@@ -153,82 +153,87 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
+<section id="introducción" class="level1">
+<h1>Introducción</h1>
+<p>En este apartado realizaremos las estimaciones directas para los dominios que fueron seleccionados en la muestra, dado que estos fueron no planeados. Las estimaciones directas son una herramienta comúnmente utilizada en la estadística inferencial para obtener información sobre una población a partir de una muestra. Sin embargo, estas estimaciones pueden presentar problemas cuando la muestra es pequeña, lo que puede conducir a una falta de precisión en las estimaciones y a una mayor incertidumbre en las conclusiones que se puedan extraer.</p>
 <section id="lectura-de-librerías" class="level2">
 <h2 class="anchored" data-anchor-id="lectura-de-librerías">Lectura de librerías</h2>
-<div class="cell" data-hash="0Recursos/01/unnamed-chunk-1_7361e15dd544222be66b12822d2cf010">
+<p>Las librerías survey, tidyverse, srvyr y TeachingSampling son fundamentales para el análisis de datos de encuestas. survey es una librería que proporciona herramientas para el análisis de datos complejos de encuestas, permitiendo la incorporación de pesos y diseños complejos de muestreo.</p>
+<div class="cell" data-hash="0Recursos/01/unnamed-chunk-1_8d9e1e5dacedd8218f3d9c3e14685b5c">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survey)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(srvyr)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TeachingSampling)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DBI)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(odbc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TeachingSampling)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="lectura-de-la-encuesta" class="level1">
-<h1>Lectura de la encuesta</h1>
-<div class="cell" data-hash="0Recursos/01/unnamed-chunk-2_98ff8b15cee4b2b306f23a1cd8fe96f1">
+</section>
+<section id="lectura-de-la-encuesta-y-definición-de-parámetros" class="level1">
+<h1>Lectura de la encuesta y definición de parámetros</h1>
+<p>Este código carga los datos de la encuesta y define la variable <code>id_dominio</code> que se utiliza como identificador único del dominio de estudio a lo largo del código. Luego, se realiza una serie de transformaciones en los datos mediante la función <code>mutate()</code> del paquete <code>dplyr</code>.</p>
+<p>La primera transformación utiliza la función <code>str_pad()</code> para agregar ceros a la izquierda de la variable <code>upm</code> hasta que tenga una longitud de 9 caracteres. La variable <code>upm</code> es un identificador único para cada Unidad Primaria de Muestreo (UPM) en la encuesta. La segunda transformación hace lo mismo para la variable estrato</p>
+<p>Por último, se crea una nueva variable llamada factor_anual que representa el factor de expansión de la encuesta dividido por 4. Este factor se utiliza para ajustar las estimaciones de la encuesta y obtener estimaciones representativas de la población objetivo.</p>
+<div class="cell" data-hash="0Recursos/01/unnamed-chunk-2_0a833762b34b3d5cb67061a11e54dd0d">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>encuestaDOM <span class="ot">&lt;-</span>  <span class="fu">readRDS</span>(<span class="st">"../Data/encuestaDOM.Rds"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>id_dominio <span class="ot">&lt;-</span> <span class="st">"id_dominio"</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>((encuestaDOM<span class="sc">$</span>factor_expansion)<span class="sc">/</span><span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 10535361</code></pre>
-</div>
-</div>
-<p>definición de las upm, estrato y factor_anual para la encuesta</p>
-<div class="cell" data-hash="0Recursos/01/unnamed-chunk-3_5e03739e9fe6def1a7deaefb98263798">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>encuestaDOM <span class="ot">&lt;-</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  encuestaDOM <span class="sc">%&gt;%</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">upm =</span> <span class="fu">str_pad</span>(<span class="at">string =</span> upm,<span class="at">width =</span> <span class="dv">9</span>,<span class="at">pad =</span> <span class="st">"0"</span>),</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">estrato =</span> <span class="fu">str_pad</span>(<span class="at">string =</span> estrato,<span class="at">width =</span> <span class="dv">5</span>,<span class="at">pad =</span> <span class="st">"0"</span>),</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">factor_anual =</span> factor_expansion <span class="sc">/</span> <span class="dv">4</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>encuestaDOM <span class="ot">&lt;-</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  encuestaDOM <span class="sc">%&gt;%</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">upm =</span> <span class="fu">str_pad</span>(<span class="at">string =</span> upm,<span class="at">width =</span> <span class="dv">9</span>,<span class="at">pad =</span> <span class="st">"0"</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">estrato =</span> <span class="fu">str_pad</span>(<span class="at">string =</span> estrato,<span class="at">width =</span> <span class="dv">5</span>,<span class="at">pad =</span> <span class="st">"0"</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">factor_anual =</span> factor_expansion <span class="sc">/</span> <span class="dv">4</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="definición-del-diseño-muestral-con-la-libreria-survey" class="level2">
 <h2 class="anchored" data-anchor-id="definición-del-diseño-muestral-con-la-libreria-survey">Definición del diseño muestral con la libreria survey</h2>
-<div class="cell" data-hash="0Recursos/01/unnamed-chunk-4_3efec665b6b245cbb4cbcf5876f4b805">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">survey.lonely.psu=</span> <span class="st">'adjust'</span> )</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>disenoDOM <span class="ot">&lt;-</span> encuestaDOM <span class="sc">%&gt;%</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_survey_design</span>(</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">strata =</span> estrato,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">ids =</span> upm,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">weights =</span> factor_anual,</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">nest=</span>T</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Este código establece el diseño muestral complejo para el análisis de la Encuesta. En particular, se establecen las opciones de ajuste para el tratamiento de los PSUs solitarios (unidades primarias de muestreo con un solo elemento). Luego, se define el diseño utilizando la función <code>as_survey_design()</code> del paquete <code>survey</code>, especificando las variables de estratificación, el identificador de las UPM, los pesos de muestreo y la opción <code>nest=T</code> para indicar que el diseño es anidado, es decir, que los datos de cada unidad secundaria de muestreo (hogar) están contenidos dentro de su Unidad Primaria de Muestreo.</p>
+<div class="cell" data-hash="0Recursos/01/unnamed-chunk-3_72488d39fb5e867111d9babbf83585cd">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">survey.lonely.psu=</span> <span class="st">'adjust'</span> )</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>disenoDOM <span class="ot">&lt;-</span> encuestaDOM <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_survey_design</span>(</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">strata =</span> estrato,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">ids =</span> upm,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">weights =</span> factor_anual,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">nest=</span>T</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="calculo-del-indicador" class="level2">
 <h2 class="anchored" data-anchor-id="calculo-del-indicador">Calculo del indicador</h2>
-<div class="cell" data-hash="0Recursos/01/unnamed-chunk-5_2c1438d912ec50ef8417c10b63ff372f">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>indicador_dom <span class="ot">&lt;-</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  disenoDOM <span class="sc">%&gt;%</span> <span class="fu">group_by_at</span>(id_dominio) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ocupado <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> pet <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">unweighted</span>(<span class="fu">n</span>()),</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rd =</span> <span class="fu">survey_ratio</span>(</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">numerator =</span> orden_sector <span class="sc">==</span> <span class="dv">2</span> ,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">denominator =</span> <span class="dv">1</span>,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">vartype =</span> <span class="fu">c</span>(<span class="st">"se"</span>, <span class="st">"ci"</span>, <span class="st">"var"</span>, <span class="st">"cv"</span>),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">deff =</span> T</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Este bloque de código realiza lo siguiente:</p>
+<ul>
+<li>Se agrupa la encuesta por id_dominio.</li>
+<li>Se filtran los casos en los que la variable <code>ocupado</code> es igual a 1 y la variable <code>pet</code> es igual a 1.</li>
+<li>Se calcula el tamaño muestral no ponderado (<code>n()</code>).</li>
+<li>Se calcula la razón de la variable <code>orden_sector</code> igual a 2 sobre la variable constante igual a 1 mediante el uso de <code>survey_ratio()</code>, que utiliza los pesos de muestreo para producir estimaciones de varianza y errores estándar apropiados para el muestreo complejo.</li>
+<li>La función <code>survey_ratio()</code> también permite calcular intervalos de confianza y coeficientes de variación.</li>
+</ul>
+<div class="cell" data-hash="0Recursos/01/unnamed-chunk-4_4b96c094f960d551981b4f2d8f30b073">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>indicador_dom <span class="ot">&lt;-</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  disenoDOM <span class="sc">%&gt;%</span> <span class="fu">group_by_at</span>(id_dominio) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ocupado <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> pet <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">unweighted</span>(<span class="fu">n</span>()),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rd =</span> <span class="fu">survey_ratio</span>(</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">numerator =</span> orden_sector <span class="sc">==</span> <span class="dv">2</span> ,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">denominator =</span> <span class="dv">1</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">vartype =</span> <span class="fu">c</span>(<span class="st">"se"</span>, <span class="st">"ci"</span>, <span class="st">"var"</span>, <span class="st">"cv"</span>),</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">deff =</span> T</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Unión del indicador con los nombres de los dominios</p>
-<div class="cell" data-hash="0Recursos/01/unnamed-chunk-6_e20546478bc35809634f338be83c5359">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>indicador_dom <span class="ot">&lt;-</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(indicador_dom, <span class="fu">distinct</span>((</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    encuestaDOM <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(id_dominio, des_municipio)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  )), <span class="at">by =</span> id_dominio) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Este código realiza un <code>full_join</code> entre <code>indicador_dom</code> y un <code>data.frame</code> que contiene únicamente las variables <code>id_dominio</code> y <code>des_municipio</code> de <code>encuestaDOM</code>. El resultado de esta unión es que a <code>indicador_dom</code> se le agrega la variable des_municipio correspondiente al nombre de cada municipio.</p>
+<div class="cell" data-hash="0Recursos/01/unnamed-chunk-5_fc705f123badefaf73e9347d00a9c3d0">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>indicador_dom <span class="ot">&lt;-</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(indicador_dom, <span class="fu">distinct</span>((</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    encuestaDOM <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(id_dominio, des_municipio)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  )), <span class="at">by =</span> id_dominio) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
 <section id="guardar-resultado-de-la-estimación-directa" class="level1">
 <h1>Guardar resultado de la estimación directa</h1>
-<div class="cell" data-hash="0Recursos/01/unnamed-chunk-7_aa1a723c878450c8bfd5bfac13262b9c">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(indicador_dom,<span class="st">'Data/indicador_dom.Rds'</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="0Recursos/01/unnamed-chunk-6_7897e9a7b7537a7949fdaf863d84ab60">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(indicador_dom,<span class="st">'Data/indicador_dom.Rds'</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 
