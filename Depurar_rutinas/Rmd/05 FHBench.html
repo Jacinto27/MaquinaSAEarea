@@ -8,7 +8,7 @@
 
 <meta name="author" content="Andrés Gutiérrez">
 <meta name="author" content="Stalyn Guerrero">
-<meta name="dcterms.date" content="2023-02-22">
+<meta name="dcterms.date" content="2023-02-27">
 
 <title>Estimación de la tasa de informalidad en República Dominicana empleando modelos de área con transformación arcoseno</title>
 <style>
@@ -147,7 +147,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 22, 2023</p>
+      <p class="date">February 27, 2023</p>
     </div>
   </div>
     
@@ -182,6 +182,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="lectura-de-bases-de-datos" class="level2">
 <h2 class="anchored" data-anchor-id="lectura-de-bases-de-datos">Lectura de bases de datos</h2>
+<p>El código está leyendo varios archivos necesarios para el análisis.</p>
+<ul>
+<li><code>poligonos_dominios</code>: Es un archivo shapefile que contiene la información geográfica (polígonos) de los dominios de la encuesta. Se carga usando la función <code>read_sf()</code> del paquete <code>sf</code>.</li>
+<li><code>base_completa</code>: Es un archivo RDS que contiene la información de la encuesta. Incluye información de los dominios, los estratos, los conglomerados y los pesos.</li>
+<li><code>estimacionesPre</code>: Es un archivo RDS que contiene las estimaciones directas de los dominios.</li>
+<li><code>base_FH</code>: Es una base que se crea al juntar la <code>base_completa</code> con las <code>estimacionesPre</code> usando la función <code>left_join()</code> del paquete <code>dplyr</code>.</li>
+<li><code>encuesta</code>: Es un archivo RDS que contiene la información de la encuesta.</li>
+<li><code>fh_arcsin</code>: Es un archivo RDS que contiene las estimaciones del modelo ajustado de Fay-Herriot.</li>
+<li><code>personas_dominio</code>: Es un archivo RDS que contiene número de personas en cada dominio.</li>
+<li><code>personas_dominio_agregado</code>: Es un archivo RDS que contiene el número total de personas agregada por región.</li>
+</ul>
 <div class="cell" data-hash="0Recursos/05/unnamed-chunk-2_55d34eb07c425c07a4713046cf140dd5">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Shapefile</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>poligonos_dominios <span class="ot">&lt;-</span> <span class="fu">read_sf</span>( <span class="st">"../shapefiles2010/DOM.shp"</span>) </span>
@@ -204,6 +215,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="estimación-directa-por-región" class="level2">
 <h2 class="anchored" data-anchor-id="estimación-directa-por-región">Estimación directa por región</h2>
+<p>El código carga y prepara los datos de la encuesta y luego calcula las estimaciones directas en cada región del país.</p>
+<p>Primero, para el conjunto de datos de la encuesta se utiliza la función <code>mutate()</code> de <code>dplyr</code> para agregar tres columnas: <code>upm</code>, <code>estrato</code> y <code>factor_anual</code>. La columna <code>upm</code> es la identificación única de la unidad primaria de muestreo, <code>estrato</code> es la identificación del estrato en el que se encuentra la unidad primaria de muestreo y <code>factor_anual</code> es el factor de expansión anual, calculado dividiendo el factor de expansión trimestral entre 4.</p>
+<p>A continuación, se utiliza la función <code>as_survey_design()</code> de la librería <code>survey</code> para crear un objeto de diseño de la encuesta a partir de los datos. La función utiliza las columnas <code>estrato</code>, <code>upm</code> y <code>factor_anual</code> para especificar las estrategias de muestreo, el peso de muestreo y la estructura de conglomerados.</p>
+<p>Por último, se utiliza la función <code>group_by()</code> de <code>dplyr</code> para agrupar los datos por <code>id_region</code>, luego se utiliza la función <code>summarise()</code> de <code>dplyr</code> junto con <code>survey_ratio()</code> de <code>survey</code> para calcular la estimación directa. El resultado se asigna a un objeto llamado <code>directoDepto</code>, que contiene las columnas <code>id_region</code> y <code>theta_region</code>, que corresponde a la estimación directa en cada región.</p>
 <div class="cell" data-hash="0Recursos/05/unnamed-chunk-3_bf674a0abca00b3699bb90f05be8e143">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>encuesta <span class="ot">&lt;-</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  encuesta <span class="sc">%&gt;%</span> </span>
@@ -235,6 +250,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="consolidación-de-la-base-de-datos" class="level2">
 <h2 class="anchored" data-anchor-id="consolidación-de-la-base-de-datos">Consolidación de la base de datos</h2>
+<p>Este código realiza los siguientes pasos:</p>
+<ul>
+<li><p>Realiza un <code>left_join()</code> entre la tabla <code>directoDepto</code> y la tabla <code>personas_dominio</code> por la columna <code>id_region</code>.</p></li>
+<li><p>Realiza un <code>left_join()</code> entre la tabla resultante del paso anterior y la tabla <code>personas_dominio_agregado</code> por la columna <code>id_region</code>. El resultado de esta unión es una tabla que agrega la información por dominio a nivel de región.</p></li>
+<li><p>Realiza un <code>left_join()</code> entre la tabla resultante del paso anterior y la tabla <code>estimacionesPre</code> por la columna <code>id_dominio</code>. El resultado de esta unión es una tabla que agrega la información de ambas tablas por dominio.</p></li>
+<li><p>Transmuta la columna <code>FayHerriot</code> de la tabla resultante del paso anterior y cambia su nombre a <code>FayHarriot</code>. El resultado final es una tabla llamada <code>R_mpio</code> que contiene información agregada por región y dominio, así como las estimaciones por dominio utilizando el método de Fay Herriot.</p></li>
+</ul>
 <div class="cell" data-hash="0Recursos/05/unnamed-chunk-4_b90f63dfb066a44c7738a8bd3a46fc2a">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>R_mpio <span class="ot">&lt;-</span> directoDepto <span class="sc">%&gt;%</span> </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(personas_dominio, <span class="at">by =</span> <span class="st">'id_region'</span>) <span class="sc">%&gt;%</span></span>
@@ -247,6 +269,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="pesos-benchmark" class="level2">
 <h2 class="anchored" data-anchor-id="pesos-benchmark">Pesos Benchmark</h2>
+<p>Para obtener el factor multiplicador de de Benchmarking se ejecuta el código siguiente. El código está creando un objeto llamado <code>R_mpio2</code>, el cual se está construyendo a partir del objeto <code>R_mpio</code>. Primero, se agrupa por <code>id_region</code> usando <code>group_by()</code> y se calculan dos medidas de razón de la encuesta utilizando <code>summarise()</code>. Los cálculos de las medidas de razón no están claros ya que dependen de variables no presentes en el código. Luego, se realiza un <code>left_join()</code> con el objeto <code>directoDepto</code> para añadir la variable <code>theta_region</code>.</p>
+<p>Posteriormente, se construye un objeto llamado pesos a partir del objeto <code>R_mpio</code> utilizando <code>ungroup()</code> para eliminar la agrupación anteriormente realizada. Luego, se añade la columna <code>W_i</code> que representa los pesos muestrales utilizados para el análisis.</p>
+<p>La función <code>tba()</code> no está disponible en R base o en los paquetes <code>dplyr</code>, por lo que no es posible determinar lo que hace. Probablemente es una función personalizada por el autor del código.</p>
 <div class="cell" data-hash="0Recursos/05/unnamed-chunk-5_8234e8f687de4040f53dc125e8e8c4e3">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>R_mpio2 <span class="ot">&lt;-</span> R_mpio <span class="sc">%&gt;%</span> </span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id_region) <span class="sc">%&gt;%</span> </span>
@@ -339,6 +364,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="estimación-fh-benchmark" class="level2">
 <h2 class="anchored" data-anchor-id="estimación-fh-benchmark">Estimación FH Benchmark</h2>
+<p>El siguiente código realiza una serie de operaciones sobre dos <code>data.frames</code>: <code>estimacionesPre</code> y <code>R_mpio</code> para obtener las estimaciones ajustadas mediante el benchmarking.</p>
+<p>En primer lugar, se realiza un <code>left_join</code> entre <code>estimacionesPre</code> y <code>R_mpio</code> utilizando la columna <code>id_dominio</code>.</p>
+<p>Luego, se realiza un nuevo <code>left_join</code> entre este <code>data.frame</code> resultante y <code>R_mpio2</code>, utilizando la columna <code>id_region</code>. Este join agrega las columnas <code>R_region_RB</code> y <code>R_region_DB</code> de <code>R_mpio2</code> al <code>data.frame()</code>.</p>
+<p>A continuación, se calcula una nueva columna llamada <code>FH_RBench</code> que resulta de multiplicar la columna FH por la columna <code>R_region_RB</code>.</p>
+<p>Por último, se realiza un join entre este <code>data.frame</code> resultante y pesos, utilizando la columna <code>id_dominio</code>. Este join agrega la columna <code>W_i</code> de <code>pesos</code> al <code>data.frame</code>. El resultado final se guarda en la variable <code>estimacionesBench</code>.</p>
 <div class="cell" data-hash="0Recursos/05/unnamed-chunk-6_0eba8cab1e6da0b0b01749136c94d5f0">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>estimacionesBench <span class="ot">&lt;-</span> estimacionesPre <span class="sc">%&gt;%</span> </span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(R_mpio <span class="sc">%&gt;%</span> </span>
@@ -350,6 +380,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <section id="validación-estimación-fh-con-benchmark" class="level3">
 <h3 class="anchored" data-anchor-id="validación-estimación-fh-con-benchmark">Validación: Estimación FH con Benchmark</h3>
+<p>Al realizar el proceso de validación notamos que las estimaciones con directas de las regiones y las estimaciones de FH con Benchmarking son iguales.</p>
 <div class="cell" data-hash="0Recursos/05/unnamed-chunk-7_f90dc1971abba6f135f81af4d2d47712">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>estimacionesBench <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(id_region) <span class="sc">%&gt;%</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">theta_reg_RB =</span> <span class="fu">sum</span>(W_i <span class="sc">*</span> FH_RBench)) <span class="sc">%&gt;%</span></span>
@@ -394,6 +425,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="comparación-gráfica-entre-estimación-fh-y-fh-con-benchmark-por-dominio" class="level3">
 <h3 class="anchored" data-anchor-id="comparación-gráfica-entre-estimación-fh-y-fh-con-benchmark-por-dominio">Comparación gráfica entre estimación FH y FH con Benchmark por dominio</h3>
+<p>El código presentado realiza una comparación de las estimaciones Fay-Herriot originales con las estimaciones Fay-Herriot con benchmark.</p>
 <div class="cell" data-hash="0Recursos/05/unnamed-chunk-8_eb7d37a30da776e4702e434220b1b9f4">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>temp_Bench <span class="ot">&lt;-</span> estimacionesBench <span class="sc">%&gt;%</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
@@ -418,6 +450,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 class="anchored" data-anchor-id="tabla-final-de-estimaciones">Tabla final de estimaciones</h2>
 <section id="función-para-el-calculo-de-intervalos-de-confianza" class="level3">
 <h3 class="anchored" data-anchor-id="función-para-el-calculo-de-intervalos-de-confianza">Función para el calculo de intervalos de confianza</h3>
+<p>La función <code>ICL()</code> sirve para calcular intervalos de confianza para la proporción de una población, dada una muestra y un nivel de confianza. Los argumentos de la función son:</p>
+<ul>
+<li><code>p</code>: la proporción muestral</li>
+<li><code>mse</code>: el error cuadrático medio</li>
+<li><code>alpha</code>: el nivel de confianza deseado (por defecto es 0.05)</li>
+<li><code>student</code>: un indicador booleano que indica si se debe usar una distribución t de Student en lugar de la distribución normal para el cálculo del intervalo de confianza (por defecto es FALSE)</li>
+<li><code>nu</code>: el número de grados de libertad si se usa una distribución t de Student (por defecto es NULL y se calcula automáticamente)</li>
+</ul>
 <div class="cell" data-hash="0Recursos/05/unnamed-chunk-9_fc2e843d437e297e977e9f352913452c">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>ICL <span class="ot">&lt;-</span> <span class="cf">function</span>(p, mse, <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">student =</span> <span class="cn">FALSE</span>, <span class="at">nu =</span> <span class="cn">NULL</span>) {</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (student <span class="sc">==</span> <span class="cn">TRUE</span>) {</span>
@@ -433,7 +473,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">data.frame</span>(<span class="at">L.I =</span> IC_1, <span class="at">L.S =</span> IC_2))</span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Consolidando la tabla final de resultados.</p>
+<p>La función <code>TablaFinal</code> toma como entrada la tabla <code>estimacionesBench</code> y realiza una serie de transformaciones y cálculos para generar una tabla final con las estimaciones y los intervalos de confianza correspondientes.</p>
+<p>Primero, agrega dos columnas nuevas: <code>sintetico</code> y <code>sintetico_back</code>. La columna <code>sintetico</code> se obtiene a partir de una matriz generada a partir de la columna <code>base_FH</code> de la tabla <code>estimacionesBench</code>, que contiene los valores de las variables auxiliares utilizadas en el modelo de Fay-Herriot. Esta matriz se multiplica por los coeficientes del modelo ajustado, que se asume que se ha generado previamente. La columna <code>sintetico_back</code> es el resultado de aplicar una transformación inversa al valor de <code>sintetico</code>.</p>
+<p>Luego, se seleccionan y renombran las columnas que se incluirán en la tabla final. Estas columnas incluyen la estimación directa (<code>Directo</code>), el error estándar de la estimación directa (<code>ee_directo</code>), el coeficiente de variación de la estimación directa (<code>CV_directo</code>), la estimación de Fay-Herriot (<code>FayHerriot</code>), la raíz del error cuadrático medio de la estimación de Fay-Herriot (<code>rmse_FH</code>), el coeficiente de variación de la estimación de Fay-Herriot (<code>rrmse_FH</code>), la estimación de gamma (<code>Gamma</code>), las estimaciones sintéticas (<code>sintetico</code> y <code>sintetico_back</code>), la estimación de Fay-Herriot con el ajuste de benchmark (<code>FH_RBench</code>), y los límites inferior y superior de los intervalos de confianza calculados utilizando el método de la distribución normal (<code>LI_normal</code> y <code>LS_normal</code>) y el método logit (<code>LI_logit</code> y <code>LS_logit</code>). Finalmente, se calculan los límites inferior y superior de los intervalos de confianza finales (<code>LI_final</code> y <code>LS_final</code>), teniendo en cuenta los límites de 0 y 1.</p>
 <div class="cell" data-hash="0Recursos/05/unnamed-chunk-10_5f97b1f8e5074849497fe1e2da5ee613">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>TablaFinal <span class="ot">&lt;-</span> estimacionesBench <span class="sc">%&gt;%</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
@@ -922,6 +964,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="creando-mapa-de-resultados" class="level2">
 <h2 class="anchored" data-anchor-id="creando-mapa-de-resultados">Creando mapa de resultados</h2>
+<p>La función <code>tm_shape()</code> de la librería <code>tmap</code> se utiliza para especificar los datos espaciales (mapa) que se van a <code>graficar</code>. En este caso, se le pasa como argumento la tabla <code>poligonos_dominios</code>.</p>
+<p>La función <code>tm_fill()</code> se utiliza para definir el estilo de relleno de los polígonos en el mapa. En este caso, se utiliza para graficar la variable <code>fh_porc</code>. Se utiliza el estilo “quantile” para que se dividan los valores en cuantiles y se apliquen diferentes tonalidades de color para cada cuantil.</p>
+<p>La función <code>tm_borders()</code> se utiliza para especificar las propiedades de las líneas que delinean los polígonos.</p>
+<p>La función <code>tm_layout()</code> se utiliza para definir los elementos del diseño del mapa, como la posición y estilo de la leyenda. En este caso, se define que la leyenda se ubique en la parte inferior central del mapa, que el fondo de la leyenda sea blanco con transparencia del 10%, y se especifica el tamaño del texto de la leyenda.</p>
 <div class="cell" data-hash="0Recursos/05/unnamed-chunk-13_1f74050febfd80ad4a2f232458f6f68e">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>poligonos_dominios <span class="ot">&lt;-</span> poligonos_dominios <span class="sc">%&gt;%</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>( temp_Bench, <span class="at">by =</span> id_dominio ) <span class="sc">%&gt;%</span></span>
