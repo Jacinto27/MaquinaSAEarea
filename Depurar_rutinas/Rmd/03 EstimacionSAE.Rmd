@@ -36,7 +36,15 @@ tba <- function(dat, cap = NA){
 }
 ```
 
+# Introducción 
+
+El modelo de Fay Herriot FH, propuesto por Fay y Herriot (1979), es un modelo estadístico de área y es el más comúnmente utilizado, cabe tener en cuenta, que dentro de la metodología de estimación en áreas pequeñas, los modelos de área son los de mayor aplicación, ya que lo más factible es no contar con la información a nivel de individuo, pero si encontrar no solo los datos a nivel de área, sino también información auxiliar asociada a estos datos. Este modelo lineal mixto, fue el primero en incluir efectos aleatorios a nivel de área, lo que implica que la mayoría de la información que se introduce al modelo corresponde a agregaciaciones usualmente, departamentos, regiones, provincias, municipios entre otros, donde las estimaciones que se logran con el modelo se obtienen sobre estas agregaciones o subpoblaciones.
+
+Además, el modelo FH utiliza información auxiliar para mejorar la precisión de las estimaciones en áreas pequeñas. Esta información auxiliar puede ser de diferentes tipos, como censos poblacionales, encuestas de hogares, registros administrativos, entre otros. La inclusión de esta información auxiliar se realiza a través de un modelo lineal mixto, en el que se consideran tanto efectos fijos como aleatorios a nivel de área. Los efectos fijos representan la relación entre la variable de interés y las variables auxiliares, mientras que los efectos aleatorios capturan la variabilidad no explicada por estas variables. De esta forma, el modelo FH permite obtener estimaciones precisas y confiables para subpoblaciones o áreas pequeñas, lo que resulta de gran utilidad para la toma de decisiones en diferentes ámbitos, como políticas públicas, planificación urbana, entre otros.
+
+
 ## Lectura de librerías
+
 ```{r}
 library(survey)
 library(srvyr)
@@ -53,7 +61,13 @@ select <- dplyr::select
 id_dominio <- "id_dominio"
 ```
 
+
+
 ## Lectura de bases de datos 
+
+Para la lecturas de las insumos se emplean los siguientes comando de R. La función `readRDS()` es utilizada para cargar objetos creados previamente y guardados en archivos RDS. Los archivos RDS contienen objetos de R guardados de forma binaria, lo que permite guardar y recuperar objetos de R con facilidad.
+
+En este caso, se cargan tres objetos diferentes: `base_FH, `statelevel_predictors` y `DEE_Mun`.
 
 ```{r}
 # Estimación Directa + FGV
@@ -67,6 +81,12 @@ DEE_Mun <- readRDS('../Data/DEE_Mun.Rds')
 
 ## Consolidando las bases de datos. 
 
+La función `select()` del paquete `dplyr` se utiliza para seleccionar columnas de un `data.frame`. En este caso, se seleccionan las columnas `id_dominio`, `Rd`, `hat_var`, `n_eff_FGV` y `n` de la base de datos `base_FH`.
+
+Luego, se utiliza la función `full_join()` de `dplyr` para unir los datos de la base de datos `base_FH` con los datos de la base de datos `statelevel_predictors` por la columna `id_dominio`. La opción by se utiliza para especificar la columna por la cual se realizará la unión.
+
+Por último, se utiliza la función `left_join()` de `dplyr` para unir los datos de la base de datos `base_completa` con los datos de la base de datos `DEE_Mun` por la columna `id_dominio`. Al igual que en el caso anterior, la opción `by` se utiliza para especificar la columna por la cual se realizará la unión.
+
 ```{r}
 base_completa <-
   base_FH %>% select(id_dominio, Rd, hat_var, n_eff_FGV,n) %>%
@@ -75,13 +95,26 @@ base_completa <-
 base_completa <- left_join(base_completa, DEE_Mun, by = id_dominio)
 ```
 
-guardando las base consolidadas  
+Fialmente se almacena la base consolidada en un archivo `.rds`
 
 ```{r, eval=FALSE}
 saveRDS(base_completa, 'Data/base_completa.Rds')
 ```
 
 ## Estimando el modelo de área con transformación arcoseno
+
+El código corresponde a la estimación del modelo de Fay Herriot (FH) utilizando el método de mínimos cuadrados restringidos (REML) y transformación de los datos mediante la función `arcsin`.
+
+En la especificación del modelo se definen las variables predictoras fijas y la variable dependiente (Rd), que es la estimación directa en una determinada área (dominio). Además, se especifica la variable auxiliar para la estimación de varianza (`hat_var`).
+
+Se utiliza la base de datos completa (`base_completa`) que incluye la información de las variables predictoras a nivel de dominio, información auxiliar y el tamaño de muestra efectivo para cada dominio (`eff_smpsize`).
+
+Se especifica que el método de estimación de la varianza es mediante bootstrapping (`mse_type = "boot"`) con un número de replicaciones igual a 500 (`B = 500`).
+
+El modelo también incluye efectos aleatorios a nivel de dominio, lo que se indica mediante la especificación de los dominios (`domains`).
+
+Finalmente, se especifica que se desea la transformación de los datos mediante la función arcsin (`transformation = "arcsin"`) y su backtransformation mediante el método bias-corrected (`backtransformation = "bc"`). Se utiliza el parámetro `MSE = TRUE` para obtener la estimación de la varianza del error de muestreo (MSE) del estimador.
+
 
 ```{r, eval=FALSE}
 fh_arcsin <- fh(
@@ -120,6 +153,8 @@ fh_arcsin <- readRDS('../Data/fh_arcsin.Rds')
 
 ## Estimaciones de los dominios a partir del modelo. 
 
+Lo primero que hace el código es obtener los valores de gamma ($\gamma$), recordemos que el estimador de FH esta dado como una combinación convexa entre la estimación directa y la estimación sintética, es decir, $\tilde{\theta}_{d}^{FH}  =  \hat{\gamma_d}\hat{\theta}^{DIR}_{d}+(1-\hat{\gamma_d})\boldsymbol{x_d}^{T}\hat{\boldsymbol{\beta}}$. Luego, se utiliza la función `estimators()` para calcular las predicciones de las estimaciones directas y sus errores estándar, tanto de forma puntual como mediante un intervalo de confianza. Finalmente, se juntan los resultados con información auxiliar sobre los dominios, como su tamaño muestral y el valor del  Gamma, y se imprime una tabla con las primeras 20 filas de la tabla de resultados.
+
 ```{r}
 data_Gamma <- fh_arcsin$model$gamma %>% 
   transmute(id_dominio = Domain, Gamma)
@@ -138,6 +173,8 @@ estimaciones <- estimators(fh_arcsin,
 dplyr::select(id_dominio, everything())
 tba(head(estimaciones, 20))
 ```
+
+De la Tabla es posible notar que las estimaciones de FH existen para todos los dominios. 
 
 guardar estimaciones
 

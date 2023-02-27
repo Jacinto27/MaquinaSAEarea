@@ -8,7 +8,7 @@
 
 <meta name="author" content="Andrés Gutiérrez">
 <meta name="author" content="Stalyn Guerrero">
-<meta name="dcterms.date" content="2023-02-22">
+<meta name="dcterms.date" content="2023-02-26">
 
 <title>Estimación de la tasa de informalidad en República Dominicana empleando modelos de área con transformación arcoseno</title>
 <style>
@@ -148,7 +148,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 22, 2023</p>
+      <p class="date">February 26, 2023</p>
     </div>
   </div>
     
@@ -157,8 +157,36 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
+<p>Introducción Uno de los insumos más importantes en el modelo de áreas es la varianza del estimador directo, a nivel de dominio, la cual no puede calcularse de ningún modo. En correspondencia, este valor debe estimarse desde los datos recolectados en cada dominio. Sin embargo, en dominios en las que se cuenta con un tamaño de muestra muy pequeño, estas estimaciones no tendrán un buen comportamiento. Por ende, es muy útil utilizar un modelo de <strong>suavizamiento</strong> de las varianzas para eliminar el ruido y la volatilidad de estas estimaciones y extraer la verdadera señal del proceso</p>
+<p>Hidiroglou (2019) afirma que <span class="math inline">\(E_{mp}\left(\hat{\theta}^{dir}_d\right)=\boldsymbol{x}_{d}\boldsymbol{\beta}\)</span> y <span class="math inline">\(V_{mp}\left(\hat{\theta}^{dir}_d\right)=\sigma_{u}^2+\tilde{\psi}^2_{d}\)</span>, en donde el subíndice <span class="math inline">\(mp\)</span> hace referencia a la inferencia doble que se debe tener en cuenta en este tipo de ajustes y define la medida de probabilidad conjunta entre el modelo y el diseño de muestreo.</p>
+<ul>
+<li><p><span class="math inline">\(m\)</span> hace referencia a la medida de probabilidad inducida por el modelamiento y la inclusión de las covariables auxiliares (<span class="math inline">\(\boldsymbol{x}_{d}\)</span>).</p></li>
+<li><p><span class="math inline">\(p\)</span> hacer referencia a la medida de probabilidad inducida por el diseño de muestreo complejo que induce las estimaciones directas.</p></li>
+</ul>
+<p>La solución que acá se plantea se conoce con el nombre de Función Generalizada de Varianza, la cual consiste en ajustar un modelo log-lineal a la varianza directa estimada. Partiendo del hecho de que se tiene acceso a un estimador insesgado de <span class="math inline">\(\psi^2\)</span>, denotado por <span class="math inline">\(\hat{\psi}^2\)</span> se tiene que: <span class="math display">\[
+E_{mp}\left(\hat{\psi}_{d}^{2}\right)=E_{m}\left(E_{p}\left(\psi_{d}^{2}\right)\right)=E_{m}\left(\psi_{d}^{2}\right)=\tilde{\psi}_{d}^{2}
+\]</span></p>
+<p>La anterior igualdad puede interpretarse como que un estimador insesgado y simple de <span class="math inline">\(\tilde{\psi}_{d}^{2}\)</span> puede ser <span class="math inline">\(\hat{\psi}_{d}^{2}\)</span>. Sin embargo, este estimador de muestreo es inestable cuando el tamaño de muestra es pequeño, que es justo el paradigma dominante en la estimación de áreas pequeñas. Rivest and Belmonte (2000) consideran modelos de suavizamiento para la estimación de las varianzas directas definidos de la siguiente manera:</p>
+<p><span class="math display">\[
+\log\left(\hat{\psi}_{d}^{2}\right)=\boldsymbol{z}_{d}^{t}\boldsymbol{\alpha}+\boldsymbol{\varepsilon}_{d}
+\]</span></p>
+<p>En donde <span class="math inline">\(\boldsymbol{z}_{d}\)</span> es un vector de covariables explicativas que son funciones de <span class="math inline">\(\boldsymbol{x}_{d}\)</span>, <span class="math inline">\(\boldsymbol{\alpha}\)</span> es un vector de parámetros que deben ser estimados, <span class="math inline">\(\boldsymbol{\varepsilon}_{d}\)</span> son errores aleatorios con media cero y varianza constante, que se asumen idénticamente distribuidos condicionalmente sobre <span class="math inline">\(\boldsymbol{z}_{d}\)</span>. Del anterior modelo, la estimación suavizada de la varianza de muestreo está dada por: <span class="math display">\[
+\tilde{\psi}_{d}^{2}=E_{mp}\left(\psi_{d}^{2}\right)=\exp\left(\boldsymbol{z}_{d}^{t}\boldsymbol{\alpha}\right)\times\Delta
+\]</span></p>
+<p>En donde, <span class="math inline">\(E_{mp}\left(\varepsilon_{d}\right)=\Delta\)</span>. No hay necesidad de especificar una distribución paramétrica para los errores de este modelo. Al utilizar el método de los momentos, se tiene el siguiente estimador insesgado para <span class="math inline">\(\Delta\)</span>: <span class="math display">\[
+\hat{\Delta}=\frac{\sum_{d=1}^{D}\hat{\psi}_{d}^{2}}{\sum_{d=1}^{D}\exp\left(\boldsymbol{z}_{d}^{t}\boldsymbol{\alpha}\right)}
+\]</span></p>
+<p>De la misma forma, al utilizar los procedimientos estándar en una regresión lineal, la estimación del coeficiente de parámetros de regresión está dada por la siguiente expresión:</p>
+<p><span class="math display">\[
+\hat{\boldsymbol{\alpha}}=\left(\sum_{d=1}^{D}\boldsymbol{z}_{d}\boldsymbol{z}_{d}^{t}\right)^{-1}\sum_{d=1}^{D}\boldsymbol{z}_{d}\log\left(\hat{\psi}_{d}^{2}\right)
+\]</span></p>
+<p>Por último, el estimador suavizado de la varianza muestral está definido por:</p>
+<p><span class="math display">\[
+\hat{\tilde{\psi}}_{d}^{2}=\exp\left(\boldsymbol{z}_{d}^{t}\hat{\boldsymbol{\alpha}}\right)\hat{\Delta}
+\]</span></p>
 <section id="lectura-de-librerías" class="level2">
 <h2 class="anchored" data-anchor-id="lectura-de-librerías">Lectura de librerías</h2>
+<p>En cada etapa del proceso, es común comenzar cargando las librerías necesarias. Para ajustar el modelo log-lineal, se utilizó el paquete <code>base</code> de R. Además, se generaron gráficos para el análisis exploratorio de los datos, utilizando las librerías <code>ggplot2</code> y <code>patchwork.</code> Para el procesamiento de la base, se implementó el paquete <code>dplyr</code> y se definió la función <code>select()</code> como medida de prevención de conflictos entre funciones de otros paquetes. Además, se estableció la variable <code>id_dominio</code> como parte del proceso de estandarización.</p>
 <div class="cell" data-hash="0Recursos/02/unnamed-chunk-1_a71319cb1901748cb13115d5db6e62ce">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
@@ -169,17 +197,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="lectura-del-la-base-de-datos" class="level2">
 <h2 class="anchored" data-anchor-id="lectura-del-la-base-de-datos">Lectura del la base de datos</h2>
-<p>Para realizar el conteo de UPMs por dominios, es necesario leer la base de datos.</p>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-2_bebd0ab60bd30d533a5db5ddb2d1b230">
+<p>El código presentado es utilizado para procesar una base de datos de una encuesta en formato <code>.Rds.</code> Primero se carga la base de datos y se agrega un cero al inicio de la variable UPM con la función<code>str_pad()</code>. Posteriormente, se crea un objeto <code>n_upm</code> que contiene el número de Unidades Primarias de Muestreo (UPM) por dominio, esto se logra a través de la función <code>distinct()</code> para seleccionar las columnas que cumplen ciertas condiciones y la función <code>group_by()</code> para agrupar los datos por dominio. Finalmente, se utiliza <code>tally()</code> para contar el número de UPM por dominio y se presenta la tabla resultante con la función<code>tba()</code>.</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-2_bc5c55ceee3cf0b18364d67d8cd45aaa">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>encuestaDOM <span class="ot">&lt;-</span>  <span class="fu">readRDS</span>(<span class="st">"../Data/encuestaDOM.Rds"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">upm =</span> <span class="fu">str_pad</span>(<span class="at">string =</span> upm,<span class="at">width =</span> <span class="dv">9</span>,<span class="at">pad =</span> <span class="st">"0"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Conteos de UPMs por id_dominio</p>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-3_73ea9c9f653f750522a37fe13ee927a5">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>n_upm <span class="ot">&lt;-</span> encuestaDOM <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(id_dominio, upm) <span class="sc">%&gt;%</span> </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id_dominio) <span class="sc">%&gt;%</span> <span class="fu">tally</span>(<span class="at">name =</span> <span class="st">"n_upm"</span>,<span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tba</span>(<span class="fu">head</span>(n_upm,<span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">upm =</span> <span class="fu">str_pad</span>(<span class="at">string =</span> upm,<span class="at">width =</span> <span class="dv">9</span>,<span class="at">pad =</span> <span class="st">"0"</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>n_upm <span class="ot">&lt;-</span> encuestaDOM <span class="sc">%&gt;%</span> <span class="fu">distinct</span>(id_dominio, upm) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id_dominio) <span class="sc">%&gt;%</span> <span class="fu">tally</span>(<span class="at">name =</span> <span class="st">"n_upm"</span>,<span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">tba</span>(<span class="fu">head</span>(n_upm,<span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table class="table table-striped lightable-classic" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
@@ -238,205 +264,599 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="lectura-de-las-estimaciones-directas-del-indicador" class="level2">
 <h2 class="anchored" data-anchor-id="lectura-de-las-estimaciones-directas-del-indicador">Lectura de las estimaciones directas del indicador</h2>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-4_54e4287cd8dc97c2cd00c70c6c0f21dd">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>indicador_dom <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">'../Data/indicador_dom.Rds'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>El código está realizando una unión completa (full join) de dos bases de datos indicador_dom y n_upm, usando la variable id_dominio como clave. La unión completa asegura que se conserven todas las filas de ambas bases de datos, incluso aquellas que no tienen coincidencias en la otra base de datos. Después de la unión, la variable n_upm (que indica el número de UPMs por dominio) se añade a la base de datos indicador_dom.</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-3_0a7b76e01715246fec29a531d89869b7">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>indicador_dom <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">'../Data/indicador_dom.Rds'</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>indicador_dom <span class="ot">&lt;-</span> <span class="fu">full_join</span>(indicador_dom, n_upm, <span class="at">by =</span> id_dominio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>agregando conteos de las UPMs a las bases de datos.</p>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-5_d7befb794ae5dde2a7d8f75d4e5a34d7">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>indicador_dom <span class="ot">&lt;-</span> <span class="fu">full_join</span>(indicador_dom, n_upm, <span class="at">by =</span> id_dominio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Se filtran los dominios que posean una varianza estimada mayor que cero, un deff mayor que 1 y 2 o más UPMs</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-4_fc9feffdd6fdee70dd825ed85bb2166d">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>indicador_dom1 <span class="ot">&lt;-</span> indicador_dom <span class="sc">%&gt;%</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Rd_var<span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> Rd_deff<span class="sc">&gt;=</span><span class="dv">1</span> <span class="sc">&amp;</span> n_upm <span class="sc">&gt;=</span> <span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Se filtran los dominios que tengan varianza 0, un deff mayor que 1 y 2 o más UPMs</p>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-6_83fa1821b399de9436467da8aeb7de15">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>indicador_dom1 <span class="ot">&lt;-</span> indicador_dom <span class="sc">%&gt;%</span> </span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Rd_var<span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">&amp;</span> Rd_deff<span class="sc">&gt;=</span><span class="dv">1</span> <span class="sc">&amp;</span> n_upm <span class="sc">&gt;=</span> <span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>para los dominios seleccionados se realiza la transformación <span class="math inline">\(\log(\sigma^2_d)\)</span></p>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-7_a13767a5fd53fcfdcbde56eab093393d">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>baseFGV <span class="ot">&lt;-</span>  indicador_dom1 <span class="sc">%&gt;%</span>  </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(id_dominio , Rd, n, Rd_var) <span class="sc">%&gt;%</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ln_sigma2 =</span> <span class="fu">log</span>(Rd_var))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>para los dominios que superan estas condiciones se realiza la transformación <span class="math inline">\(\log(\hat{\sigma}^2_d)\)</span>, además se realiza la selección de las columnas identificador del municipio (<code>id_dominio</code>), la estimación directa del indicador (<code>Rd</code>), El número de personas en el dominio (<code>n</code>) y la varianza estimada del para la estimación directa <code>Rd_var</code>,siendo esta la que transforma mediante la función <code>log()</code>.</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-5_3ae53e4898671319bc89e738ad70db71">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>baseFGV <span class="ot">&lt;-</span>  indicador_dom1 <span class="sc">%&gt;%</span>  </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(id_dominio , Rd, n, Rd_var) <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ln_sigma2 =</span> <span class="fu">log</span>(Rd_var))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="gráficas-exploratorias" class="level1">
 <h1>Gráficas exploratorias</h1>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-8_b4b1be31ae42610bc007b08c819ed3c5">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(baseFGV, <span class="fu">aes</span>(<span class="at">x =</span> Rd, <span class="at">y =</span> ln_sigma2)) <span class="sc">+</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>) <span class="sc">+</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Formal"</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(baseFGV, <span class="fu">aes</span>(<span class="at">x =</span> n, <span class="at">y =</span> ln_sigma2)) <span class="sc">+</span> </span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>) <span class="sc">+</span> </span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Tamaño de muestra"</span>)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(baseFGV, </span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">x =</span> Rd <span class="sc">*</span> n, <span class="at">y =</span> ln_sigma2)) <span class="sc">+</span> </span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>) <span class="sc">+</span> </span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Número de Formales"</span>)</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(baseFGV, </span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">sqrt</span>(Rd), <span class="at">y =</span> ln_sigma2)) <span class="sc">+</span> </span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>) <span class="sc">+</span> </span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Raiz cuadrada de tasa de formalidad"</span>)</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>(p1 <span class="sc">|</span> p2) <span class="sc">/</span> (p3 <span class="sc">|</span> p4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>El código muestra la creación de cuatro gráficos usando la librería <code>ggplot2</code> y el uso de los datos <code>baseFGV</code>. Estos gráficos tienen como objetivo explorar la relación entre el logaritmo de la varianza y diferentes transformaciones de la <code>n</code> y <code>Rd</code>.</p>
+<p>El primer gráfico (<code>p1</code>) representa la relación entre la estimación directa y el logaritmo de la varianza. El segundo gráfico (<code>p2</code>) representa la relación entre el tamaño de muestra y el logaritmo de la varianza. El tercer gráfico (<code>p3</code>) representa la relación entre <span class="math inline">\(n_d \times Rd\)</span> y el logaritmo de la varianza. Finalmente, el cuarto gráfico (<code>p4</code>) representa la relación entre la raíz cuadrada de la estimación directa y el logaritmo de la varianza.</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-6_a7aca84b2a02f69acfa1f0bb7d5ffa0a">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(baseFGV, <span class="fu">aes</span>(<span class="at">x =</span> Rd, <span class="at">y =</span> ln_sigma2)) <span class="sc">+</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>) <span class="sc">+</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Formal"</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(baseFGV, <span class="fu">aes</span>(<span class="at">x =</span> n, <span class="at">y =</span> ln_sigma2)) <span class="sc">+</span> </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>) <span class="sc">+</span> </span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Tamaño de muestra"</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(baseFGV, </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">x =</span> Rd <span class="sc">*</span> n, <span class="at">y =</span> ln_sigma2)) <span class="sc">+</span> </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>) <span class="sc">+</span> </span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Número de Formales"</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(baseFGV, </span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">sqrt</span>(Rd), <span class="at">y =</span> ln_sigma2)) <span class="sc">+</span> </span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>) <span class="sc">+</span> </span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Raiz cuadrada de tasa de formalidad"</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>(p1 <span class="sc">|</span> p2) <span class="sc">/</span> (p3 <span class="sc">|</span> p4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="0Recursos/02/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+<p><img src="0Recursos/02/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
 </div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="st">'p1'</span>,<span class="st">'p2'</span>,<span class="st">'p3'</span>,<span class="st">'p4'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="st">'p1'</span>,<span class="st">'p2'</span>,<span class="st">'p3'</span>,<span class="st">'p4'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="ajustando-el-modelo-log-lineal-de-la-varianza" class="level2">
 <h2 class="anchored" data-anchor-id="ajustando-el-modelo-log-lineal-de-la-varianza">Ajustando el modelo log-lineal de la varianza</h2>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-9_9389028f290cc7c4c229f1a6a71f2de0">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>FGV1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(ln_sigma2 <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Rd <span class="sc">+</span> </span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>             n <span class="sc">+</span> <span class="fu">I</span>(n <span class="sc">^</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">I</span>(Rd <span class="sc">*</span> n) <span class="sc">+</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>             <span class="fu">I</span>(<span class="fu">sqrt</span>(Rd)) <span class="sc">+</span> <span class="fu">I</span>(<span class="fu">sqrt</span>(n)) <span class="sc">+</span> </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>             <span class="fu">I</span>(<span class="fu">sqrt</span>(Rd <span class="sc">*</span> n)) ,</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> baseFGV)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">summary</span>(FGV1)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>a<span class="sc">$</span>coefficients <span class="sc">%&gt;%</span> <span class="fu">tba</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>El código ajusta un modelo de regresión lineal múltiple (utilizando la función <code>lm()</code>), donde <code>ln_sigma2</code> es la variable respuesta y las variables predictoras son <code>Rd</code>, <code>n</code>, y varias transformaciones de éstas. El objetivo de este modelo es estimar la función generalizada de varianza (FGV) para los dominios observados.</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-7_697d8b6b7e3ce3ceb068cc59b179d40f">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>FGV1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(ln_sigma2 <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> Rd <span class="sc">+</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>             n <span class="sc">+</span> <span class="fu">I</span>(n <span class="sc">^</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="fu">I</span>(Rd <span class="sc">*</span> n) <span class="sc">+</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>             <span class="fu">I</span>(<span class="fu">sqrt</span>(Rd)) <span class="sc">+</span> <span class="fu">I</span>(<span class="fu">sqrt</span>(n)) <span class="sc">+</span> </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>             <span class="fu">I</span>(<span class="fu">sqrt</span>(Rd <span class="sc">*</span> n)) ,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> baseFGV)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tbl_regression</span>(FGV1) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_glance_table</span>(<span class="at">include =</span> <span class="fu">c</span>(r.squared, adj.r.squared))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<table class="table table-striped lightable-classic" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
- <thead>
-  <tr>
-   <th style="text-align:left;">   </th>
-   <th style="text-align:right;"> Estimate </th>
-   <th style="text-align:right;"> Std. Error </th>
-   <th style="text-align:right;"> t value </th>
-   <th style="text-align:right;"> Pr(&gt;|t|) </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:left;"> (Intercept) </td>
-   <td style="text-align:right;"> -24.1070 </td>
-   <td style="text-align:right;"> 11.0744 </td>
-   <td style="text-align:right;"> -2.1768 </td>
-   <td style="text-align:right;"> 0.0324 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Rd </td>
-   <td style="text-align:right;"> -22.2339 </td>
-   <td style="text-align:right;"> 14.0709 </td>
-   <td style="text-align:right;"> -1.5801 </td>
-   <td style="text-align:right;"> 0.1180 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> n </td>
-   <td style="text-align:right;"> -0.0100 </td>
-   <td style="text-align:right;"> 0.0101 </td>
-   <td style="text-align:right;"> -0.9894 </td>
-   <td style="text-align:right;"> 0.3254 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> I(n^2) </td>
-   <td style="text-align:right;"> 0.0000 </td>
-   <td style="text-align:right;"> 0.0000 </td>
-   <td style="text-align:right;"> 0.6784 </td>
-   <td style="text-align:right;"> 0.4995 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> I(Rd * n) </td>
-   <td style="text-align:right;"> 0.0202 </td>
-   <td style="text-align:right;"> 0.0164 </td>
-   <td style="text-align:right;"> 1.2278 </td>
-   <td style="text-align:right;"> 0.2231 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> I(sqrt(Rd)) </td>
-   <td style="text-align:right;"> 44.6820 </td>
-   <td style="text-align:right;"> 24.8441 </td>
-   <td style="text-align:right;"> 1.7985 </td>
-   <td style="text-align:right;"> 0.0758 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> I(sqrt(n)) </td>
-   <td style="text-align:right;"> 0.8654 </td>
-   <td style="text-align:right;"> 0.6751 </td>
-   <td style="text-align:right;"> 1.2819 </td>
-   <td style="text-align:right;"> 0.2035 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> I(sqrt(Rd * n)) </td>
-   <td style="text-align:right;"> -1.4024 </td>
-   <td style="text-align:right;"> 0.8768 </td>
-   <td style="text-align:right;"> -1.5994 </td>
-   <td style="text-align:right;"> 0.1136 </td>
-  </tr>
-</tbody>
-</table>
+<div id="qjwkjjuelb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
 
+:where(#qjwkjjuelb) .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+:where(#qjwkjjuelb) .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#qjwkjjuelb) .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+:where(#qjwkjjuelb) .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+:where(#qjwkjjuelb) .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+:where(#qjwkjjuelb) .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+:where(#qjwkjjuelb) .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#qjwkjjuelb) .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+:where(#qjwkjjuelb) .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+:where(#qjwkjjuelb) .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+:where(#qjwkjjuelb) .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+:where(#qjwkjjuelb) .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+:where(#qjwkjjuelb) .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+:where(#qjwkjjuelb) .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+:where(#qjwkjjuelb) .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+:where(#qjwkjjuelb) .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+:where(#qjwkjjuelb) .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+:where(#qjwkjjuelb) .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#qjwkjjuelb) .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+:where(#qjwkjjuelb) .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+:where(#qjwkjjuelb) .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#qjwkjjuelb) .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+:where(#qjwkjjuelb) .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+:where(#qjwkjjuelb) .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+:where(#qjwkjjuelb) .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#qjwkjjuelb) .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+:where(#qjwkjjuelb) .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+:where(#qjwkjjuelb) .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+:where(#qjwkjjuelb) .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#qjwkjjuelb) .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#qjwkjjuelb) .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+:where(#qjwkjjuelb) .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+:where(#qjwkjjuelb) .gt_left {
+  text-align: left;
+}
+
+:where(#qjwkjjuelb) .gt_center {
+  text-align: center;
+}
+
+:where(#qjwkjjuelb) .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+:where(#qjwkjjuelb) .gt_font_normal {
+  font-weight: normal;
+}
+
+:where(#qjwkjjuelb) .gt_font_bold {
+  font-weight: bold;
+}
+
+:where(#qjwkjjuelb) .gt_font_italic {
+  font-style: italic;
+}
+
+:where(#qjwkjjuelb) .gt_super {
+  font-size: 65%;
+}
+
+:where(#qjwkjjuelb) .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+:where(#qjwkjjuelb) .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+:where(#qjwkjjuelb) .gt_indent_1 {
+  text-indent: 5px;
+}
+
+:where(#qjwkjjuelb) .gt_indent_2 {
+  text-indent: 10px;
+}
+
+:where(#qjwkjjuelb) .gt_indent_3 {
+  text-indent: 15px;
+}
+
+:where(#qjwkjjuelb) .gt_indent_4 {
+  text-indent: 20px;
+}
+
+:where(#qjwkjjuelb) .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="<strong>Characteristic</strong>"><strong>Characteristic</strong></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>Beta</strong>"><strong>Beta</strong></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>95% CI</strong><sup class=&quot;gt_footnote_marks&quot;>1</sup>"><strong>95% CI</strong><sup class="gt_footnote_marks">1</sup></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="<strong>p-value</strong>"><strong>p-value</strong></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="label" class="gt_row gt_left">Rd</td>
+<td headers="estimate" class="gt_row gt_center">-22</td>
+<td headers="ci" class="gt_row gt_center">-50, 5.8</td>
+<td headers="p.value" class="gt_row gt_center">0.12</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">n</td>
+<td headers="estimate" class="gt_row gt_center">-0.01</td>
+<td headers="ci" class="gt_row gt_center">-0.03, 0.01</td>
+<td headers="p.value" class="gt_row gt_center">0.3</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">I(n^2)</td>
+<td headers="estimate" class="gt_row gt_center">0.00</td>
+<td headers="ci" class="gt_row gt_center">0.00, 0.00</td>
+<td headers="p.value" class="gt_row gt_center">0.5</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">I(Rd * n)</td>
+<td headers="estimate" class="gt_row gt_center">0.02</td>
+<td headers="ci" class="gt_row gt_center">-0.01, 0.05</td>
+<td headers="p.value" class="gt_row gt_center">0.2</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">I(sqrt(Rd))</td>
+<td headers="estimate" class="gt_row gt_center">45</td>
+<td headers="ci" class="gt_row gt_center">-4.7, 94</td>
+<td headers="p.value" class="gt_row gt_center">0.076</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">I(sqrt(n))</td>
+<td headers="estimate" class="gt_row gt_center">0.87</td>
+<td headers="ci" class="gt_row gt_center">-0.48, 2.2</td>
+<td headers="p.value" class="gt_row gt_center">0.2</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">I(sqrt(Rd * n))</td>
+<td headers="estimate" class="gt_row gt_center">-1.4</td>
+<td headers="ci" class="gt_row gt_center">-3.1, 0.34</td>
+<td headers="p.value" class="gt_row gt_center">0.11</td></tr>
+    <tr><td headers="label" class="gt_row gt_left" style="border-top-width: 2px; border-top-style: solid; border-top-color: #D3D3D3;">R²</td>
+<td headers="estimate" class="gt_row gt_center" style="border-top-width: 2px; border-top-style: solid; border-top-color: #D3D3D3;">0.683</td>
+<td headers="ci" class="gt_row gt_center" style="border-top-width: 2px; border-top-style: solid; border-top-color: #D3D3D3;"></td>
+<td headers="p.value" class="gt_row gt_center" style="border-top-width: 2px; border-top-style: solid; border-top-color: #D3D3D3;"></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">Adjusted R²</td>
+<td headers="estimate" class="gt_row gt_center">0.656</td>
+<td headers="ci" class="gt_row gt_center"></td>
+<td headers="p.value" class="gt_row gt_center"></td></tr>
+  </tbody>
+  
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="4"><sup class="gt_footnote_marks">1</sup> CI = Confidence Interval</td>
+    </tr>
+  </tfoot>
+</table>
 </div>
 </div>
-</section>
-<section id="determinar-el-valor-de-la-constante-delta." class="level2">
-<h2 class="anchored" data-anchor-id="determinar-el-valor-de-la-constante-delta.">Determinar el valor de la constante delta.</h2>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-10_2c950ebc6853cc4a117736cfb8da458f">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>delta.hat <span class="ot">=</span> <span class="fu">sum</span>(baseFGV<span class="sc">$</span>Rd_var) <span class="sc">/</span> <span class="fu">sum</span>(<span class="fu">exp</span>(<span class="fu">fitted.values</span>(FGV1)))</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>delta.hat</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1.236474</code></pre>
 </div>
+<p>Después de tener la estimación del modelo se debe obtener el valor de la constante <span class="math inline">\(\Delta\)</span> para lo cual se usa el siguiente código.</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-8_ce16a3326842e968f5c5f49589212650">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>delta.hat <span class="ot">=</span> <span class="fu">sum</span>(baseFGV<span class="sc">$</span>Rd_var) <span class="sc">/</span> <span class="fu">sum</span>(<span class="fu">exp</span>(<span class="fu">fitted.values</span>(FGV1)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Varianza suavizada</p>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-11_e9160a8739e1ed2a6f3fe558a4dd2936">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>baseFGV <span class="ot">&lt;-</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  baseFGV <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">hat_var =</span> delta.hat <span class="sc">*</span> <span class="fu">exp</span>(<span class="fu">fitted.values</span>(FGV1)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>De donde se obtiene que <span class="math inline">\(\Delta = 1.2364741\)</span>. Final es posible obtener la varianza suavizada ejecutando el siguiente comando.</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-9_c87205c700e5e132c732a98a6b5c8c22">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>baseFGV <span class="ot">&lt;-</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  baseFGV <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">hat_var =</span> delta.hat <span class="sc">*</span> <span class="fu">exp</span>(<span class="fu">fitted.values</span>(FGV1)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="validaciones-sobre-el-modelo" class="level2">
 <h2 class="anchored" data-anchor-id="validaciones-sobre-el-modelo">Validaciones sobre el modelo</h2>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-12_e2e7db564df7eb7d6920f16a49972731">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(FGV1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-10_c046d3984702b756641569782819d3b2">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(FGV1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="0Recursos/02/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+<p><img src="0Recursos/02/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>varianza suavizada Vs varianza estimada</p>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-13_ebdd53a9570d9433ac492d297b30d537">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(baseFGV, </span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> Rd_var, <span class="at">y =</span> hat_var)) <span class="sc">+</span> </span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-11_292d8cfc7bc8a237e784083ec4d821f1">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(baseFGV, </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> Rd_var, <span class="at">y =</span> hat_var)) <span class="sc">+</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="0Recursos/02/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+<p><img src="0Recursos/02/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Consolidando la base de datos con los dominios observados y no observados</p>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-14_57eee7c0cd0a7ede2f10fba66215097e">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>base_sae <span class="ot">&lt;-</span> <span class="fu">left_join</span>(indicador_dom,</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                      baseFGV <span class="sc">%&gt;%</span> <span class="fu">select</span>(id_dominio, hat_var), </span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">by =</span> id_dominio) <span class="sc">%&gt;%</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rd_var =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(hat_var), <span class="cn">NA_real_</span>, Rd_var),</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rd_deff =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(hat_var), <span class="cn">NA_real_</span>, Rd_deff)</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Este código está realizando una Consolidación de los dominios observados y no observados para lo cual hace una unión izquierda (<code>left_join()</code>) entre: <code>indicador_dom</code> y <code>baseFGV</code> de la cual selecciona las columnas de <code>id_dominio</code> y <code>hat_var</code>. El argumento <code>by = id_dominio</code> especifica que la unión debe realizarse mediante la columna <code>id_dominio</code>.</p>
+<p>Luego, se utiliza la función <code>mutate()</code> para crear dos nuevas variables. La primera variable <code>Rd_var</code> se asigna el valor de <code>Rd_var</code> de <code>baseFGV</code> si <code>hat_var</code> no es un valor nulo (<code>NA</code>), de lo contrario se le asigna un valor <code>NA_real_</code> (NA pero de tipo numérico). De manera similar, se crea la variable <code>Rd_deff</code> con el valor de <code>Rd_deff</code> de <code>baseFGV</code> si <code>hat_var</code> no es nulo, de lo contrario se le asigna un valor <code>NA_real_</code>.</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-12_7d4eb78a6b242ddd09fbc5aa89f640b8">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>base_sae <span class="ot">&lt;-</span> <span class="fu">left_join</span>(indicador_dom,</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                      baseFGV <span class="sc">%&gt;%</span> <span class="fu">select</span>(id_dominio, hat_var), </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">by =</span> id_dominio) <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rd_var =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(hat_var), <span class="cn">NA_real_</span>, Rd_var),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rd_deff =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(hat_var), <span class="cn">NA_real_</span>, Rd_deff)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Estimando el <strong>deff_FGV</strong> y <strong>n_eff_FGV</strong></p>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-15_d5b7c8d3ece5ae7c055708d50ea79421">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>base_FH <span class="ot">&lt;-</span> base_sae <span class="sc">%&gt;%</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rd_deff =</span> <span class="fu">ifelse</span>(<span class="fu">is.nan</span>(Rd_deff), <span class="dv">1</span>, Rd_deff),</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">deff_FGV =</span> <span class="fu">ifelse</span>(Rd_var <span class="sc">==</span> <span class="dv">0</span> ,</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>      <span class="dv">1</span>,</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>      hat_var <span class="sc">/</span> (Rd_var <span class="sc">/</span> Rd_deff) <span class="co">#Fórmula del nuevo DEFF</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Criterio MDS para regularizar el DeffFGV</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">deff_FGV =</span> <span class="fu">ifelse</span>(deff_FGV <span class="sc">&lt;=</span> <span class="dv">1</span>, <span class="cn">NA_real_</span>, deff_FGV), <span class="co">#Deff estimado</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_eff_FGV =</span> n <span class="sc">/</span> deff_FGV, <span class="co">#Número efectivo de personas encuestadas</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Si no se estimó varianza para ese municipio, también excluir</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>   <span class="co"># la estimación directa de este municipio, esto es relevante para el modelo FH  </span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">hat_var =</span> <span class="fu">ifelse</span>(deff_FGV <span class="sc">&lt;=</span> <span class="dv">1</span>, <span class="cn">NA_real_</span>, hat_var), </span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rd =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(hat_var), <span class="cn">NA_real_</span>, Rd) </span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="fu">tba</span>(<span class="fu">head</span>(base_FH, <span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Ahora, se debe estimar <strong>deff_FGV</strong> y <strong>n_eff_FGV</strong> a parir de la varianza suvizada (<code>hat_var</code>).</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-13_fedae97127aa509c51e201bb34971920">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>base_FH <span class="ot">&lt;-</span> base_sae <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rd_deff =</span> <span class="fu">ifelse</span>(<span class="fu">is.nan</span>(Rd_deff), <span class="dv">1</span>, Rd_deff),</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">deff_FGV =</span> <span class="fu">ifelse</span>(Rd_var <span class="sc">==</span> <span class="dv">0</span> ,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>      <span class="dv">1</span>,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>      hat_var <span class="sc">/</span> (Rd_var <span class="sc">/</span> Rd_deff) <span class="co">#Fórmula del nuevo DEFF</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Criterio MDS para regularizar el DeffFGV</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">deff_FGV =</span> <span class="fu">ifelse</span>(deff_FGV <span class="sc">&lt;=</span> <span class="dv">1</span>, <span class="cn">NA_real_</span>, deff_FGV), <span class="co">#Deff estimado</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_eff_FGV =</span> n <span class="sc">/</span> deff_FGV, <span class="co">#Número efectivo de personas encuestadas</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Si no se estimó varianza para ese municipio, también excluir</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>   <span class="co"># la estimación directa de este municipio, esto es relevante para el modelo FH  </span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">hat_var =</span> <span class="fu">ifelse</span>(deff_FGV <span class="sc">&lt;=</span> <span class="dv">1</span>, <span class="cn">NA_real_</span>, hat_var), </span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">Rd =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(hat_var), <span class="cn">NA_real_</span>, Rd) </span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="fu">tba</span>(<span class="fu">head</span>(base_FH <span class="sc">%&gt;%</span> <span class="fu">select</span>(id_dominio,n,n_upm,Rd, Rd_var,hat_var<span class="sc">:</span>n_eff_FGV), <span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table class="table table-striped lightable-classic" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
@@ -444,15 +864,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <tr>
    <th style="text-align:left;"> id_dominio </th>
    <th style="text-align:right;"> n </th>
-   <th style="text-align:right;"> Rd </th>
-   <th style="text-align:right;"> Rd_se </th>
-   <th style="text-align:right;"> Rd_low </th>
-   <th style="text-align:right;"> Rd_upp </th>
-   <th style="text-align:right;"> Rd_var </th>
-   <th style="text-align:right;"> Rd_cv </th>
-   <th style="text-align:right;"> Rd_deff </th>
-   <th style="text-align:left;"> des_municipio </th>
    <th style="text-align:right;"> n_upm </th>
+   <th style="text-align:right;"> Rd </th>
+   <th style="text-align:right;"> Rd_var </th>
    <th style="text-align:right;"> hat_var </th>
    <th style="text-align:right;"> deff_FGV </th>
    <th style="text-align:right;"> n_eff_FGV </th>
@@ -462,15 +876,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <tr>
    <td style="text-align:left;"> 0101 </td>
    <td style="text-align:right;"> 2951 </td>
-   <td style="text-align:right;"> 0.4147 </td>
-   <td style="text-align:right;"> 0.0234 </td>
-   <td style="text-align:right;"> 0.3688 </td>
-   <td style="text-align:right;"> 0.4605 </td>
-   <td style="text-align:right;"> 0.0005 </td>
-   <td style="text-align:right;"> 0.0564 </td>
-   <td style="text-align:right;"> 6.6758 </td>
-   <td style="text-align:left;"> SANTO DOMINGO DE GUZMAN </td>
    <td style="text-align:right;"> 127 </td>
+   <td style="text-align:right;"> 0.4147 </td>
+   <td style="text-align:right;"> 0.0005 </td>
    <td style="text-align:right;"> 0.0005 </td>
    <td style="text-align:right;"> 5.9860 </td>
    <td style="text-align:right;"> 492.9810 </td>
@@ -478,15 +886,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <tr>
    <td style="text-align:left;"> 0201 </td>
    <td style="text-align:right;"> 221 </td>
-   <td style="text-align:right;"> 0.4526 </td>
-   <td style="text-align:right;"> 0.0494 </td>
-   <td style="text-align:right;"> 0.3557 </td>
-   <td style="text-align:right;"> 0.5495 </td>
-   <td style="text-align:right;"> 0.0024 </td>
-   <td style="text-align:right;"> 0.1091 </td>
-   <td style="text-align:right;"> 2.1769 </td>
-   <td style="text-align:left;"> AZUA </td>
    <td style="text-align:right;"> 7 </td>
+   <td style="text-align:right;"> 0.4526 </td>
+   <td style="text-align:right;"> 0.0024 </td>
    <td style="text-align:right;"> 0.0053 </td>
    <td style="text-align:right;"> 4.7576 </td>
    <td style="text-align:right;"> 46.4517 </td>
@@ -494,15 +896,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <tr>
    <td style="text-align:left;"> 0202 </td>
    <td style="text-align:right;"> 86 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 0.0295 </td>
-   <td style="text-align:right;"> 0.6784 </td>
-   <td style="text-align:right;"> 0.7943 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 0.0401 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> LAS CHARCAS </td>
    <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
@@ -510,15 +906,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <tr>
    <td style="text-align:left;"> 0203 </td>
    <td style="text-align:right;"> 86 </td>
-   <td style="text-align:right;"> 0.7138 </td>
-   <td style="text-align:right;"> 0.0742 </td>
-   <td style="text-align:right;"> 0.5683 </td>
-   <td style="text-align:right;"> 0.8594 </td>
-   <td style="text-align:right;"> 0.0055 </td>
-   <td style="text-align:right;"> 0.1039 </td>
-   <td style="text-align:right;"> 2.3063 </td>
-   <td style="text-align:left;"> LAS YAYAS DE VIAJAMA </td>
    <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.7138 </td>
+   <td style="text-align:right;"> 0.0055 </td>
    <td style="text-align:right;"> 0.0101 </td>
    <td style="text-align:right;"> 4.2227 </td>
    <td style="text-align:right;"> 20.3661 </td>
@@ -526,15 +916,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <tr>
    <td style="text-align:left;"> 0204 </td>
    <td style="text-align:right;"> 51 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 0.0000 </td>
-   <td style="text-align:right;"> 0.7263 </td>
-   <td style="text-align:right;"> 0.7263 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 0.0000 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> PADRE LAS CASAS </td>
    <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
@@ -542,15 +926,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <tr>
    <td style="text-align:left;"> 0205 </td>
    <td style="text-align:right;"> 34 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 0.0000 </td>
-   <td style="text-align:right;"> 0.7648 </td>
-   <td style="text-align:right;"> 0.7648 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 0.0000 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> PERALTA </td>
    <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
@@ -558,15 +936,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <tr>
    <td style="text-align:left;"> 0206 </td>
    <td style="text-align:right;"> 65 </td>
-   <td style="text-align:right;"> 0.5527 </td>
-   <td style="text-align:right;"> 0.1192 </td>
-   <td style="text-align:right;"> 0.3188 </td>
-   <td style="text-align:right;"> 0.7867 </td>
-   <td style="text-align:right;"> 0.0142 </td>
-   <td style="text-align:right;"> 0.2157 </td>
-   <td style="text-align:right;"> 3.7006 </td>
-   <td style="text-align:left;"> SABANA YEGUA </td>
    <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.5527 </td>
+   <td style="text-align:right;"> 0.0142 </td>
    <td style="text-align:right;"> 0.0133 </td>
    <td style="text-align:right;"> 3.4692 </td>
    <td style="text-align:right;"> 18.7366 </td>
@@ -574,15 +946,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <tr>
    <td style="text-align:left;"> 0208 </td>
    <td style="text-align:right;"> 74 </td>
-   <td style="text-align:right;"> 0.8122 </td>
-   <td style="text-align:right;"> 0.0642 </td>
-   <td style="text-align:right;"> 0.6861 </td>
-   <td style="text-align:right;"> 0.9382 </td>
-   <td style="text-align:right;"> 0.0041 </td>
-   <td style="text-align:right;"> 0.0791 </td>
-   <td style="text-align:right;"> 1.9900 </td>
-   <td style="text-align:left;"> TABARA ARRIBA </td>
    <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 0.8122 </td>
+   <td style="text-align:right;"> 0.0041 </td>
    <td style="text-align:right;"> 0.0097 </td>
    <td style="text-align:right;"> 4.6595 </td>
    <td style="text-align:right;"> 15.8814 </td>
@@ -590,15 +956,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <tr>
    <td style="text-align:left;"> 0210 </td>
    <td style="text-align:right;"> 16 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 0.0000 </td>
-   <td style="text-align:right;"> 0.1382 </td>
-   <td style="text-align:right;"> 0.1382 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 0.0000 </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:left;"> ESTEBANIA </td>
    <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
@@ -606,15 +966,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <tr>
    <td style="text-align:left;"> 0301 </td>
    <td style="text-align:right;"> 264 </td>
-   <td style="text-align:right;"> 0.5668 </td>
-   <td style="text-align:right;"> 0.0607 </td>
-   <td style="text-align:right;"> 0.4477 </td>
-   <td style="text-align:right;"> 0.6860 </td>
-   <td style="text-align:right;"> 0.0037 </td>
-   <td style="text-align:right;"> 0.1071 </td>
-   <td style="text-align:right;"> 4.0232 </td>
-   <td style="text-align:left;"> NEIBA </td>
    <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 0.5668 </td>
+   <td style="text-align:right;"> 0.0037 </td>
    <td style="text-align:right;"> 0.0039 </td>
    <td style="text-align:right;"> 4.2461 </td>
    <td style="text-align:right;"> 62.1742 </td>
@@ -624,54 +978,60 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </div>
 </div>
+<p>El código anterior realiza algunas transformaciones y ajustes sobre la base de datos <code>base_sae</code> para obtener la base de datos <code>base_FH</code>. Primero, se verifica que el valor <code>Rd_deff</code> no sea <code>NaN</code>, en cuyo caso se establece en 1. A continuación, se calcula el nuevo valor del <code>deff_FGV</code> para cada municipio mediante la fórmula que incluye el valor de <code>hat_var</code> (la varianza estimada a través del modelo FGV) y los valores de <code>Rd_var</code> y <code>Rd_deff</code> (la varianza de diseño y el DEFF estimado). Si <code>Rd_var</code> es 0, entonces se establece <code>deff_FGV</code> en 1.</p>
+<p>Luego, se utiliza el criterio MDS (Minimum Detectable Size) para regularizar el valor de <code>deff_FGV</code>, estableciendo en <code>NA</code> aquellos valores que son menores o iguales a 1. A partir de <code>deff_FGV</code>, se calcula el número efectivo de personas encuestadas <code>n_eff_FGV</code>.</p>
+<p>Finalmente, se excluyen aquellos municipios para los cuales no se pudo estimar la varianza a través del modelo FGV, estableciendo en NA los valores de <code>hat_var</code> y <code>Rd</code>. El resultado es una base de datos que contiene información relevante para la construcción del modelo FH.</p>
 </section>
 <section id="otras-validaciones-sobre-el-resultado-del-modelo." class="level2">
 <h2 class="anchored" data-anchor-id="otras-validaciones-sobre-el-resultado-del-modelo.">Otras validaciones sobre el resultado del modelo.</h2>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-16_e8dff8be58a838fd46f903cc43381e2c">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>nDom <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(base_FH<span class="sc">$</span>hat_var))</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>temp_FH <span class="ot">&lt;-</span> base_FH <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(hat_var))</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp_FH <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(n), <span class="fu">aes</span>(<span class="at">x =</span> hat_var, <span class="at">y =</span> Rd_var)) <span class="sc">+</span> </span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">col =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"FGV"</span>, <span class="at">y =</span> <span class="st">"VaRdirEst"</span>) <span class="sc">+</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Varianza del Estimador Directo"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Continuando con el proceso de validación se construye el siguiente gráfico de dispersión con la variable de la varianza del estimador directo en el eje <em>y</em> y la varianza FGV en el eje <em>x</em>, para los municipios que tienen valores válidos para ambas variables. La línea de regresión lineal se ajusta a los puntos usando el método de mínimos cuadrados.</p>
+<p>La visualización del gráfico permite evaluar si la FGV está capturando adecuadamente la variabilidad de la variable de interés (en este caso, la variable de varianza del estimador directo). Si la FGV captura la variabilidad, se espera que los puntos estén relativamente cerca de la línea de regresión, lo que indicaría que la FGV explica una gran parte de la variabilidad de la varianza del estimador directo. Por otro lado, si la FGV no captura la variabilidad, los puntos estarán más dispersos y alejados de la línea de regresión.</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-14_195c6ba433bfcf5ee6cfe5d62a9a78f7">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>nDom <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(base_FH<span class="sc">$</span>hat_var))</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>temp_FH <span class="ot">&lt;-</span> base_FH <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(hat_var))</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp_FH <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(n), <span class="fu">aes</span>(<span class="at">x =</span> hat_var, <span class="at">y =</span> Rd_var)) <span class="sc">+</span> </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">col =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"FGV"</span>, <span class="at">y =</span> <span class="st">"VaRdirEst"</span>) <span class="sc">+</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Varianza del Estimador Directo"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="0Recursos/02/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Ahora, se realiza la comparación de la variabilidad de la varianza del estimador directo frente a la varianza suavizada a medida que el tamaño de muestra aumenta. El eje <em>x</em> representa el tamaño de la muestra y el eje <em>y</em> representa las varianzas. La línea azul representa la varianza FGV, mientras que la línea roja representa la varianza del estimador directo. En el gráfica es posible notar que la varianza FGV tiene una menos volatilidad que la varianza directa.</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-15_36fa306d4ac2febd973b46a9954c1ff7">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp_FH <span class="sc">%&gt;%</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">arrange</span>(n), <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span>nDom)) <span class="sc">+</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Rd_var, <span class="at">color =</span> <span class="st">"VarDirEst"</span>)) <span class="sc">+</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> hat_var, <span class="at">color =</span> <span class="st">"FGV"</span>)) <span class="sc">+</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Varianzas"</span>, <span class="at">x =</span> <span class="st">"Tamaño muestral"</span>, <span class="at">color =</span> <span class="st">" "</span>) <span class="sc">+</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">1</span>, nDom, <span class="at">by =</span> <span class="dv">10</span>),</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> temp_FH<span class="sc">$</span>n[<span class="fu">order</span>(temp_FH<span class="sc">$</span>n)][<span class="fu">seq</span>(<span class="dv">1</span>, nDom, <span class="at">by =</span> <span class="dv">10</span>)]) <span class="sc">+</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"FGV"</span> <span class="ot">=</span> <span class="st">"Blue"</span>, <span class="st">"VarDirEst"</span> <span class="ot">=</span> <span class="st">"Red"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="0Recursos/02/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Siguiendo en la misma linea se realiza la comparación del <em>n efectivo directo (n_eff_DIR)</em> y el <em>n efectivo FGV (n_eff_DIR)</em>. El código que se muestra acontinuación produce un gráfico que compara el tamaño de muestra efectivo obtenido a través de la estimación del DEFF con el tamaño de muestra directo. En el eje <em>x</em> se muestra el tamaño de muestra directo (<code>n</code>) y en el eje <em>y</em> se muestra el tamaño de muestra efectivo, calculado a través de la fórmula n/DEFF para la estimación directa (rojo) y para la FGV (azul).</p>
+<p>Se puede observar que, en general, el tamaño de muestra efectivo estimado a través de la FGV es menos variable que el estimado a través de la estimación directa, lo que indica que la FGV reduce la varianza de la estimación. Además, se puede observar que para algunos dominios el tamaño de muestra efectivo estimado a través de la FGV es menor que el tamaño de muestra directo, lo que puede deberse a que la estimación de la varianza a través de la FGV. En general, este gráfico es útil para comparar la eficiencia de la estimación a través de la FGV y la estimación directa para cada dominio.</p>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-16_74eacce39ec35ac0bcfeb6b8623baf0d">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp_FH <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">arrange</span>(n), <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span>nDom)) <span class="sc">+</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span>  n <span class="sc">/</span> Rd_deff, <span class="at">color =</span> <span class="st">"n_eff_DIR"</span>)) <span class="sc">+</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> n_eff_FGV, <span class="at">color =</span> <span class="st">"n_eff_FGV"</span>)) <span class="sc">+</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Tamaño de muestra efectivo"</span>,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Tamaño muestral"</span>, <span class="at">color =</span> <span class="st">" "</span>) <span class="sc">+</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">1</span>, nDom, <span class="at">by =</span> <span class="dv">10</span>),</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> temp_FH<span class="sc">$</span>n[<span class="fu">order</span>(temp_FH<span class="sc">$</span>n)][<span class="fu">seq</span>(<span class="dv">1</span>, nDom, <span class="at">by =</span> <span class="dv">10</span>)]) <span class="sc">+</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"n_eff_FGV"</span> <span class="ot">=</span> <span class="st">"Blue"</span>, <span class="st">"n_eff_DIR"</span> <span class="ot">=</span> <span class="st">"red"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="0Recursos/02/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Comparación de las varianzas con relación al tamaño de muestra efectivo</p>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-17_64aa458a9eb27ae2a82fdc0638b12fce">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp_FH <span class="sc">%&gt;%</span> </span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">arrange</span>(n), <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span>nDom)) <span class="sc">+</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Rd_var, <span class="at">color =</span> <span class="st">"VarDirEst"</span>)) <span class="sc">+</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> hat_var, <span class="at">color =</span> <span class="st">"FGV"</span>)) <span class="sc">+</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Varianzas"</span>, <span class="at">x =</span> <span class="st">"Tamaño muestral"</span>, <span class="at">color =</span> <span class="st">" "</span>) <span class="sc">+</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">1</span>, nDom, <span class="at">by =</span> <span class="dv">10</span>),</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> temp_FH<span class="sc">$</span>n[<span class="fu">order</span>(temp_FH<span class="sc">$</span>n)][<span class="fu">seq</span>(<span class="dv">1</span>, nDom, <span class="at">by =</span> <span class="dv">10</span>)]) <span class="sc">+</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"FGV"</span> <span class="ot">=</span> <span class="st">"Blue"</span>, <span class="st">"VarDirEst"</span> <span class="ot">=</span> <span class="st">"Red"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="0Recursos/02/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>Comparación del tamaño de muestra efectivo respecto al tamaño de muestra</p>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-18_3d73c7a53d8fe85e4d2cd40d83ee3a1e">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(temp_FH <span class="sc">%&gt;%</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">arrange</span>(n), <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span>nDom)) <span class="sc">+</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span>  n <span class="sc">/</span> Rd_deff, <span class="at">color =</span> <span class="st">"n_eff_DIR"</span>)) <span class="sc">+</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> n_eff_FGV, <span class="at">color =</span> <span class="st">"n_eff_FGV"</span>)) <span class="sc">+</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Tamaño de muestra efectivo"</span>,</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Tamaño muestral"</span>, <span class="at">color =</span> <span class="st">" "</span>) <span class="sc">+</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">1</span>, nDom, <span class="at">by =</span> <span class="dv">10</span>),</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> temp_FH<span class="sc">$</span>n[<span class="fu">order</span>(temp_FH<span class="sc">$</span>n)][<span class="fu">seq</span>(<span class="dv">1</span>, nDom, <span class="at">by =</span> <span class="dv">10</span>)]) <span class="sc">+</span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"n_eff_FGV"</span> <span class="ot">=</span> <span class="st">"Blue"</span>, <span class="st">"n_eff_DIR"</span> <span class="ot">=</span> <span class="st">"red"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="0Recursos/02/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
 <p>Guardando el archivo</p>
-<div class="cell" data-hash="0Recursos/02/unnamed-chunk-19_127374905743ee414c3a0c473fbc7157">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="at">object =</span> base_FH, <span class="st">"../Data/base_FH.Rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="0Recursos/02/unnamed-chunk-17_c59b08d5f4f93543bc6bcb4b42c922d6">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(<span class="at">object =</span> base_FH, <span class="st">"../Data/base_FH.Rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>

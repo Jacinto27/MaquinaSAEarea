@@ -39,7 +39,59 @@ tba <- function(dat, cap = NA){
 }
 ```
 
+Introducción 
+Uno de los insumos más importantes en el modelo de áreas es la 
+varianza del estimador directo, a nivel de dominio, la cual no puede calcularse de ningún modo. En correspondencia, este valor debe estimarse desde los datos recolectados en cada dominio. Sin embargo, 
+en dominios en las que se cuenta con un tamaño de muestra muy pequeño, estas estimaciones no tendrán un buen comportamiento. Por ende, es muy útil utilizar un modelo de **suavizamiento** de las varianzas para 
+eliminar el ruido y la volatilidad de estas estimaciones y extraer la verdadera señal del proceso
+
+Hidiroglou (2019) afirma que $E_{mp}\left(\hat{\theta}^{dir}_d\right)=\boldsymbol{x}_{d}\boldsymbol{\beta}$ y $V_{mp}\left(\hat{\theta}^{dir}_d\right)=\sigma_{u}^2+\tilde{\psi}^2_{d}$, en donde el subíndice  $mp$ hace referencia a la inferencia doble que se debe tener en cuenta en este tipo de ajustes y define la medida de probabilidad conjunta entre el modelo y el diseño de muestreo.  
+
+-   $m$ hace referencia a la medida de probabilidad inducida por el modelamiento y la inclusión de las covariables auxiliares ($\boldsymbol{x}_{d}$).
+
+-   $p$ hacer referencia a la medida de probabilidad inducida por el diseño de muestreo complejo que 
+induce las estimaciones directas. 
+
+La solución que acá se plantea se conoce con el nombre de Función Generalizada de Varianza, la cual consiste en ajustar un modelo log-lineal a la varianza directa estimada. Partiendo del hecho de que
+se tiene acceso a un estimador insesgado de $\psi^2$, denotado por $\hat{\psi}^2$ se tiene que:
+$$
+E_{mp}\left(\hat{\psi}_{d}^{2}\right)=E_{m}\left(E_{p}\left(\psi_{d}^{2}\right)\right)=E_{m}\left(\psi_{d}^{2}\right)=\tilde{\psi}_{d}^{2}
+$$
+
+La anterior igualdad puede interpretarse como que un estimador insesgado y simple de $\tilde{\psi}_{d}^{2}$ puede ser $\hat{\psi}_{d}^{2}$. Sin embargo, este estimador de muestreo es inestable cuando el tamaño de muestra es pequeño, que es justo el paradigma dominante en la estimación de áreas pequeñas. Rivest and Belmonte (2000) consideran modelos de suavizamiento para la estimación de las varianzas directas definidos de la siguiente manera:
+
+$$
+\log\left(\hat{\psi}_{d}^{2}\right)=\boldsymbol{z}_{d}^{t}\boldsymbol{\alpha}+\boldsymbol{\varepsilon}_{d}
+$$
+
+En donde $\boldsymbol{z}_{d}$ es un vector de covariables explicativas que son funciones de $\boldsymbol{x}_{d}$, $\boldsymbol{\alpha}$ es un vector de parámetros que deben ser estimados, $\boldsymbol{\varepsilon}_{d}$ son errores aleatorios con media cero y varianza constante, que se asumen idénticamente distribuidos condicionalmente sobre $\boldsymbol{z}_{d}$. Del anterior modelo, la
+estimación suavizada de la varianza de muestreo está dada por:
+$$
+\tilde{\psi}_{d}^{2}=E_{mp}\left(\psi_{d}^{2}\right)=\exp\left(\boldsymbol{z}_{d}^{t}\boldsymbol{\alpha}\right)\times\Delta
+$$
+
+En donde, $E_{mp}\left(\varepsilon_{d}\right)=\Delta$. No hay necesidad de especificar una distribución paramétrica para los
+errores de este modelo. Al utilizar el método de los momentos, se tiene el siguiente estimador insesgado para $\Delta$: 
+$$
+\hat{\Delta}=\frac{\sum_{d=1}^{D}\hat{\psi}_{d}^{2}}{\sum_{d=1}^{D}\exp\left(\boldsymbol{z}_{d}^{t}\boldsymbol{\alpha}\right)}
+$$
+
+De la misma forma, al utilizar los procedimientos estándar en una regresión lineal, la estimación del coeficiente de parámetros de regresión está dada por la siguiente expresión:
+
+$$
+\hat{\boldsymbol{\alpha}}=\left(\sum_{d=1}^{D}\boldsymbol{z}_{d}\boldsymbol{z}_{d}^{t}\right)^{-1}\sum_{d=1}^{D}\boldsymbol{z}_{d}\log\left(\hat{\psi}_{d}^{2}\right)
+$$
+
+Por último, el estimador suavizado de la varianza muestral está definido por:
+
+$$
+\hat{\tilde{\psi}}_{d}^{2}=\exp\left(\boldsymbol{z}_{d}^{t}\hat{\boldsymbol{\alpha}}\right)\hat{\Delta}
+$$
+
 ## Lectura de librerías
+
+En cada etapa del proceso, es común comenzar cargando las librerías necesarias. Para ajustar el modelo log-lineal, se utilizó el paquete `base` de R. Además, se generaron gráficos para el análisis exploratorio de los datos, utilizando las librerías `ggplot2` y `patchwork.` Para el procesamiento de la base, se implementó el paquete `dplyr` y se definió la función `select()` como medida de prevención de conflictos entre funciones de otros paquetes. Además, se estableció la variable `id_dominio` como parte del proceso de estandarización.
+
 ```{r}
 library(ggplot2)
 library(dplyr)
@@ -49,40 +101,37 @@ id_dominio <- "id_dominio"
 ```
 
 ## Lectura del la base de datos 
-Para realizar el conteo de UPMs por dominios, es necesario leer la base de datos. 
+
+El código presentado es utilizado para procesar una base de datos de una encuesta en formato `.Rds.` Primero se carga la base de datos y se agrega un cero al inicio de la variable UPM con la función` str_pad()`. Posteriormente, se crea un objeto `n_upm` que contiene el número de Unidades Primarias de Muestreo (UPM) por dominio, esto se logra a través de la función `distinct()` para seleccionar las columnas que cumplen ciertas condiciones y la función `group_by()` para agrupar los datos por dominio. Finalmente, se utiliza `tally()` para contar el número de UPM por dominio y se presenta la tabla resultante con la función` tba()`.
+
 ```{r}
 encuestaDOM <-  readRDS("../Data/encuestaDOM.Rds") %>% 
   mutate(
     upm = str_pad(string = upm,width = 9,pad = "0"))
-```
 
-Conteos de UPMs por id_dominio
-
-```{r}
 n_upm <- encuestaDOM %>% distinct(id_dominio, upm) %>% 
   group_by(id_dominio) %>% tally(name = "n_upm",sort = TRUE)
 tba(head(n_upm,10))
 ```
 
+
 ## Lectura de las estimaciones directas del indicador 
+
+El código está realizando una unión completa (full join) de dos bases de datos indicador_dom y n_upm, usando la variable id_dominio como clave. La unión completa asegura que se conserven todas las filas de ambas bases de datos, incluso aquellas que no tienen coincidencias en la otra base de datos. Después de la unión, la variable n_upm (que indica el número de UPMs por dominio) se añade a la base de datos indicador_dom.
 
 ```{r}
 indicador_dom <- readRDS('../Data/indicador_dom.Rds')
-```
-
-agregando conteos de las UPMs a las bases de datos. 
-```{r}
 indicador_dom <- full_join(indicador_dom, n_upm, by = id_dominio)
 ```
 
-Se filtran los dominios que tengan varianza 0, un deff mayor que 1 y 2 o más UPMs
+Se filtran los dominios que posean una varianza estimada mayor que cero, un deff mayor que 1 y 2 o más UPMs
 
 ```{r}
 indicador_dom1 <- indicador_dom %>% 
   filter(Rd_var>0 & Rd_deff>=1 & n_upm >= 2) 
 ```
 
-para los dominios seleccionados se realiza la transformación $\log(\sigma^2_d)$
+para los dominios que superan estas condiciones se realiza la transformación $\log(\hat{\sigma}^2_d)$, además se realiza la selección de las columnas identificador del municipio (`id_dominio`), la estimación directa del indicador (`Rd`), El número de personas en el dominio (`n`) y la varianza estimada del para la estimación directa `Rd_var`,siendo esta la que transforma mediante la función `log()`. 
 
 ```{r}
 baseFGV <-  indicador_dom1 %>%  
@@ -91,6 +140,10 @@ baseFGV <-  indicador_dom1 %>%
 ```
 
 # Gráficas exploratorias
+
+El código muestra la creación de cuatro gráficos usando la librería `ggplot2` y el uso de los datos `baseFGV`.  Estos gráficos tienen como objetivo explorar la relación entre el logaritmo de la varianza y diferentes transformaciones de la `n` y `Rd`.
+
+El primer gráfico (`p1`) representa la relación entre la estimación directa y el logaritmo de la varianza. El segundo gráfico (`p2`) representa la relación entre el tamaño de muestra y el logaritmo de la varianza. El tercer gráfico (`p3`) representa la relación entre $n_d \times Rd$  y el logaritmo de la varianza. Finalmente, el cuarto gráfico (`p4`) representa la relación entre la raíz cuadrada de la estimación directa y el logaritmo de la varianza.
 
 ```{r}
 p1 <- ggplot(baseFGV, aes(x = Rd, y = ln_sigma2)) +
@@ -123,25 +176,28 @@ rm('p1','p2','p3','p4')
 
 ## Ajustando el modelo log-lineal de la varianza 
 
+El código ajusta un modelo de regresión lineal múltiple (utilizando la función `lm()`), donde `ln_sigma2` es la variable respuesta y las variables predictoras son `Rd`, `n`, y varias transformaciones de éstas. El objetivo de este modelo es estimar la función generalizada de varianza (FGV) para los dominios observados.
+
 ```{r}
+library(gtsummary)
 FGV1 <- lm(ln_sigma2 ~ 1 + Rd + 
              n + I(n ^ 2) + I(Rd * n) +
              I(sqrt(Rd)) + I(sqrt(n)) + 
              I(sqrt(Rd * n)) ,
            data = baseFGV)
 
-a <- summary(FGV1)
-a$coefficients %>% tba()
+tbl_regression(FGV1) %>% 
+  add_glance_table(include = c(r.squared, adj.r.squared))
 ```
 
-## Determinar el valor de la constante delta. 
+Después de tener la estimación del modelo se debe obtener el  valor de la constante $\Delta$ para lo cual se usa el siguiente código.  
+
 
 ```{r}
 delta.hat = sum(baseFGV$Rd_var) / sum(exp(fitted.values(FGV1)))
-delta.hat
-```
 
-Varianza suavizada 
+```
+De donde se obtiene que $\Delta = `r delta.hat`$. Final es posible obtener la varianza suavizada  ejecutando el siguiente comando. 
 
 ```{r}
 baseFGV <-
@@ -149,6 +205,7 @@ baseFGV <-
 ```
 
 ## Validaciones sobre el modelo 
+
 
 ```{r}
 par(mfrow = c(2, 2))
@@ -163,7 +220,9 @@ ggplot(baseFGV,
   geom_smooth(method = "loess")
 ```
 
-Consolidando la base de datos con los dominios observados y no observados
+Este código está realizando una Consolidación de los dominios observados y no observados para lo cual hace una unión izquierda (`left_join()`) entre: `indicador_dom` y `baseFGV` de la cual selecciona las columnas de `id_dominio` y `hat_var`. El argumento `by = id_dominio` especifica que la unión debe realizarse mediante la columna `id_dominio`.
+
+Luego, se utiliza la función `mutate()` para crear dos nuevas variables. La primera variable `Rd_var` se asigna el valor de `Rd_var` de `baseFGV` si `hat_var` no es un valor nulo (`NA`), de lo contrario se le asigna un valor `NA_real_` (NA pero de tipo numérico). De manera similar, se crea la variable `Rd_deff` con el valor de `Rd_deff` de `baseFGV` si `hat_var` no es nulo, de lo contrario se le asigna un valor `NA_real_`. 
 
 ```{r}
 
@@ -177,7 +236,8 @@ base_sae <- left_join(indicador_dom,
 
 ```
 
-Estimando el **deff_FGV** y **n_eff_FGV**
+Ahora, se debe estimar **deff_FGV** y **n_eff_FGV** a parir de la varianza suvizada (`hat_var`). 
+
 
 ```{r}
 base_FH <- base_sae %>%
@@ -195,10 +255,21 @@ base_FH <- base_sae %>%
     hat_var = ifelse(deff_FGV <= 1, NA_real_, hat_var), 
     Rd = ifelse(is.na(hat_var), NA_real_, Rd) 
   )
-tba(head(base_FH, 10))
+tba(head(base_FH %>% select(id_dominio,n,n_upm,Rd, Rd_var,hat_var:n_eff_FGV), 10))
 ```
 
+El código anterior realiza algunas transformaciones y ajustes sobre la base de datos `base_sae` para obtener la base de datos `base_FH`. Primero, se verifica que el valor `Rd_deff` no sea `NaN`, en cuyo caso se establece en 1. A continuación, se calcula el nuevo valor del `deff_FGV` para cada municipio mediante la fórmula que incluye el valor de `hat_var` (la varianza estimada a través del modelo FGV) y los valores de `Rd_var` y `Rd_deff` (la varianza de diseño y el DEFF estimado). Si `Rd_var` es 0, entonces se establece `deff_FGV` en 1.
+
+Luego, se utiliza el criterio MDS (Minimum Detectable Size) para regularizar el valor de `deff_FGV`, estableciendo en `NA` aquellos valores que son menores o iguales a 1. A partir de `deff_FGV`, se calcula el número efectivo de personas encuestadas `n_eff_FGV`.
+
+Finalmente, se excluyen aquellos municipios para los cuales no se pudo estimar la varianza a través del modelo FGV, estableciendo en NA los valores de `hat_var` y `Rd`. El resultado es una base de datos que contiene información relevante para la construcción del modelo FH.
+
 ## Otras validaciones sobre el resultado del modelo. 
+
+Continuando con el proceso de validación se construye el siguiente gráfico de dispersión con la variable de la varianza del estimador directo en el eje _y_ y la varianza FGV  en el eje _x_, para los municipios que tienen valores válidos para ambas variables. La línea de regresión lineal se ajusta a los puntos usando el método de mínimos cuadrados.
+
+La visualización del gráfico permite evaluar si la FGV está capturando adecuadamente la variabilidad de la variable de interés (en este caso, la variable de varianza del estimador directo). Si la FGV captura la variabilidad, se espera que los puntos estén relativamente cerca de la línea de regresión, lo que indicaría que la FGV explica una gran parte de la variabilidad de la varianza del estimador directo. Por otro lado, si la FGV no captura la variabilidad, los puntos estarán más dispersos y alejados de la línea de regresión. 
+
 
 ```{r}
 nDom <- sum(!is.na(base_FH$hat_var))
@@ -211,7 +282,8 @@ ggplot(temp_FH %>% arrange(n), aes(x = hat_var, y = Rd_var)) +
   ylab("Varianza del Estimador Directo")
 ```
 
-Comparación de las varianzas con relación al  tamaño de muestra efectivo 
+Ahora, se realiza la comparación de la variabilidad de la varianza del estimador directo frente a la varianza suavizada a medida que el tamaño de muestra aumenta. El eje _x_ representa el tamaño de la muestra y el eje _y_ representa las varianzas. La línea azul representa la varianza FGV, mientras que la línea roja representa la varianza del estimador directo. En el gráfica es posible notar que la varianza FGV tiene una menos volatilidad que la varianza directa. 
+
 
 ```{r}
 ggplot(temp_FH %>% 
@@ -224,7 +296,9 @@ ggplot(temp_FH %>%
   scale_color_manual(values = c("FGV" = "Blue", "VarDirEst" = "Red"))
 ```
 
-Comparación del tamaño de muestra efectivo respecto al tamaño de muestra
+Siguiendo en la misma linea se realiza la comparación del *n efectivo directo (n_eff_DIR)* y el *n efectivo FGV (n_eff_DIR)*. El código que se muestra acontinuación produce un gráfico que compara el tamaño de muestra efectivo obtenido a través de la estimación del DEFF con el tamaño de muestra directo. En el eje _x_ se muestra el tamaño de muestra directo (`n`) y en el eje _y_ se muestra el tamaño de muestra efectivo, calculado a través de la fórmula n/DEFF para la estimación directa (rojo) y para la FGV (azul).
+
+Se puede observar que, en general, el tamaño de muestra efectivo estimado a través de la FGV es menos variable que el estimado a través de la estimación directa, lo que indica que la FGV reduce la varianza de la estimación. Además, se puede observar que para algunos dominios el tamaño de muestra efectivo estimado a través de la FGV es menor que el tamaño de muestra directo, lo que puede deberse a que la estimación de la varianza a través de la FGV. En general, este gráfico es útil para comparar la eficiencia de la estimación a través de la FGV y la estimación directa para cada dominio.  
 
 ```{r}
 ggplot(temp_FH %>%

@@ -8,7 +8,7 @@
 
 <meta name="author" content="Andrés Gutiérrez">
 <meta name="author" content="Stalyn Guerrero">
-<meta name="dcterms.date" content="2023-02-22">
+<meta name="dcterms.date" content="2023-02-26">
 
 <title>Estimación de la tasa de informalidad en República Dominicana empleando modelos de área con transformación arcoseno</title>
 <style>
@@ -103,6 +103,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="03 EstimacionSAE_files/libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="03 EstimacionSAE_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
 
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -147,7 +148,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 22, 2023</p>
+      <p class="date">February 26, 2023</p>
     </div>
   </div>
     
@@ -156,6 +157,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
+<section id="introducción" class="level1">
+<h1>Introducción</h1>
+<p>El modelo de Fay Herriot FH, propuesto por Fay y Herriot (1979), es un modelo estadístico de área y es el más comúnmente utilizado, cabe tener en cuenta, que dentro de la metodología de estimación en áreas pequeñas, los modelos de área son los de mayor aplicación, ya que lo más factible es no contar con la información a nivel de individuo, pero si encontrar no solo los datos a nivel de área, sino también información auxiliar asociada a estos datos. Este modelo lineal mixto, fue el primero en incluir efectos aleatorios a nivel de área, lo que implica que la mayoría de la información que se introduce al modelo corresponde a agregaciaciones usualmente, departamentos, regiones, provincias, municipios entre otros, donde las estimaciones que se logran con el modelo se obtienen sobre estas agregaciones o subpoblaciones.</p>
+<p>Además, el modelo FH utiliza información auxiliar para mejorar la precisión de las estimaciones en áreas pequeñas. Esta información auxiliar puede ser de diferentes tipos, como censos poblacionales, encuestas de hogares, registros administrativos, entre otros. La inclusión de esta información auxiliar se realiza a través de un modelo lineal mixto, en el que se consideran tanto efectos fijos como aleatorios a nivel de área. Los efectos fijos representan la relación entre la variable de interés y las variables auxiliares, mientras que los efectos aleatorios capturan la variabilidad no explicada por estas variables. De esta forma, el modelo FH permite obtener estimaciones precisas y confiables para subpoblaciones o áreas pequeñas, lo que resulta de gran utilidad para la toma de decisiones en diferentes ámbitos, como políticas públicas, planificación urbana, entre otros.</p>
 <section id="lectura-de-librerías" class="level2">
 <h2 class="anchored" data-anchor-id="lectura-de-librerías">Lectura de librerías</h2>
 <div class="cell" data-hash="0Recursos/03/unnamed-chunk-1_6bf4d76281dd23951969951fef19e6dd">
@@ -176,6 +181,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="lectura-de-bases-de-datos" class="level2">
 <h2 class="anchored" data-anchor-id="lectura-de-bases-de-datos">Lectura de bases de datos</h2>
+<p>Para la lecturas de las insumos se emplean los siguientes comando de R. La función <code>readRDS()</code> es utilizada para cargar objetos creados previamente y guardados en archivos RDS. Los archivos RDS contienen objetos de R guardados de forma binaria, lo que permite guardar y recuperar objetos de R con facilidad.</p>
+<p>En este caso, se cargan tres objetos diferentes: <code>base_FH,</code>statelevel_predictors<code>y</code>DEE_Mun`.</p>
 <div class="cell" data-hash="0Recursos/03/unnamed-chunk-2_18f13c8974cb344472a1df411b8f8afa">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimación Directa + FGV</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>base_FH <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">'../Data/base_FH.Rds'</span>)</span>
@@ -187,6 +194,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="consolidando-las-bases-de-datos." class="level2">
 <h2 class="anchored" data-anchor-id="consolidando-las-bases-de-datos.">Consolidando las bases de datos.</h2>
+<p>La función <code>select()</code> del paquete <code>dplyr</code> se utiliza para seleccionar columnas de un <code>data.frame</code>. En este caso, se seleccionan las columnas <code>id_dominio</code>, <code>Rd</code>, <code>hat_var</code>, <code>n_eff_FGV</code> y <code>n</code> de la base de datos <code>base_FH</code>.</p>
+<p>Luego, se utiliza la función <code>full_join()</code> de <code>dplyr</code> para unir los datos de la base de datos <code>base_FH</code> con los datos de la base de datos <code>statelevel_predictors</code> por la columna <code>id_dominio</code>. La opción by se utiliza para especificar la columna por la cual se realizará la unión.</p>
+<p>Por último, se utiliza la función <code>left_join()</code> de <code>dplyr</code> para unir los datos de la base de datos <code>base_completa</code> con los datos de la base de datos <code>DEE_Mun</code> por la columna <code>id_dominio</code>. Al igual que en el caso anterior, la opción <code>by</code> se utiliza para especificar la columna por la cual se realizará la unión.</p>
 <div class="cell" data-hash="0Recursos/03/unnamed-chunk-3_fb958255d1367a484c7b36c464ec8497">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>base_completa <span class="ot">&lt;-</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  base_FH <span class="sc">%&gt;%</span> <span class="fu">select</span>(id_dominio, Rd, hat_var, n_eff_FGV,n) <span class="sc">%&gt;%</span></span>
@@ -194,13 +204,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>base_completa <span class="ot">&lt;-</span> <span class="fu">left_join</span>(base_completa, DEE_Mun, <span class="at">by =</span> id_dominio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>guardando las base consolidadas</p>
+<p>Fialmente se almacena la base consolidada en un archivo <code>.rds</code></p>
 <div class="cell" data-hash="0Recursos/03/unnamed-chunk-4_6d3c8ac775208d955f424a02f63dda85">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(base_completa, <span class="st">'Data/base_completa.Rds'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="estimando-el-modelo-de-área-con-transformación-arcoseno" class="level2">
 <h2 class="anchored" data-anchor-id="estimando-el-modelo-de-área-con-transformación-arcoseno">Estimando el modelo de área con transformación arcoseno</h2>
+<p>El código corresponde a la estimación del modelo de Fay Herriot (FH) utilizando el método de mínimos cuadrados restringidos (REML) y transformación de los datos mediante la función <code>arcsin</code>.</p>
+<p>En la especificación del modelo se definen las variables predictoras fijas y la variable dependiente (Rd), que es la estimación directa en una determinada área (dominio). Además, se especifica la variable auxiliar para la estimación de varianza (<code>hat_var</code>).</p>
+<p>Se utiliza la base de datos completa (<code>base_completa</code>) que incluye la información de las variables predictoras a nivel de dominio, información auxiliar y el tamaño de muestra efectivo para cada dominio (<code>eff_smpsize</code>).</p>
+<p>Se especifica que el método de estimación de la varianza es mediante bootstrapping (<code>mse_type = "boot"</code>) con un número de replicaciones igual a 500 (<code>B = 500</code>).</p>
+<p>El modelo también incluye efectos aleatorios a nivel de dominio, lo que se indica mediante la especificación de los dominios (<code>domains</code>).</p>
+<p>Finalmente, se especifica que se desea la transformación de los datos mediante la función arcsin (<code>transformation = "arcsin"</code>) y su backtransformation mediante el método bias-corrected (<code>backtransformation = "bc"</code>). Se utiliza el parámetro <code>MSE = TRUE</code> para obtener la estimación de la varianza del error de muestreo (MSE) del estimador.</p>
 <div class="cell" data-hash="0Recursos/03/unnamed-chunk-5_8dab6ad6878c504c58a2f72f176ded6c">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fh_arcsin <span class="ot">&lt;-</span> <span class="fu">fh</span>(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">fixed =</span> Rd <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> P45_TUVO_EMPLEO  <span class="sc">+</span>  P46_ACTIVIDAD_PORPAGA  <span class="sc">+</span></span>
@@ -237,6 +253,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="estimaciones-de-los-dominios-a-partir-del-modelo." class="level2">
 <h2 class="anchored" data-anchor-id="estimaciones-de-los-dominios-a-partir-del-modelo.">Estimaciones de los dominios a partir del modelo.</h2>
+<p>Lo primero que hace el código es obtener los valores de gamma (<span class="math inline">\(\gamma\)</span>), recordemos que el estimador de FH esta dado como una combinación convexa entre la estimación directa y la estimación sintética, es decir, <span class="math inline">\(\tilde{\theta}_{d}^{FH} = \hat{\gamma_d}\hat{\theta}^{DIR}_{d}+(1-\hat{\gamma_d})\boldsymbol{x_d}^{T}\hat{\boldsymbol{\beta}}\)</span>. Luego, se utiliza la función <code>estimators()</code> para calcular las predicciones de las estimaciones directas y sus errores estándar, tanto de forma puntual como mediante un intervalo de confianza. Finalmente, se juntan los resultados con información auxiliar sobre los dominios, como su tamaño muestral y el valor del Gamma, y se imprime una tabla con las primeras 20 filas de la tabla de resultados.</p>
 <div class="cell" data-hash="0Recursos/03/unnamed-chunk-7_ab3531dfecf5175cc56e4b9b963a0014">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>data_Gamma <span class="ot">&lt;-</span> fh_arcsin<span class="sc">$</span>model<span class="sc">$</span>gamma <span class="sc">%&gt;%</span> </span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(<span class="at">id_dominio =</span> Domain, Gamma)</span>
@@ -496,10 +513,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </div>
 </div>
+<p>De la Tabla es posible notar que las estimaciones de FH existen para todos los dominios.</p>
 <p>guardar estimaciones</p>
-<div class="cell" data-hash="0Recursos/03/unnamed-chunk-8_76d0bdd43d152ce94de6359862c7d7b7">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(estimaciones, <span class="st">'Data/estimaciones.Rds'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-hash="0Recursos/03/unnamed-chunk-8_03d9db5f50cc592736ea8d329d57ec1f">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(estimaciones, <span class="st">'../Data/estimaciones.Rds'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
 </section>
 
 </main>
