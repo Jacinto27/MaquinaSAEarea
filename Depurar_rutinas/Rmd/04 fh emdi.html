@@ -8,7 +8,7 @@
 
 <meta name="author" content="Andrés Gutiérrez">
 <meta name="author" content="Stalyn Guerrero">
-<meta name="dcterms.date" content="2023-02-22">
+<meta name="dcterms.date" content="2023-02-27">
 
 <title>Estimación de la tasa de informalidad en República Dominicana empleando modelos de área con transformación arcoseno</title>
 <style>
@@ -147,7 +147,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 22, 2023</p>
+      <p class="date">February 27, 2023</p>
     </div>
   </div>
     
@@ -185,6 +185,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="leer-bases-de-datos" class="level2">
 <h2 class="anchored" data-anchor-id="leer-bases-de-datos">Leer bases de datos</h2>
+<p>El código lee varios archivos y realiza algunas transformaciones en una base de datos de estimaciones de la tasa de informalidad en diferentes dominios geográficos.</p>
+<p>Primero, se lee un archivo Shapefile llamado <code>DOM.shp</code> que contiene la información geográfica de los polígonos de los diferentes dominios. Luego, se lee una base de datos completa de donde se extraen las estimaciones de la tasa de informalidad en los diferentes dominios.</p>
+<p>A continuación, se lee un modelo FH (Fay-Herriot) con transformación Arcoseno, que es utilizado para estimar las tasas de informalidad en los diferentes dominios geográficos. También se leen las estimaciones del modelo FH con transformación Arcoseno y se calculan algunas medidas de error como el RMSE (Root Mean Squared Error), RRMSE (Relative Root Mean Squared Error) y la desviación estándar del error de la estimación Directa.</p>
 <div class="cell" data-hash="0Recursos/04/unnamed-chunk-2_0b8c92f39af28b20f78ed497b717b1dc">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Shapefile</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>poligonos_dominio <span class="ot">&lt;-</span> <span class="fu">read_sf</span>(<span class="st">"../shapefiles2010/DOM.shp"</span> )</span>
@@ -201,6 +204,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="análisis-de-residuales-y-efectos-aleatorios" class="level1">
 <h1>Análisis de residuales y efectos aleatorios</h1>
+<p>El código muestra cómo calcular y graficar los residuos estandarizados de un modelo de FH de datos transformados con la función arcoseno.</p>
+<p>En primer lugar, se calculan los residuos estandarizados del modelo, utilizando la fórmula (valor observado - valor predicho) / desviación estándar de los residuos. Luego, se calculan los residuos estandarizados de los efectos aleatorios del modelo, utilizando la misma fórmula pero con los efectos aleatorios en lugar de los residuos.</p>
+<p>Finalmente, se grafican los residuos estandarizados de los datos utilizando <code>ggplot2</code>. Se muestra un gráfico de puntos de los residuos estandarizados en función del índice de observación. También se traza una línea horizontal en el valor cero para facilitar la identificación de puntos que estén lejos de cero.</p>
 <div class="cell" data-hash="0Recursos/04/unnamed-chunk-3_05e15127dda9f5a108763b6a867fa4a8">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--- Residuales estandarizados ---#</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>residuals <span class="ot">&lt;-</span> fh_arcsin<span class="sc">$</span>model<span class="sc">$</span>real_residuals</span>
@@ -221,6 +227,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <section id="qq-plots" class="level3">
 <h3 class="anchored" data-anchor-id="qq-plots">QQ plots</h3>
+<p>Este código genera dos gráficos QQ (quantile-quantile) para evaluar si los residuos y los efectos aleatorios del modelo FH con transformación Arcoseno siguen una distribución normal.</p>
+<p>Primero, se calculan los residuos estandarizados y los efectos aleatorios estandarizados dividiéndolos por su desviación estándar y restando su media. Luego, se crea el primer gráfico QQ utilizando <code>ggplot2</code>, que muestra una comparación de la distribución empírica de los residuos estandarizados con una distribución normal teórica. El segundo gráfico QQ realiza la misma comparación, pero para los efectos aleatorios estandarizados.</p>
+<p>Finalmente, se utiliza el operador | para unir los dos gráficos QQ en una única visualización.</p>
 <div class="cell" data-hash="0Recursos/04/unnamed-chunk-4_39216f605cd4c208f5023ff8d0a4332f">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(<span class="at">Residuals =</span> std_residuals),</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">sample =</span> Residuals)) <span class="sc">+</span></span>
@@ -240,6 +249,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="densidades" class="level3">
 <h3 class="anchored" data-anchor-id="densidades">Densidades</h3>
+<p>Este código genera dos gráficos de densidad para los residuales estandarizados y los efectos aleatorios estandarizados del modelo FH con transformación Arcoseno. En cada gráfico se utiliza la función ggplot para crear un objeto de gráfico y se establecen los datos, el eje x y los colores de las líneas y relleno de los gráficos de densidad.</p>
+<p>Para el gráfico de densidad de los residuales estandarizados (p3), se establece una distribución normal teórica (con la función stat_function) y se define un rango de -4 a 4 en el eje x (con xlim). El color de relleno y línea se establece como azul claro (lightblue3) con un nivel de transparencia de 0.4 (alpha).</p>
+<p>En el gráfico de densidad de los efectos aleatorios estandarizados (p4), se establece también una distribución normal teórica y un rango de -4 a 4 en el eje x, pero se utiliza el mismo color de relleno y línea que en el gráfico de densidad de los residuales estandarizados (color[2]). Ambos gráficos se combinan utilizando el operador “|” para presentarse en la misma línea.</p>
 <div class="cell" data-hash="0Recursos/04/unnamed-chunk-5_c4a433e59c4ae825c0b944357395eca5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>color <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"lightblue3"</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -311,6 +323,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="coeficiente-de-determinación" class="level1">
 <h1>Coeficiente de determinación</h1>
+<p>Este fragmento de código ajusta un modelo FH y calcula el coeficiente de determinación (R2) del modelo.</p>
+<p>Primero, filtra las observaciones de <code>estimaciones</code> que no tienen valores nulos en la columna <code>Gamma</code>. Luego, une los datos filtrados con la base de datos completa <code>base_completa</code> mediante una operación de <code>inner_join()</code>.</p>
+<p>A continuación, se obtienen los coeficientes del modelo ajustado <code>fh_arcsin</code> y se almacenan en una matriz llamada <code>Betas</code>. También se crea una matriz <code>XS</code> que contiene las variables independientes de la regresión para cada observación de <code>base_dir</code>.</p>
+<p>El código luego calcula los residuos del modelo utilizando la matriz <code>XS</code> y <code>Betas</code>. El error cuadrático medio (MSE) se estima a partir de los residuos y se almacena en <code>S2Beta</code>.</p>
+<p>La variable <code>su2</code> contiene la varianza residual del modelo FH ajustado y se utiliza para calcular el coeficiente de determinación (<code>R2</code>) del modelo. Finalmente, el código muestra el valor de <code>R2</code> calculado.</p>
 <div class="cell" data-hash="0Recursos/04/unnamed-chunk-7_a5e59942aac591f7deef52175f7fb9ee">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>dom_obs <span class="ot">&lt;-</span> estimaciones <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(Gamma)) </span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>base_dir <span class="ot">&lt;-</span> base_completa <span class="sc">%&gt;%</span> <span class="fu">inner_join</span>(<span class="at">x =</span> dom_obs)</span>
@@ -334,6 +351,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <section id="validaciones-en-relación-al-tamaño-de-la-muestra" class="level2">
 <h2 class="anchored" data-anchor-id="validaciones-en-relación-al-tamaño-de-la-muestra">Validaciones en relación al tamaño de la muestra</h2>
+<p>Este código genera un gráfico que compara las estimaciones obtenidas a partir de dos métodos diferentes (“Directo” y “Fay Herriot”) en función del tamaño muestral de los dominios.</p>
+<p>Primero, se define el número de dominios como la cantidad de filas en <code>base_completa</code>. Luego, se utiliza <code>ggplot()</code> para generar el gráfico. Se utiliza <code>geom_line()</code> para trazar una línea para cada uno de los dos métodos, especificando los colores correspondientes (“Directo” en azul y “Fay Herriot” en rojo) en <code>scale_color_manual()</code>. El eje x se etiqueta con el tamaño muestral de los dominios y el eje y se etiqueta como “Formalidad”.</p>
+<p>La escala del eje x se personaliza para que los intervalos sean de 10 unidades, con las etiquetas correspondientes obtenidas de <code>estimaciones$n</code>.</p>
 <div class="cell" data-hash="0Recursos/04/unnamed-chunk-8_efd42e586cebb3eddc8a2eb0ba433b48">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>N_dominios <span class="ot">&lt;-</span> <span class="fu">nrow</span>(base_completa)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -351,6 +371,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>Estimación directa vs Fay-Herriot</p>
+<p>Este código crea un gráfico de dispersión con una línea de ajuste lineal para comparar las estimaciones obtenidas mediante la estimación directa y la estimación de Fay-Herriot</p>
+<ul>
+<li>La función <code>ggplot()</code> recibe como argumento el conjunto de datos <code>estimaciones</code> y define la variable <code>Direct</code> para el eje x y la variable <code>FH</code> para el eje y.</li>
+<li><code>geom_point()</code> agrega los puntos correspondientes a cada par de estimaciones para ambas variables.</li>
+<li><code>geom_smooth()</code> agrega una línea de ajuste lineal a los puntos utilizando el método “lm” (mínimos cuadrados) por defecto de <code>ggplot()</code>.</li>
+<li><code>ggtitle</code> agrega un título al gráfico indicando la comparación de las estimaciones.</li>
+</ul>
 <div class="cell" data-hash="0Recursos/04/unnamed-chunk-9_5d18a6ea416a16615562defcb64c4201">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(estimaciones, <span class="fu">aes</span>(Direct, FH)) <span class="sc">+</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
@@ -360,7 +387,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p><img src="0Recursos/04/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Distancias de Cook</p>
+<section id="distancias-de-cook" class="level3">
+<h3 class="anchored" data-anchor-id="distancias-de-cook">Distancias de Cook</h3>
+<p>El código calcula la contribución de cada dominio a la varianza del estimador directo en un diseño de muestreo complejo usando el método de Fay-Herriot.</p>
+<p>Primero, se define el tamaño de la población <code>D</code> y se crea un vector <code>CD</code> de longitud <code>D</code> con valores iniciales igual a cero. Luego, se extraen los coeficientes del modelo de regresión lineal ajustado usando el método de Fay-Herriot y se almacenan en <code>Betas</code>.</p>
+<p>A continuación, se crea una matriz diagonal <code>V</code> con los valores de la varianza de los errores de muestreo obtenidos del modelo de Fay-Herriot ajustado. El ciclo <code>for</code> itera a través de cada dominio <code>i</code> y ajusta un modelo Fay-Herriot sin ese dominio. Luego, se calculan los coeficientes ajustados del modelo sin el dominio <code>i</code> y se almacenan en <code>Betas_i</code>. Se calcula la diferencia entre los coeficientes ajustados de <code>Betas</code> y <code>Betas_i</code> y se almacena en <code>betaDiff</code>.</p>
+<p>Finalmente, se calcula la contribución del dominio <code>i</code> a la varianza del estimador directo multiplicando <code>betaDiff</code> por la matriz <code>t(XS) %*% V %*% XS</code> y dividiendo el resultado por <code>(q - 1)</code>, donde <code>XS</code> es la matriz de diseño, <code>V</code> es la matriz de varianza, <code>q</code> es el número de variables explicativas y <code>betaDiff</code> es la diferencia entre los coeficientes ajustados del modelo completo y el modelo sin el dominio <code>i</code>. La contribución se almacena en la posición <code>i</code> del vector <code>CD</code>.</p>
 <div class="cell" data-hash="0Recursos/04/unnamed-chunk-10_6d94af98f9adf0fce3b66d22cce87aea">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">dim</span>(base_completa)[<span class="dv">1</span>]</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>CD <span class="ot">=</span> <span class="fu">numeric</span>(D)</span>
@@ -441,10 +473,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 </section>
+</section>
 <section id="análisis-gráfico" class="level2">
 <h2 class="anchored" data-anchor-id="análisis-gráfico">Análisis gráfico</h2>
 <section id="coeficiente-de-variación-y-rrmse" class="level3">
 <h3 class="anchored" data-anchor-id="coeficiente-de-variación-y-rrmse">Coeficiente de variación y RRMSE</h3>
+<p>Este código genera un gráfico de líneas comparando los coeficientes de variación (CV) del estimador directo y del estimador FH en función del tamaño muestral de los dominios. El eje x muestra el tamaño muestral y el eje y los valores de los coeficientes de variación. El gráfico tiene dos líneas: una para el CV del estimador directo y otra para el RRMSE del estimador FH. Los puntos se conectan mediante una línea recta para una mejor visualización.</p>
+<p>El código comienza filtrando los datos de estimaciones para ordenarlos por el tamaño muestral <code>n</code>. Luego, se utiliza la función <code>ggplot()</code> para crear el objeto de la gráfica. Se especifican los datos y las variables que se utilizarán en la gráfica <code>(aes(x = 1:N_dominios)</code> y <code>aes(y = Direct_CV, color = "CV")</code> y <code>aes(y = rrmse_FH, color = "RRMSE"))</code>. Se añaden dos líneas con <code>geom_line()</code> correspondientes a cada estimador, y se establece el título del gráfico con <code>ggtitle()</code>.</p>
+<p>Se establecen las etiquetas de los ejes x e y mediante <code>labs()</code> y se definen los valores que aparecerán en el eje x con <code>scale_x_continuous()</code>. Finalmente, se establecen los colores de las líneas con <code>scale_color_manual()</code>.</p>
 <div class="cell" data-hash="0Recursos/04/unnamed-chunk-13_fd0ad71305a5589b03550a98726c10e0">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(estimaciones <span class="sc">%&gt;%</span> </span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">arrange</span>(n), <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span>N_dominios)) <span class="sc">+</span></span>
