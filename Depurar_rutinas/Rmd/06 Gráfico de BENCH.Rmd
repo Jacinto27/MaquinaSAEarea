@@ -51,6 +51,12 @@ library(srvyr)
 
 ## Lecturas de bases de datos. 
 
+El bloque de código carga tres archivos de datos en R:
+
+  -   `encuestaDOM.Rds`: es utilizado para obtener las estimaciones directas de la región.
+  -   `estimacionesPre.Rds`: contiene estimaciones previas, sin embargo solo son seleccionadas las columnas `id_region`, `id_dominio` y `W_i` que son útiles para la construcción del gráfico.
+  -   `TablaFinal.Rds`: contiene las estimaciones directas, sintéticas, Fay Harriot  y Fay Harriot con benchmarking. Primero se carga el archivo y luego se realiza una unión interna (`inner_join()`) con el archivo `estimacionesPre` por la variable `id_dominio`.
+
 ```{r}
 encuestaDOM <-  readRDS("../Data/encuestaDOM.Rds")
 estimacionesPre <- readRDS('../Data/estimacionesBench.Rds') %>% 
@@ -58,11 +64,9 @@ estimacionesPre <- readRDS('../Data/estimacionesBench.Rds') %>%
 
 TablaFinal <- readRDS('../Data/TablaFinal.Rds') %>% 
   inner_join(estimacionesPre, by = "id_dominio")
-
-base_completa <- readRDS('../Data/base_completa.Rds')
 ```
 
-Estimaciones agregadas por región 
+Este bloque de código calcula las estimaciones agregadas por región a partir de la tabla `TablaFinal`, que contiene las estimaciones sintéticas y de Fay Harriot para cada dominio, junto con su peso `W_i`. Primero, la tabla se agrupa por `id_region`. Luego, para cada región, se calcula la suma ponderada de las estimaciones sintéticas (`sintetico_back`) y de Fay Harriot (`FH_RBench` y `FayHerriot`) utilizando los pesos `W_i`. Las tres estimaciones se presentan en la tabla final `estimaciones_agregada`.
 
 ```{r}
 estimaciones_agregada <- TablaFinal %>% data.frame() %>% 
@@ -75,14 +79,18 @@ estimaciones_agregada <- TablaFinal %>% data.frame() %>%
 tba(estimaciones_agregada)
 ```
 
-Estimación del agregados 
+En este bloque de código se realizan las siguientes acciones:
+
+  -   Se agrega ceros a la izquierda de las variables `upm` y `estrato` para que tengan una longitud de 9 y 5 dígitos, respectivamente.
+  -   Se crea un objeto `disenoDOM` con el diseño de la encuesta, utilizando la función `as_survey_design()` de la librería survey. Se especifica que el estrato es la variable `estrato`, la unidad primaria de muestreo (UPM) es la variable `upm` y el peso muestral es la variable `factor_anual`. Además, se utiliza el argumento `nest=T` para indicar que las UPM están anidadas.
+  -   Se estima el indicador directo para cada región. Para ello,  se agrupan `id_region` y se utiliza la función `summarise()` para calcular el tamaño de la muestra (`n`) y la razón de diseño (`Rd`) utilizando la función `survey_ratio()` de la librería `survey`.
 
 ```{r}
 encuestaDOM <-
   encuestaDOM %>%
   mutate(
-    upm = as.character(upm),
-    estrato = as.character(estrato),
+     upm = str_pad(string = upm,width = 9,pad = "0"),
+    estrato = str_pad(string = estrato,width = 5,pad = "0"),
     factor_anual = factor_expansion / 4
   )
 
@@ -110,7 +118,11 @@ indicador_dir <-
   )
 ```
 
-creando el gráfico 
+Este bloque de código realiza lo siguiente:
+
+  -   Primero, se une el objeto estimaciones_agregada que contiene las estimaciones de los métodos sintético, FH benchmark y FH, con el objeto `indicador_dir` que contiene el indicador directo para cada región.
+  -   Luego, se seleccionan las columnas necesarias para el gráfico y se transforma el formato de las columnas usando la función` gather()` para tener los valores de las estimaciones en una sola columna y el nombre del método en otra columna. Además, se cambia el nombre de los métodos para que sean más descriptivos.
+Finalmente, se crean los límites del intervalo de confianza para el indicador directo y se guardan en el objeto `lims_IC`.
 
 ```{r}
 data_plot <- left_join(estimaciones_agregada, 
@@ -125,7 +137,11 @@ temp <- data_plot %>% select(-Rd_low, -Rd_upp,-Rd_se) %>%
 lims_IC <-  data_plot %>%
   select(n,id_region,value = Rd, Rd_low, Rd_upp) %>% 
   mutate(Estimacion = "Directo")
+```
 
+Este bloque de código grafica las estimaciones de los diferentes métodos, junto con los intervalos de confianza de las estimaciones directas. La función` ggplot()` de la librería `ggplot2` se utiliza para crear el gráfico, y se utilizan diferentes capas para agregar diferentes elementos al gráfico.
+
+```{r}
 p <- ggplot(temp,
             aes(
               x = fct_reorder2(id_region, id_region, n),
@@ -146,3 +162,10 @@ ggplotly(p)
 
 ```
 
+La capa `aes()` define la estética de la gráfica. En este caso, se utiliza la variable `id_region` en el eje x, la variable `value` en el eje y, y se utiliza el color y la forma de los puntos para distinguir entre los diferentes métodos de estimación. Se utiliza la función `fct_reorder2()` para ordenar las regiones de manera ascendente según su tamaño muestral `n`.
+
+La capa `geom_errorbar()` se utiliza para agregar los intervalos de confianza de las estimaciones directas. Se utiliza el conjunto de datos `lims_IC` que contiene los límites de los intervalos de confianza. Se utiliza `ymin` y `ymax` para definir los límites inferior y superior de las barras de error, respectivamente, y `x` para definir la ubicación en el eje x de cada intervalo.
+
+La capa `geom_jitter()` se utiliza para agregar los puntos de las estimaciones de cada método, con un poco de ruido para que no se superpongan.
+
+Finalmente, la capa `labs()` se utiliza para agregar etiquetas a los ejes del gráfico. En este caso, se utiliza `Región` para el eje x. El objeto p contiene el gráfico creado.
