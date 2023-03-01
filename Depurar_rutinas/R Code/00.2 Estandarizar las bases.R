@@ -23,16 +23,7 @@ encuestaDOM %<>%
          id_region = str_pad(string = orden_region, width = 2, pad = "0"))
 
 ## Lectura de información auxiliar (covariable)
-auxiliar_org <-  readRDS("Data/auxiliar_org.Rds") %>%
-  select(
-    -c(
-      "F182013_stable_lights",
-      "X2016_crops.coverfraction",
-      "X2016_urban.coverfraction",
-      "accessibility",
-      "accessibility_walking_only"
-    )
-  ) %>%
+auxiliar_org <-  readRDS("Data/auxiliar_org.Rds")  %>%
   mutate(id_dominio = str_pad(
     string = id_municipio,
     width = 4,
